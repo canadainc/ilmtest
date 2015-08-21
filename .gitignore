@@ -1,0 +1,10 @@
+arm/*/*
+arm/Makefile
+arm/Makefile.Debug
+arm/Makefile.Release
+.settings/
+./translations/IlmTest.ts
+./translations/*.qm
+./translations/Makefile
+./translations/IlmTest.pro
+/arm
