@@ -22,7 +22,8 @@ public:
 	QuranHelper(DatabaseHelper* sql);
 	virtual ~QuranHelper();
 
-    Q_SLOT void fetchRandomVerseCount(QObject* caller);
+    Q_INVOKABLE void fetchRandomSurahs(QObject* caller);
+    Q_INVOKABLE void fetchRandomVerseCount(QObject* caller);
 	void lazyInit();
 };
 

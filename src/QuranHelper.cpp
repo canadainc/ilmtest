@@ -30,6 +30,12 @@ void QuranHelper::lazyInit()
 }
 
 
+void QuranHelper::fetchRandomSurahs(QObject* caller)
+{
+    m_sql->executeQuery(caller, "SELECT surahs.id AS sort_order,name || ' (' || transliteration || ')' AS value FROM surahs INNER JOIN chapters ON surahs.id=chapters.id ORDER BY RANDOM() LIMIT 4", QueryId::FetchRandomSurahs);
+}
+
+
 void QuranHelper::fetchRandomVerseCount(QObject* caller) {
     m_sql->executeQuery(caller, "SELECT name,transliteration,verse_count FROM surahs INNER JOIN chapters ON surahs.id=chapters.id ORDER BY RANDOM() LIMIT 1", QueryId::FetchRandomVerseCount);
 }
