@@ -22,8 +22,38 @@ NavigationPane
         settings.title: qsTr("Settings") + Retranslate.onLanguageChanged
         
         onFinished: {
-            quran.fetchRandomVerseCount(listView);
+            nextQuestion();
         }
+    }
+    
+    function onDataLoaded(id, data)
+    {
+        if (id == QueryId.FetchRandomVerseCount)
+        {
+            question.text = qsTr("How many verses does %1 (%2) contain?").arg(data[0].name).arg(data[0].transliteration);
+            var result = global.randomInt(1,2);
+            
+            if (result == 1)
+            {
+                data = offloader.generateChoices(data[0].verse_count);
+                adm.clear();
+                adm.append(data);
+                
+                numericInput.visible = false;
+                listView.visible = true;
+            } else {
+                numericInput.answer = data[0].verse_count;
+                
+                numericInput.visible = true;
+                listView.visible = false;
+            }
+        } else {
+            question.text = qsTr("Internal error! No question found~");
+        }
+    }
+    
+    function nextQuestion() {
+        quran.fetchRandomVerseCount(navigationPane);
     }
     
     Page
@@ -47,6 +77,7 @@ NavigationPane
                 ListView
                 {
                     id: listView
+                    visible: false
                     
                     dataModel: ArrayDataModel {
                         id: adm
@@ -64,21 +95,37 @@ NavigationPane
                     
                     onTriggered: {
                         if ( dataModel.data(indexPath).correct ) {
-                            quran.fetchRandomVerseCount(listView);
+                            nextQuestion();
+                        }
+                    }
+                }
+                
+                TextField
+                {
+                    id: numericInput
+                    property int answer
+                    inputMode: TextFieldInputMode.NumbersAndPunctuation
+                    visible: false
+                    
+                    validator: Validator
+                    {
+                        errorMessage: qsTr("Incorrect!")
+                        mode: ValidationMode.Custom
+                        
+                        onValidate: {
+                            valid = numericInput.text.length > 0 && parseInt(numericInput.text) == numericInput.answer;
                         }
                     }
                     
-                    function onDataLoaded(id, data)
-                    {
-                        if (id == QueryId.FetchRandomVerseCount)
+                    input.submitKey: SubmitKey.Submit
+                    input.onSubmitted: {
+                        console.log("UserEvent: NumericAnswerSubmitted", numericInput.text);
+                        validator.validate();
+                        
+                        if (validator.valid)
                         {
-                            question.text = qsTr("How many verses does %1 (%2) contain?").arg(data[0].name).arg(data[0].transliteration);
-                            
-                            data = offloader.generateChoices(data[0].verse_count);
-                            adm.clear();
-                            adm.append(data);
-                        } else {
-                            question.text = qsTr("Internal error! No question found~");
+                            numericInput.resetText();
+                            nextQuestion();
                         }
                     }
                 }
