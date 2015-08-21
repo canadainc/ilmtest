@@ -6,3 +6,5 @@
 #include <bb/system/InvokeManager>
 
 #include <QtConcurrentRun>
+
+#include <algorithm>

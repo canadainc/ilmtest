@@ -20,6 +20,10 @@ NavigationPane
         help.title: qsTr("Help") + Retranslate.onLanguageChanged
         settings.imageSource: "images/menu/ic_settings.png"
         settings.title: qsTr("Settings") + Retranslate.onLanguageChanged
+        
+        onFinished: {
+            quran.fetchRandomVerseCount(listView);
+        }
     }
     
     Page
@@ -29,6 +33,56 @@ NavigationPane
         Container
         {
             layout: DockLayout {}
+            
+            Container
+            {
+                Label
+                {
+                    id: question
+                    multiline: true
+                    horizontalAlignment: HorizontalAlignment.Fill
+                    textStyle.textAlign: TextAlign.Center
+                }
+                
+                ListView
+                {
+                    id: listView
+                    
+                    dataModel: ArrayDataModel {
+                        id: adm
+                    }
+                    
+                    listItemComponents: [
+                        ListItemComponent
+                        {
+                            StandardListItem
+                            {
+                                title: ListItemData.value.toString()
+                            }
+                        }
+                    ]
+                    
+                    onTriggered: {
+                        if ( dataModel.data(indexPath).correct ) {
+                            quran.fetchRandomVerseCount(listView);
+                        }
+                    }
+                    
+                    function onDataLoaded(id, data)
+                    {
+                        if (id == QueryId.FetchRandomVerseCount)
+                        {
+                            question.text = qsTr("How many verses does %1 (%2) contain?").arg(data[0].name).arg(data[0].transliteration);
+                            
+                            data = offloader.generateChoices(data[0].verse_count);
+                            adm.clear();
+                            adm.append(data);
+                        } else {
+                            question.text = qsTr("Internal error! No question found~");
+                        }
+                    }
+                }
+            }
             
             PermissionToast
             {

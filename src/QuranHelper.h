@@ -1,10 +1,6 @@
 #ifndef QuranHelper_H_
 #define QuranHelper_H_
 
-#define ENGLISH_TRANSLATION "english"
-
-#include "QueryId.h"
-
 #include <QVariant>
 
 namespace canadainc {
@@ -26,9 +22,8 @@ public:
 	QuranHelper(DatabaseHelper* sql);
 	virtual ~QuranHelper();
 
+    Q_SLOT void fetchRandomVerseCount(QObject* caller);
 	void lazyInit();
-
-    void setDatabaseName(QString const& name);
 };
 
 } /* namespace quran */

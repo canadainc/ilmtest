@@ -13,6 +13,8 @@ class Offloader : public QObject
 public:
     Offloader();
     virtual ~Offloader();
+
+    Q_INVOKABLE QVariantList generateChoices(int correctAnswer);
 };
 
 } /* namespace quran */

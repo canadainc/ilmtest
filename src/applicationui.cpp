@@ -96,6 +96,9 @@ void ApplicationUI::lazyInit()
     connect( &m_sql, SIGNAL( error(QString const&) ), &m_persistance, SLOT( onError(QString const&) ) );
     connect( &m_sql, SIGNAL( setupError(QString const&) ), &m_persistance, SLOT( onError(QString const&) ) );
 
+    QTime time = QTime::currentTime();
+    qsrand( (uint)time.msec() );
+
     emit lazyInitComplete();
 }
 
