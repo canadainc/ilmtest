@@ -24,7 +24,7 @@ public:
 	QuranHelper(DatabaseHelper* sql);
 	virtual ~QuranHelper();
 
-    Q_INVOKABLE void fetchRandomSurahs(QObject* caller);
+    Q_INVOKABLE void fetchRandomSurahs(QObject* caller, bool revelation=false);
     Q_INVOKABLE void fetchVersesForRandomSurah(QObject* caller);
     Q_INVOKABLE void fetchRandomVerseCount(QObject* caller);
     Q_INVOKABLE void fetchRandomSajdaSurah(QObject* caller);

@@ -34,9 +34,10 @@ void QuranHelper::lazyInit()
 }
 
 
-void QuranHelper::fetchRandomSurahs(QObject* caller)
+void QuranHelper::fetchRandomSurahs(QObject* caller, bool revelation)
 {
-    m_sql->executeQuery(caller, QString("SELECT surahs.id AS %2,%1 FROM surahs INNER JOIN chapters ON surahs.id=chapters.id ORDER BY RANDOM() LIMIT 4").arg( MERGE_COLUMNS("name", "transliteration", "value") ).arg(KEY_SORT_ORDER), QueryId::FetchRandomSurahs);
+    LOGGER(revelation);
+    m_sql->executeQuery(caller, QString("SELECT surahs.%3 AS %2,%1 FROM surahs INNER JOIN chapters ON surahs.id=chapters.id ORDER BY RANDOM() LIMIT 4").arg( MERGE_COLUMNS("name", "transliteration", "value") ).arg(KEY_SORT_ORDER).arg(revelation ? "revelation_order" : "id"), revelation ? QueryId::FetchSurahsByRevealed : QueryId::FetchRandomSurahs);
 }
 
 

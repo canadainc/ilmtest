@@ -48,12 +48,12 @@ NavigationPane
                 numericInput.visible = true;
                 listView.visible = false;
             }
-        } else if (id == QueryId.FetchRandomSurahs) {
+        } else if (id == QueryId.FetchRandomSurahs || id == QueryId.FetchSurahsByRevealed) {
             listView.rearrangeHandler.active = false;
             adm.clear();
             adm.append(data);
             
-            question.text = qsTr("Please arrange the following surahs in order.");
+            question.text = id == QueryId.FetchRandomSurahs ? qsTr("Please arrange the following surahs in order.") : qsTr("<html>Please arrange the following surahs in the <b>original order of revelation</b></html>");
             numericInput.visible = false;
             listView.visible = true;
             listView.rearrangeHandler.active = true;
@@ -103,17 +103,28 @@ NavigationPane
     function nextQuestion()
     {
         var result = global.randomInt(1,5);
+        var count = 0;
         
-        if (result == 1) {
-            quran.fetchVersesForRandomSurah(navigationPane);
-        } else if (result == 2) {
-            quran.fetchRandomVerseCount(navigationPane);
-        } else if (result == 3) {
-            quran.fetchRandomSajdaSurah(navigationPane);
-        } else if (result == 4) {
-            quran.fetchRandomSurahLocation(navigationPane);
-        } else {
-            quran.fetchRandomSurahs(navigationPane);
+        switch (result)
+        {
+            case 1:
+                quran.fetchVersesForRandomSurah(navigationPane);
+                break;
+            case 2:
+                quran.fetchRandomVerseCount(navigationPane);
+                break;
+            case 3:
+                quran.fetchRandomSajdaSurah(navigationPane);
+                break;
+            case 4:
+                quran.fetchRandomSurahLocation(navigationPane);
+                break;
+            case 5:
+                quran.fetchRandomSurahs(navigationPane, true);
+                break;
+            default:
+                quran.fetchRandomSurahs(navigationPane);
+                break;
         }
     }
     

@@ -49,9 +49,9 @@ void ApplicationUI::invoked(bb::system::InvokeRequest const& request) {
 void ApplicationUI::init(QString const& qmlDoc)
 {
     QMap<QString, QObject*> context;
-    context["quran"] = &m_quran;
-    context["offloader"] = &m_offloader;
     context["life"] = &m_life;
+    context["offloader"] = &m_offloader;
+    context["quran"] = &m_quran;
 
     setErrorHandler(&Persistance::onErrorMessage);
 
