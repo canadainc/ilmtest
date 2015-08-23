@@ -3,6 +3,7 @@
 
 #include "DatabaseHelper.h"
 #include "InvokeHelper.h"
+#include "LifelineManager.h"
 #include "NetworkProcessor.h"
 #include "Offloader.h"
 #include "Persistance.h"
@@ -25,6 +26,7 @@ class ApplicationUI : public QObject
     quran::QuranHelper m_quran;
     InvokeHelper m_invoke;
     Offloader m_offloader;
+    LifelineManager m_life;
 
     void init(QString const& qml);
 

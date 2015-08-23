@@ -146,6 +146,16 @@ NavigationPane
                         }
                     }
                 }
+            },
+            
+            ActionItem
+            {
+                title: qsTr("50/50") + Retranslate.onLanguageChanged
+
+                onTriggered: {
+                    console.log("UserEvent: FiftyFifty");
+                    life.useFiftyFifty(adm);
+                }
             }
         ]
         
@@ -205,8 +215,9 @@ NavigationPane
                     listItemComponents: [
                         ListItemComponent
                         {
-                            StandardListItem {
-                                status: ListItemData.correct ? "Correct" : ""
+                            StandardListItem
+                            {
+                                enabled: ListItemData.disabled != 1
                                 title: ListItemData.value.toString()
                             }
                         }

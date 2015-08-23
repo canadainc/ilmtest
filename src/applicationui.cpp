@@ -51,6 +51,7 @@ void ApplicationUI::init(QString const& qmlDoc)
     QMap<QString, QObject*> context;
     context["quran"] = &m_quran;
     context["offloader"] = &m_offloader;
+    context["life"] = &m_life;
 
     setErrorHandler(&Persistance::onErrorMessage);
 
