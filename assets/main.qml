@@ -30,7 +30,7 @@ NavigationPane
     {
         if (id == QueryId.FetchRandomVerseCount)
         {
-            question.text = qsTr("How many verses does %1 (%2) contain?").arg(data[0].name).arg(data[0].transliteration);
+            question.text = qsTr("How many verses does %1 contain?").arg(data[0].surah_name);
             var result = global.randomInt(1,2);
             
             if (result == 1 || true)
@@ -57,17 +57,62 @@ NavigationPane
             numericInput.visible = false;
             listView.visible = true;
             listView.rearrangeHandler.active = true;
+        } else if (id == QueryId.FetchVersesForRandomSurah || id == QueryId.FetchRandomSajdaSurah) {
+            listView.rearrangeHandler.active = false;
+            listView.visible = true;
+            data = offloader.mergeAndShuffle(data, tempData);
+            adm.clear();
+            adm.append(data);
+            
+            if (id == QueryId.FetchVersesForRandomSurah) {
+                question.text = qsTr("Which of the following are verses found in %1?").arg(surahName);
+            } else if (id == QueryId.FetchRandomSajdaSurah) {
+                question.text = qsTr("Which of the following surahs contain a Sujud al-Tilawah (Prostration of Qu'ran Recitation)?");
+            }
+        } else if (id == QueryId.PendingQuery) {
+            tempData = data;
+        } else if (id == QueryId.FetchSurahHeader) {
+            surahName = data[0].surah_name;
+        } else if (id == QueryId.FetchRandomSurahLocation) {
+            var type = data[0].type;
+            surahName = data[0].surah_name;
+            var i = global.randomInt(1,2);
+
+            data = offloader.generateBooleanChoices(
+                question,
+                qsTr("%1 was revealed in Mecca").arg(surahName),
+                i == 1 ? qsTr("%1 was revealed in Medina").arg(surahName) : qsTr("%1 was not revealed in Mecca").arg(surahName),
+                qsTr("Was %1 revealed in Mecca?").arg(surahName),
+                qsTr("Was %1 revealed in Medina?").arg(surahName),
+                qsTr("%1 was revealed in").arg(surahName),
+                qsTr("Mecca"),
+                qsTr("Medina")
+            );
+            
+            adm.clear();
+            adm.append(data);
+            listView.visible = true;
         } else {
             question.text = qsTr("Internal error! No question found~");
         }
     }
     
+    property string surahName
+    property variant tempData
+    
     function nextQuestion()
     {
-        var result = global.randomInt(1,2);
+        var result = global.randomInt(1,5);
+        result = 3;
         
-        if (result == 1 && false) {
+        if (result == 1) {
+            quran.fetchVersesForRandomSurah(navigationPane);
+        } else if (result == 2) {
             quran.fetchRandomVerseCount(navigationPane);
+        } else if (result == 3) {
+            quran.fetchRandomSajdaSurah(navigationPane);
+        } else if (result == 4) {
+            quran.fetchRandomSurahLocation(navigationPane);
         } else {
             quran.fetchRandomSurahs(navigationPane);
         }
@@ -107,9 +152,7 @@ NavigationPane
                             nextQuestion();
                         }
                     } else {
-                        var all = listView.selected();
-                        
-                        if (all && all.length > 0 && adm.data(all).correct) {
+                        if ( offloader.verifyMultipleChoice( adm, listView.selectionList() ) ) {
                             nextQuestion();
                         }
                     }
@@ -174,6 +217,7 @@ NavigationPane
                         ListItemComponent
                         {
                             StandardListItem {
+                                status: ListItemData.correct ? "Correct" : ""
                                 title: ListItemData.value.toString()
                             }
                         }

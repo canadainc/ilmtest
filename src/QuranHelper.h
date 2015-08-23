@@ -18,12 +18,17 @@ class QuranHelper : public QObject
 	DatabaseHelper* m_sql;
 	QString m_name;
 
+    void fetchSurahHeader(QObject* caller, int chapterNumber);
+
 public:
 	QuranHelper(DatabaseHelper* sql);
 	virtual ~QuranHelper();
 
     Q_INVOKABLE void fetchRandomSurahs(QObject* caller);
+    Q_INVOKABLE void fetchVersesForRandomSurah(QObject* caller);
     Q_INVOKABLE void fetchRandomVerseCount(QObject* caller);
+    Q_INVOKABLE void fetchRandomSajdaSurah(QObject* caller);
+    Q_INVOKABLE void fetchRandomSurahLocation(QObject* caller);
 	void lazyInit();
 };
 

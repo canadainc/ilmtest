@@ -86,6 +86,7 @@ void ApplicationUI::lazyInit()
     connect( &m_network, SIGNAL( downloadProgress(QVariant const&, qint64, qint64) ), this, SIGNAL( transferProgress(QVariant const&, qint64, qint64) ) );
     connect( &m_network, SIGNAL( uploadProgress(QVariant const&, qint64, qint64) ), this, SIGNAL( transferProgress(QVariant const&, qint64, qint64) ) );
 
+    m_sql.setVerboseLogging();
     m_sql.createDatabaseIfNotExists();
 
     m_quran.lazyInit();
@@ -95,9 +96,6 @@ void ApplicationUI::lazyInit()
     AppLogFetcher::create( &m_persistance, &ThreadUtils::compressFiles, this, false );
     connect( &m_sql, SIGNAL( error(QString const&) ), &m_persistance, SLOT( onError(QString const&) ) );
     connect( &m_sql, SIGNAL( setupError(QString const&) ), &m_persistance, SLOT( onError(QString const&) ) );
-
-    QTime time = QTime::currentTime();
-    qsrand( (uint)time.msec() );
 
     emit lazyInitComplete();
 }
