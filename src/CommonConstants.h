@@ -3,6 +3,8 @@
 
 #include <QUrl>
 
+#define KEY_SORT_ORDER "sort_order"
+
 namespace admin {
 
 struct CommonConstants

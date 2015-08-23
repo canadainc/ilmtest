@@ -33,7 +33,7 @@ NavigationPane
             question.text = qsTr("How many verses does %1 contain?").arg(data[0].surah_name);
             var result = global.randomInt(1,2);
             
-            if (result == 1 || true)
+            if (result == 1)
             {
                 data = offloader.generateChoices(data[0].verse_count);
                 adm.clear();
@@ -103,7 +103,6 @@ NavigationPane
     function nextQuestion()
     {
         var result = global.randomInt(1,5);
-        result = 3;
         
         if (result == 1) {
             quran.fetchVersesForRandomSurah(navigationPane);
@@ -138,17 +137,7 @@ NavigationPane
                             nextQuestion();
                         }
                     } else if (listView.rearrangeHandler.active) {
-                        var sorted = true;
-                        
-                        for (var i = 0; i < adm.size()-1; i++)
-                        {
-                            if (adm.value(i).sort_order > adm.value(i+1).sort_order) {
-                                sorted = false;
-                                break;
-                            }
-                        }
-                        
-                        if (sorted) {
+                        if ( offloader.verifyOrdered(adm) ) {
                             nextQuestion();
                         }
                     } else {

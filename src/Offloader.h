@@ -43,6 +43,7 @@ public:
     Q_INVOKABLE static QVariantList generateBooleanChoices(bb::cascades::AbstractTextControl* atc, QString const& trueString, QString const& falseString, QString const& truePrompt, QString const& falsePrompt, QString const& choiceText, QString const& correct, QString const& incorrect);
 
     Q_INVOKABLE static bool verifyMultipleChoice(bb::cascades::ArrayDataModel* adm, QVariantList const& selected);
+    Q_INVOKABLE static bool verifyOrdered(bb::cascades::ArrayDataModel* adm);
 };
 
 } /* namespace quran */

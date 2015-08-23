@@ -1,6 +1,7 @@
 #include "precompiled.h"
 
 #include "Offloader.h"
+#include "CommonConstants.h"
 #include "Logger.h"
 #include "TextUtils.h"
 
@@ -131,6 +132,22 @@ bool Offloader::verifyMultipleChoice(bb::cascades::ArrayDataModel* adm, QVariant
     }
 
     return correctIndices == selectedIndices;
+}
+
+
+bool Offloader::verifyOrdered(bb::cascades::ArrayDataModel* adm)
+{
+    bool sorted = true;
+
+    for (int i = 0; i < adm->size()-1; i++)
+    {
+        if ( adm->value(i).toMap().value(KEY_SORT_ORDER) > adm->value(i+1).toMap().value(KEY_SORT_ORDER) ) {
+            sorted = false;
+            break;
+        }
+    }
+
+    return sorted;
 }
 
 
