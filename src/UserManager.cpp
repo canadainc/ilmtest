@@ -1,37 +1,66 @@
 #include "UserManager.h"
 #include "Persistance.h"
 
-#define KEY_SETTING_NAME "userFullName"
-#define KEY_SETTING_KUNYA "userKunya"
-#define KEY_SETTING_FEMALE "userFullName"
+#define KEY_SETTING_USER_PROFILE "userProfile"
+#define KEY_USER_NAME "name"
+#define KEY_USER_KUNYA "kunya"
+#define KEY_USER_FEMALE "female"
 
 namespace ilmtest {
 
 using namespace canadainc;
 
-UserManager::UserManager()
+UserProfile::UserProfile() : female(false)
 {
+}
+
+UserManager::UserManager(Persistance* persist) : m_persist(persist) {
+    persist->registerForSetting(this, KEY_SETTING_USER_PROFILE);
 }
 
 
 void UserManager::onSettingChanged(QVariant newValue, QVariant key)
 {
-    emit profileChanged();
+    if ( key.toString() == KEY_SETTING_USER_PROFILE )
+    {
+        QVariantMap profile = newValue.toMap();
+        m_profile.name = profile.value(KEY_USER_NAME).toString();
+        m_profile.kunya = profile.value(KEY_USER_KUNYA).toString();
+        m_profile.female = profile.value(KEY_USER_FEMALE).toInt() == 1;
+
+        emit profileChanged();
+    }
 }
 
 
-QString UserManager::name() {
-    return m_persist->getValueFor(KEY_SETTING_NAME).toString();
+QString UserManager::name() const {
+    return m_profile.name;
 }
 
 
-QString UserManager::kunya() {
-    return m_persist->getValueFor(KEY_SETTING_KUNYA).toString();
+QString UserManager::kunya() const {
+    return m_profile.kunya;
 }
 
 
-bool UserManager::female() {
-    return m_persist->getValueFor(KEY_SETTING_FEMALE).toInt() == 1;
+bool UserManager::female() const {
+    return m_profile.female;
+}
+
+
+bool UserManager::profileSet() const {
+    return m_persist->contains(KEY_SETTING_USER_PROFILE);
+}
+
+
+void UserManager::saveProfile(QString const& name, QString const& kunya, bool female)
+{
+    QVariantMap qvm;
+    qvm[KEY_USER_FEMALE] = female ? 1 : 0;
+    qvm[KEY_USER_KUNYA] = kunya;
+    qvm[KEY_USER_NAME] = name;
+
+    m_persist->saveValueFor(KEY_SETTING_USER_PROFILE, qvm);
 }
 
 

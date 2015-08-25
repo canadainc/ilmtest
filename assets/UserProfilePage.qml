@@ -16,11 +16,8 @@ Page
         nameValidator.validate();
         kunyaValidator.validate();
         
-        if (nameValidator.valid && kunyaValidator.valid)
-        {
-            persist.saveValueFor( "userFullName", name.text.trim() );
-            persist.saveValueFor( "userKunya", kunya.text.trim() );
-            persist.saveValueFor( "userFemale", female.checked ? 1 : 0 );
+        if (nameValidator.valid && kunyaValidator.valid) {
+            user.saveProfile( name.text.trim(), kunya.text.trim(), female.checked );
         }
     }
     
@@ -120,23 +117,11 @@ Page
             repeat: false
             
             onTriggered: {
-                var value = persist.getValueFor("userKunya");
+                name.text = user.name;
+                kunya.text = user.kunya;
+                female.checked = user.female;
                 
-                if (value) {
-                    kunya.text = value;
-                }
-                
-                value = persist.getValueFor("female");
-                
-                if (value) {
-                    female.checked = value == 1;
-                }
-                
-                value = persist.getValueFor("userFullName");
-                
-                if (value) {
-                    name.text = value.toString();
-                } else {
+                if ( !user.profileSet ) {
                     name.requestFocus();
                 }
             }

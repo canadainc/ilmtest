@@ -9,6 +9,7 @@
 #include "Persistance.h"
 #include "QuranHelper.h"
 #include "TextUtils.h"
+#include "UserManager.h"
 
 #include <bb/system/CardDoneMessage>
 
@@ -27,6 +28,7 @@ class ApplicationUI : public QObject
     InvokeHelper m_invoke;
     Offloader m_offloader;
     LifelineManager m_life;
+    UserManager m_user;
 
     void init(QString const& qml);
 
