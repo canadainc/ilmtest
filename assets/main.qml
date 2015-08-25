@@ -1,5 +1,6 @@
 import bb.cascades 1.3
 import com.canadainc.data 1.0
+import bb.multimedia 1.0
 import "paddings.js" as Paddings
 
 NavigationPane
@@ -188,6 +189,7 @@ NavigationPane
                 {
                     id: listView
                     visible: false
+                    property alias mediaPlayer: mp
                     
                     dataModel: ArrayDataModel {
                         id: adm
@@ -214,6 +216,11 @@ NavigationPane
                             adm.move(event.fromIndexPath[0], event.toIndexPath[0]);
                         }
                         
+                        onMoveEnded: {
+                            mp.sourceUrl = "asset:///audio/choice03.mp3"
+                            mp.play();
+                        }
+                        
                         onMoveAborted: {
                             undoItemMove();
                         }
@@ -228,13 +235,44 @@ NavigationPane
                         {
                             StandardListItem
                             {
+                                id: sli
                                 enabled: ListItemData.disabled != 1
                                 title: ListItemData.value.toString()
+                                opacity: 0
+                                
+                                ListItem.onInitializedChanged: {
+                                    if (initialized) {
+                                        ft.play();
+                                    }
+                                }
+                                
+                                animations: [
+                                    FadeTransition {
+                                        id: ft
+                                        fromOpacity: 0
+                                        toOpacity: 1
+                                        easingCurve: StockCurve.SineOut
+                                        duration: 1000
+                                        delay: sli.ListItem.indexPath[0] * 1000
+                                        
+                                        onEnded: {
+                                            sli.ListItem.view.mediaPlayer.sourceUrl = "asset:///audio/choice03.mp3";
+                                            sli.ListItem.view.mediaPlayer.play();
+                                        }
+                                    }
+                                ]
                             }
                         }
                     ]
                     
                     onTriggered: {
+                        if ( isSelected(indexPath) ) {
+                            mp.sourceUrl = "asset:///audio/choice02.mp3"
+                        } else {
+                            mp.sourceUrl = "asset:///audio/choice01.mp3"
+                        }
+                        
+                        mp.play();
                         toggleSelection(indexPath);
                     }
                 }
@@ -280,6 +318,10 @@ NavigationPane
                 source = qml;
                 return createObject();
             }
+        },
+        
+        MediaPlayer {
+            id: mp
         }
     ]
 }

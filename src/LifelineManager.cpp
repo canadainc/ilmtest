@@ -29,7 +29,7 @@ void LifelineManager::useFiftyFifty(bb::cascades::ArrayDataModel* adm)
         int index = wrongChoices.takeFirst();
         QVariantMap qvm = adm->value(index).toMap();
         qvm[KEY_CHOICE_DISABLED] = 1;
-        adm->replace(i, qvm);
+        adm->replace(index, qvm);
     }
 }
 

@@ -11,8 +11,17 @@ Page
     actionBarAutoHideBehavior: ActionBarAutoHideBehavior.HideOnScroll
     actionBarFollowKeyboardPolicy: ActionBarFollowKeyboardPolicy.Never
     
-    function cleanUp() {
+    function cleanUp()
+    {
+        nameValidator.validate();
+        kunyaValidator.validate();
         
+        if (nameValidator.valid && kunyaValidator.valid)
+        {
+            persist.saveValueFor( "userFullName", name.text.trim() );
+            persist.saveValueFor( "userKunya", kunya.text.trim() );
+            persist.saveValueFor( "userFemale", female.checked ? 1 : 0 );
+        }
     }
     
     titleBar: TitleBar
@@ -34,6 +43,7 @@ Page
                 
                 validator: Validator
                 {
+                    id: nameValidator
                     errorMessage: qsTr("Invalid name") + Retranslate.onLanguageChanged
                     mode: ValidationMode.FocusLost
                     
@@ -80,6 +90,17 @@ Page
                         input.keyLayout: KeyLayout.Contact
                         inputMode: TextFieldInputMode.Text
                         input.submitKeyFocusBehavior: SubmitKeyFocusBehavior.Next
+                        
+                        validator: Validator
+                        {
+                            id: kunyaValidator
+                            errorMessage: qsTr("Invalid nickname") + Retranslate.onLanguageChanged
+                            mode: ValidationMode.FocusLost
+                            
+                            onValidate: { 
+                                valid = kunya.text.trim().length > 4;
+                            }
+                        }
                     }
                     
                     CheckBox
@@ -99,12 +120,22 @@ Page
             repeat: false
             
             onTriggered: {
-                var profile = persist.getValueFor("userProfile");
+                var value = persist.getValueFor("userKunya");
                 
-                if (profile)
-                {
-                    name.text = profile.name;
-                    female.checked = profile.female == 1;
+                if (value) {
+                    kunya.text = value;
+                }
+                
+                value = persist.getValueFor("female");
+                
+                if (value) {
+                    female.checked = value == 1;
+                }
+                
+                value = persist.getValueFor("userFullName");
+                
+                if (value) {
+                    name.text = value.toString();
                 } else {
                     name.requestFocus();
                 }
