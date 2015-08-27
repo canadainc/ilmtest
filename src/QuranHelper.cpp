@@ -15,6 +15,9 @@
 #define AYAT_AS_VALUE "content AS value"
 #define TRANSLATION_AS_DESCRIPTION "translation AS description"
 #define RANDOM_SURAH TextUtils::randInt(1,114)
+#define RESULT_SET_MIN 2
+#define RESULT_SET_MAX 8
+#define RESULT_SET_LIMIT TextUtils::randInt(RESULT_SET_MIN,RESULT_SET_MAX)
 
 namespace quran {
 
@@ -39,7 +42,7 @@ void QuranHelper::lazyInit()
 void QuranHelper::fetchRandomSurahs(QObject* caller, bool revelation)
 {
     LOGGER(revelation);
-    m_sql->executeQuery(caller, QString("SELECT surahs.%3 AS %2,%1 FROM surahs INNER JOIN chapters ON surahs.id=chapters.id ORDER BY RANDOM() LIMIT 4").arg( MERGE_COLUMNS("name", "transliteration", "value") ).arg(KEY_SORT_ORDER).arg(revelation ? "revelation_order" : "id"), revelation ? QueryId::FetchSurahsByRevealed : QueryId::FetchRandomSurahs);
+    m_sql->executeQuery(caller, QString("SELECT surahs.%3 AS %2,%1 FROM surahs INNER JOIN chapters ON surahs.id=chapters.id ORDER BY RANDOM() LIMIT %4").arg( MERGE_COLUMNS("name", "transliteration", "value") ).arg(KEY_SORT_ORDER).arg(revelation ? "revelation_order" : "id").arg(RESULT_SET_LIMIT), revelation ? QueryId::FetchSurahsByRevealed : QueryId::FetchRandomSurahs);
 }
 
 
@@ -60,8 +63,8 @@ void QuranHelper::fetchVersesForRandomSurah(QObject* caller)
     }
 
     fetchSurahHeader(caller, chapter);
-    m_sql->executeQuery(caller, QString("SELECT %2,%3,1 AS correct FROM ayahs INNER JOIN verses ON ayahs.surah_id=verses.chapter_id WHERE surah_id=%1 AND length(content) < 50 ORDER BY RANDOM() LIMIT 2").arg(chapter).arg(AYAT_AS_VALUE).arg(TRANSLATION_AS_DESCRIPTION), QueryId::PendingQuery);
-    m_sql->executeQuery(caller, QString("SELECT %2,%3 FROM ayahs INNER JOIN verses ON ayahs.surah_id=verses.chapter_id WHERE surah_id=%1 AND length(content) < 50 ORDER BY RANDOM() LIMIT 2").arg(wrongChapter).arg(AYAT_AS_VALUE).arg(TRANSLATION_AS_DESCRIPTION), QueryId::FetchVersesForRandomSurah);
+    m_sql->executeQuery(caller, QString("SELECT %2,%3,1 AS correct FROM ayahs INNER JOIN verses ON ayahs.surah_id=verses.chapter_id WHERE surah_id=%1 AND length(content) < 50 ORDER BY RANDOM() LIMIT %4").arg(chapter).arg(AYAT_AS_VALUE).arg(TRANSLATION_AS_DESCRIPTION).arg(2), QueryId::PendingQuery);
+    m_sql->executeQuery(caller, QString("SELECT %2,%3 FROM ayahs INNER JOIN verses ON ayahs.surah_id=verses.chapter_id WHERE surah_id=%1 AND length(content) < 50 ORDER BY RANDOM() LIMIT %4").arg(wrongChapter).arg(AYAT_AS_VALUE).arg(TRANSLATION_AS_DESCRIPTION).arg(2), QueryId::FetchVersesForRandomSurah);
 }
 
 
@@ -98,7 +101,7 @@ void QuranHelper::fetchSurahRandomVerses(QObject* caller)
 {
     int surahId = RANDOM_SURAH;
     fetchSurahHeader(caller, surahId);
-    m_sql->executeQuery(caller, QString("SELECT %1,%2,verse_id AS %3 FROM ayahs INNER JOIN verses ON ayahs.surah_id=verses.chapter_id WHERE surah_id=%4 AND length(content) < 50 GROUP BY %3 ORDER BY RANDOM() LIMIT 4").arg(AYAT_AS_VALUE).arg(TRANSLATION_AS_DESCRIPTION).arg(KEY_SORT_ORDER).arg(surahId), QueryId::FetchSurahRandomVerses);
+    m_sql->executeQuery(caller, QString("SELECT %1,%2,verse_id AS %3 FROM ayahs INNER JOIN verses ON ayahs.surah_id=verses.chapter_id WHERE surah_id=%4 AND length(content) < 50 GROUP BY %3 ORDER BY RANDOM() LIMIT %5").arg(AYAT_AS_VALUE).arg(TRANSLATION_AS_DESCRIPTION).arg(KEY_SORT_ORDER).arg(surahId).arg(RESULT_SET_LIMIT), QueryId::FetchSurahRandomVerses);
 }
 
 

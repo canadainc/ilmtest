@@ -3,7 +3,7 @@ import com.canadainc.data 1.0
 
 Page
 {
-    id: mainPage
+    id: examPage
     property string surahName
     property variant tempData
     signal answerPending(bool numeric, bool ordered);
@@ -131,25 +131,25 @@ Page
         switch (result)
         {
             case 1:
-                quran.fetchVersesForRandomSurah(mainPage);
+                quran.fetchVersesForRandomSurah(examPage);
                 break;
             case 2:
-                quran.fetchRandomVerseCount(mainPage);
+                quran.fetchRandomVerseCount(examPage);
                 break;
             case 3:
-                quran.fetchRandomSajdaSurah(mainPage);
+                quran.fetchRandomSajdaSurah(examPage);
                 break;
             case 4:
-                quran.fetchRandomSurahLocation(mainPage);
+                quran.fetchRandomSurahLocation(examPage);
                 break;
             case 5:
-                quran.fetchRandomSurahs(mainPage, true);
+                quran.fetchRandomSurahs(examPage, true);
                 break;
             case 6:
-                quran.fetchSurahRandomVerses(mainPage);
+                quran.fetchSurahRandomVerses(examPage);
                 break;
             default:
-                quran.fetchRandomSurahs(mainPage);
+                quran.fetchRandomSurahs(examPage);
                 break;
         }
     }
@@ -176,45 +176,6 @@ Page
                 } else {
                     answered( offloader.verifyMultipleChoice( adm, listView.selectionList() ) );
                 }
-            }
-        },
-        
-        ActionItem
-        {
-            imageSource: "images/list/lifelines/ic_lifeline_50.png"
-            title: qsTr("50/50") + Retranslate.onLanguageChanged
-            
-            onTriggered: {
-                console.log("UserEvent: FiftyFifty");
-                life.useFiftyFifty(adm, listView.rearrangeHandler.active);
-                
-                sound.playLifeLineSelect();
-            }
-        },
-        
-        ActionItem
-        {
-            imageSource: "images/list/lifelines/ic_lifeline_audience.png"
-            title: qsTr("Popular Opinion") + Retranslate.onLanguageChanged
-            
-            onTriggered: {
-                console.log("UserEvent: PopularOpinion");
-                var dialog = definition.init("PopularOpinionDialog.qml");
-                dialog.open();
-            }
-        },
-        
-        ActionItem
-        {
-            imageSource: "images/list/lifelines/ic_lifeline_take_one.png"
-            title: qsTr("Take One") + Retranslate.onLanguageChanged
-            
-            onTriggered: {
-                console.log("UserEvent: TakeOne");
-                
-                life.useTakeOne(adm, listView.rearrangeHandler.active);
-                
-                sound.playLifeLineSelect();
             }
         }
     ]
@@ -329,6 +290,7 @@ Page
                     }
                     
                     toggleSelection(indexPath);
+                    xyz.open();
                 }
             }
             
@@ -342,4 +304,10 @@ Page
             }
         }
     }
+    
+    attachedObjects: [
+        LifeLinePane {
+            
+        }
+    ]
 }

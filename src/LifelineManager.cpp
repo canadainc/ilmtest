@@ -44,7 +44,9 @@ void LifelineManager::eliminateIncorrect(bb::cascades::ArrayDataModel* adm, int 
 
     for (int i = adm->size()-1; i >= 0; i--)
     {
-        if ( !adm->value(i).toMap().contains(KEY_FLAG_CORRECT) ) {
+        QVariantMap current = adm->value(i).toMap();
+
+        if ( !current.contains(KEY_FLAG_CORRECT) && !current.contains(KEY_CHOICE_DISABLED) ) {
             wrongChoices << i;
         }
     }
