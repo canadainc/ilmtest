@@ -16,14 +16,14 @@ Container
         preferredHeight: 95
         preferredWidth: 95
         horizontalAlignment: HorizontalAlignment.Fill
-        verticalAlignment: VerticalAlignment.Fill
+        verticalAlignment: VerticalAlignment.Center
         
         ImageView
         {
             id: avatarImageView
-            imageSource: user.female ? "images/ic_bugs.png" : "images/ic_donate.png"
+            imageSource: user.female ? "images/title/ic_female.png" : "images/title/ic_male.png"
             horizontalAlignment: HorizontalAlignment.Fill
-            verticalAlignment: VerticalAlignment.Fill
+            verticalAlignment: VerticalAlignment.Center
             scalingMethod: ScalingMethod.AspectFill
         }
         
@@ -33,6 +33,7 @@ Container
             verticalAlignment: VerticalAlignment.Fill
             background: Color.create("#aaaaaa")
             layout: DockLayout {}
+            visible: false
             
             Label
             {

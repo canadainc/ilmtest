@@ -18,6 +18,7 @@ public:
         FetchRandomSurahs,
         FetchRandomVerseCount,
         FetchSurahHeader,
+        FetchSurahRandomVerses,
         FetchSurahsByRevealed,
         FetchVersesForRandomSurah,
         PendingQuery

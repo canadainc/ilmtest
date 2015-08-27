@@ -15,11 +15,13 @@ class LifelineManager : public QObject
 {
     Q_OBJECT
 
+    void eliminateIncorrect(bb::cascades::ArrayDataModel* adm, int count);
+
 public:
     LifelineManager();
     virtual ~LifelineManager();
 
-    Q_INVOKABLE void useFiftyFifty(bb::cascades::ArrayDataModel* adm);
+    Q_INVOKABLE void useFiftyFifty(bb::cascades::ArrayDataModel* adm, bool sorted=false);
 };
 
 } /* namespace canadainc */

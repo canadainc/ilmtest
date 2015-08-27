@@ -1,12 +1,10 @@
 import bb.cascades 1.3
 
-NavigationPane
+TabbedPane
 {
-    id: navigationPane
-    
-    onPopTransitionEnded: {
-        deviceUtils.cleanUpAndDestroy(page);
-    }
+    id: root
+    activeTab: welcomeTab
+    showTabsOnActionBar: true
     
     Menu.definition: CanadaIncMenu
     {
@@ -20,8 +18,27 @@ NavigationPane
         settings.title: qsTr("Settings") + Retranslate.onLanguageChanged
     }
     
-    WelcomePage
+    Tab
     {
-        id: welcomePage
+        id: welcomeTab
+        title: qsTr("Home") + Retranslate.onLanguageChanged
+        imageSource: "images/tabs/ic_home.png"
+        delegateActivationPolicy: TabDelegateActivationPolicy.ActivateWhenSelected
+        
+        delegate: Delegate {
+            source: "WelcomePane.qml"
+        }
+    }
+    
+    Tab
+    {
+        id: userTab
+        title: qsTr("Profile") + Retranslate.onLanguageChanged
+        imageSource: "images/tabs/ic_user.png"
+        delegateActivationPolicy: TabDelegateActivationPolicy.ActivateWhenSelected
+        
+        delegate: Delegate {
+            source: "UserProfilePane.qml"
+        }
     }
 }

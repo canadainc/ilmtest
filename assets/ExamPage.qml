@@ -7,9 +7,50 @@ Page
     id: mainPage
     property string surahName
     property variant tempData
+    signal answerPending(bool numeric, bool ordered);
+    signal answered(bool correctly);
+    
+    onAnswerPending: {
+        listView.rearrangeHandler.active = false;
+        
+        listView.visible = !numeric;
+        numericInput.visible = numeric;
+        listView.rearrangeHandler.active = ordered;
+        
+        clock.reset();
+        clock.start();
+    }
+    
+    onAnswered: {
+        if (correctly) {
+            nextQuestion();
+        } else {
+            persist.showToast( "You failedsh Mush!!", "images/bugs/ic_bugs_cancel.png" );
+            navigationPane.pop();
+        }
+    }
+    
+    titleBar: TitleBar
+    {
+        kind: TitleBarKind.FreeForm
+        kindProperties: FreeFormTitleBarKindProperties
+        {
+            Clock {
+                id: clock
+                
+                onExpired: {
+                    navigationPane.pop();
+                }
+            }
+        }
+    }
     
     function onDataLoaded(id, data)
     {
+        if (data.length == 0) {
+            nextQuestion();
+        }
+        
         if (id == QueryId.FetchRandomVerseCount)
         {
             question.text = qsTr("How many verses does %1 contain?").arg(data[0].surah_name);
@@ -20,28 +61,26 @@ Page
                 data = offloader.generateChoices(data[0].verse_count);
                 adm.clear();
                 adm.append(data);
-                
-                numericInput.visible = false;
-                listView.visible = true;
-                listView.rearrangeHandler.active = false;
             } else {
                 numericInput.answer = data[0].verse_count;
-                
-                numericInput.visible = true;
-                listView.visible = false;
             }
-        } else if (id == QueryId.FetchRandomSurahs || id == QueryId.FetchSurahsByRevealed) {
+            
+            answerPending(result == 1, false);
+        } else if (id == QueryId.FetchRandomSurahs || id == QueryId.FetchSurahsByRevealed || id == QueryId.FetchSurahRandomVerses) {
             listView.rearrangeHandler.active = false;
             adm.clear();
             adm.append(data);
             
-            question.text = id == QueryId.FetchRandomSurahs ? qsTr("Please arrange the following surahs in order.") : qsTr("<html>Please arrange the following surahs in the <b>original order of revelation</b></html>");
-            numericInput.visible = false;
-            listView.visible = true;
-            listView.rearrangeHandler.active = true;
+            if (id == QueryId.FetchRandomSurahs) {
+                question.text = qsTr("Please arrange the following surahs in order.");
+            } else if (id == QueryId.FetchSurahsByRevealed) {
+                question.text = qsTr("<html>Please arrange the following surahs in the <b>original order of revelation</b></html>");
+            } else {
+                question.text = qsTr("Please arrange the following verses from %1 in order").arg(surahName);
+            }
+
+            answerPending(false, true);
         } else if (id == QueryId.FetchVersesForRandomSurah || id == QueryId.FetchRandomSajdaSurah) {
-            listView.rearrangeHandler.active = false;
-            listView.visible = true;
             data = offloader.mergeAndShuffle(data, tempData);
             adm.clear();
             adm.append(data);
@@ -51,6 +90,8 @@ Page
             } else if (id == QueryId.FetchRandomSajdaSurah) {
                 question.text = qsTr("Which of the following surahs contain a Sujud al-Tilawah (Prostration of Qu'ran Recitation)?");
             }
+            
+            answerPending(false, false);
         } else if (id == QueryId.PendingQuery) {
             tempData = data;
         } else if (id == QueryId.FetchSurahHeader) {
@@ -73,7 +114,8 @@ Page
             
             adm.clear();
             adm.append(data);
-            listView.visible = true;
+
+            answerPending(false, false);
         } else {
             question.text = qsTr("Internal error! No question found~");
         }
@@ -81,8 +123,7 @@ Page
     
     function nextQuestion()
     {
-        var result = global.randomInt(1,5);
-        var count = 0;
+        var result = global.randomInt(1,7);
         
         switch (result)
         {
@@ -101,6 +142,9 @@ Page
             case 5:
                 quran.fetchRandomSurahs(mainPage, true);
                 break;
+            case 6:
+                quran.fetchSurahRandomVerses(mainPage);
+                break;
             default:
                 quran.fetchRandomSurahs(mainPage);
                 break;
@@ -108,39 +152,42 @@ Page
     }
     
     actions: [
-        ActionItem {
+        ActionItem
+        {
+            imageSource: "images/menu/ic_check.png"
             title: qsTr("Accept")
             ActionBar.placement: ActionBarPlacement.Signature
             
             onTriggered: {
+                clock.stop();
+                mp.sourceUrl = "asset:///audio/inputted.mp3"
+                mp.play();
+                
                 if (numericInput.visible)
                 {
                     numericInput.resetText();
                     
                     var input = numericInput.text.trim();
-                    
-                    if ( input.length > 0 && parseInt(input) == numericInput.answer ) {
-                        nextQuestion();
-                    }
+                    answered( input.length > 0 && parseInt(input) == numericInput.answer );
                 } else if (listView.rearrangeHandler.active) {
-                    if ( offloader.verifyOrdered(adm) ) {
-                        nextQuestion();
-                    }
+                    answered( offloader.verifyOrdered(adm) );
                 } else {
-                    if ( offloader.verifyMultipleChoice( adm, listView.selectionList() ) ) {
-                        nextQuestion();
-                    }
+                    answered( offloader.verifyMultipleChoice( adm, listView.selectionList() ) );
                 }
             }
         },
         
         ActionItem
         {
+            imageSource: "images/list/lifelines/ic_lifeline_50.png"
             title: qsTr("50/50") + Retranslate.onLanguageChanged
             
             onTriggered: {
                 console.log("UserEvent: FiftyFifty");
-                life.useFiftyFifty(adm);
+                life.useFiftyFifty(adm, listView.rearrangeHandler.active);
+                
+                mp.sourceUrl = "asset:///audio/sfx02.mp3"
+                mp.play();
             }
         }
     ]
@@ -212,10 +259,13 @@ Page
                             id: sli
                             enabled: ListItemData.disabled != 1
                             title: ListItemData.value.toString()
+                            description: ListItemData.description ? ListItemData.description : ""
+                            imageSource: "images/list/choices/%1.png".arg(ListItem.indexPath[0])
                             opacity: 0
                             
                             ListItem.onInitializedChanged: {
-                                if (initialized) {
+                                if (initialized)
+                                {
                                     opacity = 0;
                                     ft.play();
                                 }
@@ -259,26 +309,6 @@ Page
                 inputMode: TextFieldInputMode.NumbersAndPunctuation
                 visible: false
                 input.submitKey: SubmitKey.Submit
-            }
-        }
-        
-        PermissionToast
-        {
-            id: permissions
-            horizontalAlignment: HorizontalAlignment.Right
-            verticalAlignment: VerticalAlignment.Center
-            
-            function process()
-            {
-                var allMessages = [];
-                var allIcons = [];
-                
-                if (allMessages.length > 0)
-                {
-                    messages = allMessages;
-                    icons = allIcons;
-                    delegateActive = true;
-                }
             }
         }
     }

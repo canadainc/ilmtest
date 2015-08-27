@@ -29,6 +29,7 @@ public:
     Q_INVOKABLE void fetchRandomVerseCount(QObject* caller);
     Q_INVOKABLE void fetchRandomSajdaSurah(QObject* caller);
     Q_INVOKABLE void fetchRandomSurahLocation(QObject* caller);
+    Q_INVOKABLE void fetchSurahRandomVerses(QObject* caller);
 	void lazyInit();
 };
 

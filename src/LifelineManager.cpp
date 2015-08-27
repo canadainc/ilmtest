@@ -1,5 +1,6 @@
 #include "LifelineManager.h"
 #include "CommonConstants.h"
+#include "TextUtils.h"
 
 #define KEY_CHOICE_DISABLED "disabled"
 
@@ -10,9 +11,28 @@ LifelineManager::LifelineManager()
 }
 
 
-void LifelineManager::useFiftyFifty(bb::cascades::ArrayDataModel* adm)
+void LifelineManager::useFiftyFifty(bb::cascades::ArrayDataModel* adm, bool sorted)
 {
-    int choicesToRemove = adm->size()/2;
+    int n = adm->size()/2;
+
+    if (sorted)
+    {
+        int start = canadainc::TextUtils::randInt(0,n-1);
+
+        for (int i = start; i < n; i += 2)
+        {
+            if ( adm->value(i).toMap().value(KEY_SORT_ORDER).toInt() > adm->value(i+1).toMap().value(KEY_SORT_ORDER).toInt() ) {
+                adm->swap(i, i+1);
+            }
+        }
+    } else {
+        eliminateIncorrect(adm, n);
+    }
+}
+
+
+void LifelineManager::eliminateIncorrect(bb::cascades::ArrayDataModel* adm, int choicesToRemove)
+{
     QList<int> wrongChoices;
 
     for (int i = adm->size()-1; i >= 0; i--)
