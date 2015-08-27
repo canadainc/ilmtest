@@ -55,14 +55,12 @@ ProgressIndicator
 
 			onTriggered: {
                 currentValue -= 1;
-                console.log("*** SDLFKJSDL", currentValue);
 
                 if (currentValue == -1)
                 {
                     stop();
                     expired();
                 } else {
-                    console.log("*** SDLFKJSDL3", currentValue);
                     if (currentValue < 10) {
 	                    clock.state = ProgressIndicatorState.Error;
 	                } else if (currentValue < 20) {

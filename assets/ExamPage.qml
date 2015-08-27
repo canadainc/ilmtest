@@ -190,6 +190,18 @@ Page
                 
                 sound.playLifeLineSelect();
             }
+        },
+        
+        ActionItem
+        {
+            imageSource: "images/list/lifelines/ic_lifeline_audience.png"
+            title: qsTr("Popular Opinion") + Retranslate.onLanguageChanged
+            
+            onTriggered: {
+                console.log("UserEvent: PopularOpinion");
+                var dialog = definition.init("PopularOpinionDialog.qml");
+                dialog.open();
+            }
         }
     ]
     
