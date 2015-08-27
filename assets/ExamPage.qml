@@ -202,6 +202,20 @@ Page
                 var dialog = definition.init("PopularOpinionDialog.qml");
                 dialog.open();
             }
+        },
+        
+        ActionItem
+        {
+            imageSource: "images/list/lifelines/ic_lifeline_take_one.png"
+            title: qsTr("Take One") + Retranslate.onLanguageChanged
+            
+            onTriggered: {
+                console.log("UserEvent: TakeOne");
+                
+                life.useTakeOne(adm, listView.rearrangeHandler.active);
+                
+                sound.playLifeLineSelect();
+            }
         }
     ]
     
