@@ -10,6 +10,8 @@ NavigationPane
     
     Page
     {
+        id: welcomePage
+        
         actions: [
             ActionItem
             {

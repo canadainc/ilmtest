@@ -17,7 +17,7 @@ using namespace canadainc;
 
 ApplicationUI::ApplicationUI(bb::system::InvokeManager* im) : m_sql( QString("%1/master.db").arg( QDir::homePath() ) ),
         m_persistance(im),
-        m_quran(&m_sql), m_invoke(im), m_user(&m_persistance)
+        m_quran(&m_sql), m_invoke(im), m_sound(&m_persistance), m_user(&m_persistance)
 {
     switch ( im->startupMode() )
     {
@@ -52,6 +52,7 @@ void ApplicationUI::init(QString const& qmlDoc)
     context["life"] = &m_life;
     context["offloader"] = &m_offloader;
     context["quran"] = &m_quran;
+    context["sound"] = &m_sound;
     context["user"] = &m_user;
 
     setErrorHandler(&Persistance::onErrorMessage);
@@ -92,6 +93,7 @@ void ApplicationUI::lazyInit()
     m_sql.createDatabaseIfNotExists();
 
     m_quran.lazyInit();
+    m_sound.lazyInit();
 
     m_invoke.process();
 

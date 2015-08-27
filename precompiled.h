@@ -3,6 +3,8 @@
 #include <bb/cascades/ArrayDataModel>
 #include <bb/cascades/QmlDocument>
 
+#include <bb/multimedia/MediaPlayer>
+
 #include <bb/system/CardDoneMessage>
 #include <bb/system/InvokeManager>
 

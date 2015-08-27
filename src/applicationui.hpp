@@ -8,6 +8,7 @@
 #include "Offloader.h"
 #include "Persistance.h"
 #include "QuranHelper.h"
+#include "SoundManager.h"
 #include "TextUtils.h"
 #include "UserManager.h"
 
@@ -28,6 +29,7 @@ class ApplicationUI : public QObject
     InvokeHelper m_invoke;
     Offloader m_offloader;
     LifelineManager m_life;
+    SoundManager m_sound;
     UserManager m_user;
 
     void init(QString const& qml);

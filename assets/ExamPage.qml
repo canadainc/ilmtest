@@ -1,5 +1,4 @@
 import bb.cascades 1.3
-import bb.multimedia 1.0
 import com.canadainc.data 1.0
 
 Page
@@ -9,6 +8,10 @@ Page
     property variant tempData
     signal answerPending(bool numeric, bool ordered);
     signal answered(bool correctly);
+    
+    function cleanUp() {
+        clock.stop();
+    }
     
     onAnswerPending: {
         listView.rearrangeHandler.active = false;
@@ -160,8 +163,7 @@ Page
             
             onTriggered: {
                 clock.stop();
-                mp.sourceUrl = "asset:///audio/inputted.mp3"
-                mp.play();
+                sound.playUserInput();
                 
                 if (numericInput.visible)
                 {
@@ -186,8 +188,7 @@ Page
                 console.log("UserEvent: FiftyFifty");
                 life.useFiftyFifty(adm, listView.rearrangeHandler.active);
                 
-                mp.sourceUrl = "asset:///audio/sfx02.mp3"
-                mp.play();
+                sound.playLifeLineSelect();
             }
         }
     ]
@@ -206,11 +207,15 @@ Page
                 textStyle.textAlign: TextAlign.Center
             }
             
+            Divider {
+                bottomMargin: 0
+            }
+            
             ListView
             {
                 id: listView
                 visible: false
-                property alias mediaPlayer: mp
+                property variant soundManager: sound
                 
                 dataModel: ArrayDataModel {
                     id: adm
@@ -238,8 +243,7 @@ Page
                     }
                     
                     onMoveEnded: {
-                        mp.sourceUrl = "asset:///audio/choice03.mp3"
-                        mp.play();
+                        sound.playPresentChoice();
                     }
                     
                     onMoveAborted: {
@@ -271,19 +275,20 @@ Page
                                 }
                             }
                             
+                            onOpacityChanged: {
+                                if (opacity == 1) {
+                                    sli.ListItem.view.soundManager.playPresentChoice();
+                                }
+                            }
+                            
                             animations: [
                                 FadeTransition {
                                     id: ft
                                     fromOpacity: 0
                                     toOpacity: 1
                                     easingCurve: StockCurve.SineOut
-                                    duration: 1000
-                                    delay: sli.ListItem.indexPath[0] * 1000
-                                    
-                                    onEnded: {
-                                        sli.ListItem.view.mediaPlayer.sourceUrl = "asset:///audio/choice03.mp3";
-                                        sli.ListItem.view.mediaPlayer.play();
-                                    }
+                                    duration: global.presentAnimSpeed
+                                    delay: sli.ListItem.indexPath[0] * global.presentAnimSpeed
                                 }
                             ]
                         }
@@ -292,12 +297,11 @@ Page
                 
                 onTriggered: {
                     if ( isSelected(indexPath) ) {
-                        mp.sourceUrl = "asset:///audio/choice02.mp3"
+                        sound.playDeselect();
                     } else {
-                        mp.sourceUrl = "asset:///audio/choice01.mp3"
+                        sound.playSelectChoice();
                     }
                     
-                    mp.play();
                     toggleSelection(indexPath);
                 }
             }
@@ -312,10 +316,4 @@ Page
             }
         }
     }
-    
-    attachedObjects: [
-        MediaPlayer {
-            id: mp
-        }
-    ]
 }

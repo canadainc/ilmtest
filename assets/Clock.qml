@@ -1,34 +1,50 @@
-import bb.cascades 1.0
 import QtQuick 1.0
-import bb.multimedia 1.0
+import bb.cascades 1.0
 
 ProgressIndicator
 {
     id: clock
     property int currentValue
-    signal expired();
     signal ready();
+    signal expired();
     fromValue: 0
     toValue: 30;
-    
-    onCreationCompleted: {
-        tick.prepare();
-    }
+    scaleX: 0
+    value: currentValue
     
     function start() {
-        timer.start();
+        scaler.play();
     }
     
-    function stop() {
+    function stop()
+    {
         timer.stop();
-        tick.stop();
+        sound.stopClock();
     }
     
-    function reset() {
+    function reset()
+    {
         currentValue = toValue;
-        value = currentValue;
         state = ProgressIndicatorState.Progress;
+        scaleX = 0;
     }
+    
+    animations: [
+        ScaleTransition
+        {
+            id: scaler
+            fromX: 0
+            toX: 1
+            duration: 1000
+            
+            onEnded: {
+                sound.playClock();
+                
+                ready();
+                timer.start();
+            }
+        }
+    ]
 
     attachedObjects: [
         Timer {
@@ -39,33 +55,20 @@ ProgressIndicator
 
 			onTriggered: {
                 currentValue -= 1;
+                console.log("*** SDLFKJSDL", currentValue);
 
-                if (currentValue == -1) {
+                if (currentValue == -1)
+                {
                     stop();
                     expired();
                 } else {
-                    if (tick.mediaState != MediaState.Started) {
-                        tick.play();
-                    }
-
-                    clock.value = currentValue;
-
+                    console.log("*** SDLFKJSDL3", currentValue);
                     if (currentValue < 10) {
 	                    clock.state = ProgressIndicatorState.Error;
 	                } else if (currentValue < 20) {
 	                    clock.state = ProgressIndicatorState.Pause;
 	                }
                 }
-            }
-        },
-        
-        MediaPlayer {
-            id: tick
-            sourceUrl: "asset:///audio/clock.mp3"
-            repeatMode: RepeatMode.Track
-            
-            onDurationChanged: {
-                ready();
             }
         }
     ]
