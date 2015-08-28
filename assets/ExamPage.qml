@@ -290,7 +290,6 @@ Page
                     }
                     
                     toggleSelection(indexPath);
-                    xyz.open();
                 }
             }
             
@@ -307,7 +306,7 @@ Page
     
     attachedObjects: [
         LifeLinePane {
-            
+            id: llp
         }
     ]
 }
