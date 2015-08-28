@@ -1,6 +1,7 @@
 #include "precompiled.h"
 
 #include "SoundManager.h"
+#include "AppLogFetcher.h"
 #include "Logger.h"
 #include "Persistance.h"
 
@@ -29,36 +30,44 @@ void SoundManager::onSettingChanged(QVariant newValue, QVariant key)
     if ( key.toString() == KEY_MUTE_SOUND )
     {
         m_muted = newValue.toInt() == 1;
+
+        if ( !m_muted && m_map.isEmpty() )
+        {
+            QStringList keys = QStringList() << FILE_CHOICE_PRESENT << FILE_CLOCK << FILE_CORRECT << FILE_DESELECT_CHOICE << FILE_LIFELINE_SELECT << FILE_QUESTION_PRESENT << FILE_SELECT_CHOICE << FILE_USER_INPUT;
+
+            foreach (QString const& key, keys)
+            {
+                MediaPlayer* mp = new MediaPlayer(this);
+                mp->setSourceUrl( QUrl(key) );
+                mp->prepare();
+
+                if (key == FILE_CLOCK) {
+                    mp->setRepeatMode(RepeatMode::Track);
+                }
+
+                m_map.insert(key, mp);
+            }
+
+            LOGGER( "Prepared" << keys.size() );
+        }
+
         emit mutedChanged();
     }
 }
 
 
-void SoundManager::lazyInit()
-{
-    QStringList keys = QStringList() << FILE_CHOICE_PRESENT << FILE_CLOCK << FILE_CORRECT << FILE_DESELECT_CHOICE << FILE_LIFELINE_SELECT << FILE_QUESTION_PRESENT << FILE_SELECT_CHOICE << FILE_USER_INPUT;
-
-    foreach (QString const& key, keys)
-    {
-        MediaPlayer* mp = new MediaPlayer(this);
-        mp->setSourceUrl( QUrl(key) );
-        mp->prepare();
-
-        if (key == FILE_CLOCK) {
-            mp->setRepeatMode(RepeatMode::Track);
-        }
-
-        m_map.insert(key, mp);
-    }
-
-    LOGGER( "Prepared" << keys.size() );
-
+void SoundManager::lazyInit() {
     m_persist->registerForSetting(this, KEY_MUTE_SOUND);
 }
 
 
-void SoundManager::setMuted(bool mute) {
-    m_persist->saveValueFor(KEY_MUTE_SOUND, mute ? 1 : 0);
+void SoundManager::setMuted(bool mute)
+{
+    bool changed = m_persist->saveValueFor(KEY_MUTE_SOUND, mute ? 1 : 0);
+
+    if (changed) {
+        AppLogFetcher::getInstance()->record( "MuteSounds", mute ? "1" : "0" );
+    }
 }
 
 
@@ -117,8 +126,11 @@ void SoundManager::playUserInput() {
 }
 
 
-void SoundManager::stopClock() {
-    m_map.value(FILE_CLOCK)->stop();
+void SoundManager::stopClock()
+{
+    if (!m_muted) {
+        m_map.value(FILE_CLOCK)->stop();
+    }
 }
 
 

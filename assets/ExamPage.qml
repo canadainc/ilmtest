@@ -68,7 +68,7 @@ Page
                 numericInput.answer = data[0].verse_count;
             }
             
-            answerPending(result == 1, false);
+            answerPending(result > 1, false);
         } else if (id == QueryId.FetchRandomSurahs || id == QueryId.FetchSurahsByRevealed || id == QueryId.FetchSurahRandomVerses) {
             listView.rearrangeHandler.active = false;
             adm.clear();

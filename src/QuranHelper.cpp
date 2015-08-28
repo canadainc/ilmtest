@@ -11,6 +11,7 @@
 #define DB_ENGLISH "quran_english"
 #define MERGE_COLUMNS(col1, col2, alias) QString("%1 || ' (' || %2 || ')' AS %3").arg(col1).arg(col2).arg(alias)
 #define MERGE_SURAH_NAME MERGE_COLUMNS("name", "transliteration", "surah_name")
+#define MERGE_SURAH_VALUE MERGE_COLUMNS("name", "transliteration", "value")
 #define SURAH_AS_VALUE "name AS value"
 #define AYAT_AS_VALUE "content AS value"
 #define TRANSLATION_AS_DESCRIPTION "translation AS description"
@@ -73,8 +74,8 @@ void QuranHelper::fetchRandomSajdaSurah(QObject* caller)
     int correctAnswerLimits = TextUtils::randInt(1,4);
     int incorrectAnswerLimits = TextUtils::randInt(0,4-correctAnswerLimits);
 
-    m_sql->executeQuery(caller, QString("SELECT %1,1 AS correct FROM sajdas INNER JOIN surahs ON sajdas.surah_id=surahs.id INNER JOIN chapters ON surahs.id=chapters.id ORDER BY RANDOM() LIMIT %2").arg(SURAH_AS_VALUE).arg(correctAnswerLimits), QueryId::PendingQuery);
-    m_sql->executeQuery(caller, QString("SELECT %1 FROM surahs INNER JOIN chapters ON surahs.id=chapters.id WHERE surahs.id NOT IN (SELECT surah_id FROM sajdas) ORDER BY RANDOM() LIMIT %2").arg(SURAH_AS_VALUE).arg(incorrectAnswerLimits), QueryId::FetchRandomSajdaSurah);
+    m_sql->executeQuery(caller, QString("SELECT %1,1 AS correct FROM sajdas INNER JOIN surahs ON sajdas.surah_id=surahs.id INNER JOIN chapters ON surahs.id=chapters.id ORDER BY RANDOM() LIMIT %2").arg(MERGE_SURAH_VALUE).arg(correctAnswerLimits), QueryId::PendingQuery);
+    m_sql->executeQuery(caller, QString("SELECT %1 FROM surahs INNER JOIN chapters ON surahs.id=chapters.id WHERE surahs.id NOT IN (SELECT surah_id FROM sajdas) ORDER BY RANDOM() LIMIT %2").arg(MERGE_SURAH_VALUE).arg(incorrectAnswerLimits), QueryId::FetchRandomSajdaSurah);
 }
 
 
