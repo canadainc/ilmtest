@@ -17,7 +17,7 @@ Page
     function nextQuestion()
     {
         var result = global.randomInt(QueryId.Unknown+1, QueryId.PendingQuery-1);
-        game.nextQuestion(examPage, QueryId.FetchRandomSurahsByLength);
+        game.nextQuestion(examPage, result);
     }
     
     onAnswerPending: {
@@ -86,6 +86,8 @@ Page
                 
                 if (id == QueryId.FetchRandomVerseCount) {
                     x = x.arg(data[0].surah_name);
+                } else if (id == QueryId.GetBirthYearForIndividual) {
+                    x = x.arg(data[0].name);
                 }
                 
                 question.text = x;
@@ -206,10 +208,12 @@ Page
                 
                 onVisibleChanged: {
                     opacity = 0;
+                    ft.play();
                 }
                 
                 animations: [
                     FadeTransition {
+                        id: ft
                         fromOpacity: 0
                         toOpacity: 1
                         duration: 1000

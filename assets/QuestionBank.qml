@@ -19,6 +19,7 @@ QtObject
             map[QueryId.FetchTotalAyatCount] = qsTr("How many total ayats are there in the Qu'ran?");
             map[QueryId.FetchMaxVerseCount] = qsTr("How many verses are there in the longest surah in the Qu'ran?");
             map[QueryId.FetchMinVerseCount] = qsTr("How many verses are there in the shortest surah in the Qu'ran?");
+            map[QueryId.GetBirthYearForIndividual] = qsTr("What year (after Hijrah) was %1 born?");
             numericDB = map;
         }
         

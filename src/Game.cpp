@@ -6,7 +6,7 @@
 
 namespace ilmtest {
 
-Game::Game(QObject* quranHelper) : m_quran(quranHelper)
+Game::Game(QObject* quranHelper, QObject* ilm) : m_quran(quranHelper), m_ilm(ilm)
 {
 }
 
@@ -24,7 +24,13 @@ void Game::nextQuestion(QObject* caller, int t)
     QByteArray qba = f.toUtf8();
     const char* func = qba.constData();
 
-    QMetaObject::invokeMethod( m_quran, func, Qt::QueuedConnection, Q_ARG(QObject*, caller) );
+    QObject* target = m_quran;
+
+    if (t > QueryId::FetchVersesForRandomSurah) {
+        target = m_ilm;
+    }
+
+    QMetaObject::invokeMethod( target, func, Qt::QueuedConnection, Q_ARG(QObject*, caller) );
 }
 
 

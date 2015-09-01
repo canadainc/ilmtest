@@ -5,6 +5,7 @@
 
 #define KEY_FLAG_CORRECT "correct"
 #define KEY_SORT_ORDER "sort_order"
+#define TOTAL_COUNT_VALUE "total_count"
 
 namespace admin {
 

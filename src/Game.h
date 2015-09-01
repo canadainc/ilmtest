@@ -11,9 +11,10 @@ class Game : public QObject
     Q_OBJECT
 
     QObject* m_quran;
+    QObject* m_ilm;
 
 public:
-    Game(QObject* quran);
+    Game(QObject* quran, QObject* ilm);
     virtual ~Game();
 
     void lazyInit();

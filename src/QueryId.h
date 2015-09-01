@@ -25,6 +25,7 @@ public:
         FetchTotalAyatCount,
         FetchTotalSurahCount,
         FetchVersesForRandomSurah,
+        GetBirthYearForIndividual,
         PendingQuery,
         FetchSurahHeader
     };

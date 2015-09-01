@@ -3,6 +3,7 @@
 
 #include "DatabaseHelper.h"
 #include "Game.h"
+#include "IlmHelper.h"
 #include "InvokeHelper.h"
 #include "LifelineManager.h"
 #include "NetworkProcessor.h"
@@ -27,6 +28,7 @@ class ApplicationUI : public QObject
     Persistance m_persistance;
     NetworkProcessor m_network;
     quran::QuranHelper m_quran;
+    IlmHelper m_ilm;
     InvokeHelper m_invoke;
     Offloader m_offloader;
     LifelineManager m_life;

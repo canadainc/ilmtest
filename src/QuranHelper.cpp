@@ -9,7 +9,6 @@
 
 #define DB_ARABIC "quran_arabic"
 #define DB_ENGLISH "quran_english"
-#define TOTAL_COUNT_VALUE "total_count"
 #define FETCH_TABLE_COUNT(table) QString("SELECT COUNT() AS %1 FROM %2").arg(TOTAL_COUNT_VALUE).arg(table)
 #define MERGE_COLUMNS(col1, col2, alias) QString("%1 || ' (' || %2 || ')' AS %3").arg(col1).arg(col2).arg(alias)
 #define MERGE_SURAH_NAME MERGE_COLUMNS("name", "transliteration", "surah_name")
