@@ -22,6 +22,7 @@ public:
     LifelineManager();
     virtual ~LifelineManager();
 
+    Q_INVOKABLE void useAskExpert(bb::cascades::ArrayDataModel* adm, bool sorted=false);
     Q_INVOKABLE void useFiftyFifty(bb::cascades::ArrayDataModel* adm, bool sorted=false);
     Q_INVOKABLE void useTakeOne(bb::cascades::ArrayDataModel* adm, bool sorted=false);
 };

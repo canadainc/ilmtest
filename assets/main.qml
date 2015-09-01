@@ -1,3 +1,4 @@
+import bb.system 1.2
 import bb.cascades 1.3
 
 TabbedPane
@@ -41,4 +42,24 @@ TabbedPane
             source: "UserProfilePane.qml"
         }
     }
+    
+    function onLoading(current, total)
+    {
+        toaster.statusMessage = "%1/%2".arg(current).arg(total);
+        toaster.progress = (current/total)*100;
+        toaster.show();
+    }
+    
+    onCreationCompleted: {
+        sound.loadProgress.connect(onLoading);
+    }
+    
+    attachedObjects: [
+        SystemProgressToast {
+            id: toaster
+            autoUpdateEnabled: true
+            body: qsTr("Loading audio...") + Retranslate.onLanguageChanged
+            state: sound.muted ? SystemUiProgressState.Active : SystemUiProgressState.Inactive
+        }
+    ]
 }

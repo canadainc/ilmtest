@@ -19,6 +19,7 @@ public:
         FetchRandomSajdaSurah,
         FetchRandomSurahLocation,
         FetchRandomSurahs,
+        FetchRandomSurahsByLength,
         FetchRandomVerseCount,
         FetchSurahRandomVerses,
         FetchTotalAyatCount,

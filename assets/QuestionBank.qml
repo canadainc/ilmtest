@@ -33,6 +33,7 @@ QtObject
             map[QueryId.FetchRandomSurahs] = qsTr("Please arrange the following surahs in order.");
             map[QueryId.FetchSurahsByRevealed] = qsTr("<html>Please arrange the following surahs in the <b>original order of revelation</b></html>");
             map[QueryId.FetchSurahRandomVerses] = qsTr("Please arrange the following verses from %1 in order");
+            map[QueryId.FetchRandomSurahsByLength] = qsTr("Please arrange the following surahs in order from shortest to longest.");
             rearrangeDB = map;
         }
         
@@ -41,7 +42,7 @@ QtObject
     
     function isStandard(type)
     {
-        if (!rearrangeDB)
+        if (!standardDB)
         {
             var map = {};
             map[QueryId.FetchVersesForRandomSurah] = qsTr("Which of the following are verses found in %1?");

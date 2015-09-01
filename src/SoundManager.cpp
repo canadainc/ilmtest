@@ -20,7 +20,8 @@ namespace ilmtest {
 
 using namespace bb::multimedia;
 
-SoundManager::SoundManager(Persistance* p) : m_persist(p), m_muted(true)
+SoundManager::SoundManager(Persistance* p) :
+        m_persist(p), m_muted(true), m_loaded(0)
 {
 }
 
@@ -38,8 +39,8 @@ void SoundManager::onSettingChanged(QVariant newValue, QVariant key)
             foreach (QString const& key, keys)
             {
                 MediaPlayer* mp = new MediaPlayer(this);
+                connect( mp, SIGNAL( mediaStateChanged(bb::multimedia::MediaState::Type) ), this, SLOT( mediaStateChanged(bb::multimedia::MediaState::Type) ) );
                 mp->setSourceUrl( QUrl(key) );
-                mp->prepare();
 
                 if (key == FILE_CLOCK) {
                     mp->setRepeatMode(RepeatMode::Track);
@@ -48,10 +49,24 @@ void SoundManager::onSettingChanged(QVariant newValue, QVariant key)
                 m_map.insert(key, mp);
             }
 
-            LOGGER( "Prepared" << keys.size() );
+            foreach ( QString const& key, m_map.keys() )
+            {
+                MediaPlayer* mp = m_map.value(key);
+                mp->prepare();
+            }
+
+            LOGGER( "Preparing" << keys.size() );
         }
 
         emit mutedChanged();
+    }
+}
+
+
+void SoundManager::mediaStateChanged(bb::multimedia::MediaState::Type mediaState)
+{
+    if (mediaState == MediaState::Prepared) {
+        emit loadProgress( ++m_loaded, m_map.size() );
     }
 }
 

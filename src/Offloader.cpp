@@ -140,7 +140,7 @@ bool Offloader::verifyOrdered(bb::cascades::ArrayDataModel* adm)
 
     for (int i = 0; i < adm->size()-1; i++)
     {
-        if ( adm->value(i).toMap().value(KEY_SORT_ORDER).toInt() > adm->value(i+1).toMap().value(KEY_SORT_ORDER).toInt() ) {
+        if ( adm->value(i).toMap().value(KEY_SORT_ORDER).toInt() >= adm->value(i+1).toMap().value(KEY_SORT_ORDER).toInt() ) {
             sorted = false;
             break;
         }

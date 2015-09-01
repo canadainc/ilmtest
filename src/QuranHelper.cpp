@@ -122,12 +122,18 @@ void QuranHelper::fetchTotalAyatCount(QObject* caller) {
     m_sql->executeQuery(caller, FETCH_TABLE_COUNT("ayahs"), QueryId::FetchTotalAyatCount);
 }
 
+
 void QuranHelper::fetchMaxVerseCount(QObject* caller) {
     m_sql->executeQuery(caller, QString("SELECT MAX(verse_count) AS %1 FROM surahs").arg(TOTAL_COUNT_VALUE), QueryId::FetchMaxVerseCount);
 }
 
 void QuranHelper::fetchMinVerseCount(QObject* caller) {
     m_sql->executeQuery(caller, QString("SELECT MIN(verse_count) AS %1 FROM surahs").arg(TOTAL_COUNT_VALUE), QueryId::FetchMinVerseCount);
+}
+
+
+void QuranHelper::fetchRandomSurahsByLength(QObject* caller) {
+    m_sql->executeQuery(caller, QString("SELECT surahs.verse_count AS %2,%1 FROM surahs INNER JOIN chapters ON surahs.id=chapters.id ORDER BY RANDOM() LIMIT %4").arg( MERGE_COLUMNS("name", "transliteration", "value") ).arg(KEY_SORT_ORDER).arg(RESULT_SET_LIMIT), QueryId::FetchRandomSurahsByLength);
 }
 
 

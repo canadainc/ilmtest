@@ -9,8 +9,8 @@ QtObject
         
         onTriggered: {
             console.log("UserEvent: FiftyFifty");
+
             life.useFiftyFifty(adm, listView.rearrangeHandler.active);
-            
             sound.playLifeLineSelect();
         }
     }
@@ -36,7 +36,6 @@ QtObject
             console.log("UserEvent: TakeOne");
             
             life.useTakeOne(adm, listView.rearrangeHandler.active);
-            
             sound.playLifeLineSelect();
         }
     }
@@ -54,10 +53,24 @@ QtObject
         }
     }
     
+    property variant askExpert: ActionItem
+    {
+        imageSource: "images/list/lifelines/ic_lifeline_expert.png"
+        title: qsTr("Ask an Expert") + Retranslate.onLanguageChanged
+        
+        onTriggered: {
+            console.log("UserEvent: AskExpert");
+            
+            life.useAskExpert(adm, listView.rearrangeHandler.active);
+            sound.playLifeLineSelect();
+        }
+    }
+    
     onCreationCompleted: {
         examPage.addAction(fifty);
         examPage.addAction(popularOpinion);
         examPage.addAction(takeOne);
         examPage.addAction(changeQuestion);
+        examPage.addAction(askExpert);
     }
 }

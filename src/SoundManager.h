@@ -5,6 +5,8 @@
 #include <QMap>
 #include <QString>
 
+#include <bb/multimedia/MediaState>
+
 namespace bb {
     namespace multimedia {
         class MediaPlayer;
@@ -28,13 +30,16 @@ class SoundManager : public QObject
     QMap<QString, MediaPlayer*> m_map;
     Persistance* m_persist;
     bool m_muted;
+    int m_loaded;
 
     void playSound(QString const& key);
 
 private slots:
+    void mediaStateChanged(bb::multimedia::MediaState::Type mediaState);
     void onSettingChanged(QVariant newValue, QVariant key);
 
 signals:
+    void loadProgress(int current, qreal total);
     void mutedChanged();
 
 public:

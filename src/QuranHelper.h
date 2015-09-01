@@ -35,6 +35,7 @@ public:
     Q_INVOKABLE void fetchTotalAyatCount(QObject* caller);
     Q_INVOKABLE void fetchMaxVerseCount(QObject* caller);
     Q_INVOKABLE void fetchMinVerseCount(QObject* caller);
+    Q_INVOKABLE void fetchRandomSurahsByLength(QObject* caller);
 	void lazyInit();
 };
 

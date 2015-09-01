@@ -20,6 +20,7 @@ void Game::nextQuestion(QObject* caller, int t)
 {
     QString f = QString( QueryId::staticMetaObject.enumerator(0).valueToKey( (QueryId::Type)t ) );
     f = f.at(0).toLower() + f.mid(1);
+    LOGGER(f);
     QByteArray qba = f.toUtf8();
     const char* func = qba.constData();
 

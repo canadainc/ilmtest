@@ -5,10 +5,43 @@
 
 #define KEY_CHOICE_DISABLED "disabled"
 
+namespace {
+
+void bubbleSort(bb::cascades::ArrayDataModel* adm)
+{
+    int n = adm->size();
+
+    for (int i = 0; i < n; i++)
+    {
+        for(int j = 0; j < n-1; j++)
+        {
+            if ( adm->value(j).toMap().value(KEY_SORT_ORDER).toInt() > adm->value(j+1).toMap().value(KEY_SORT_ORDER).toInt() ) {
+                adm->swap(j, j+1);
+            }
+        }
+    }
+}
+
+}
+
 namespace ilmtest {
 
 LifelineManager::LifelineManager()
 {
+}
+
+
+void LifelineManager::useAskExpert(bb::cascades::ArrayDataModel* adm, bool sorted)
+{
+    LOGGER(sorted);
+
+    int n = adm->size();
+
+    if (sorted) {
+        bubbleSort(adm);
+    } else {
+        eliminateIncorrect(adm, n);
+    }
 }
 
 
