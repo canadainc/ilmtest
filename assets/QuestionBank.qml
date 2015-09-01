@@ -32,7 +32,7 @@ QtObject
         {
             var map = {};
             map[QueryId.FetchRandomSurahs] = qsTr("Please arrange the following surahs in order.");
-            map[QueryId.FetchSurahsByRevealed] = qsTr("<html>Please arrange the following surahs in the <b>original order of revelation</b></html>");
+            map[QueryId.FetchRandomRevelationSurahs] = qsTr("<html>Please arrange the following surahs in the <b>original order of revelation</b></html>");
             map[QueryId.FetchSurahRandomVerses] = qsTr("Please arrange the following verses from %1 in order");
             map[QueryId.FetchRandomSurahsByLength] = qsTr("Please arrange the following surahs in order from shortest to longest.");
             rearrangeDB = map;
