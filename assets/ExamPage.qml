@@ -6,7 +6,8 @@ Page
     id: examPage
     property string surahName
     property variant tempData
-    signal answerPending(bool numeric, bool ordered);
+    property variant numericDB
+    signal answerPending(bool numeric, bool ordered, variant data);
     signal answered(bool correctly);
     
     function cleanUp() {
@@ -17,8 +18,15 @@ Page
         listView.rearrangeHandler.active = false;
         
         listView.visible = !numeric;
+        numericInput.resetText();
         numericInput.visible = numeric;
         listView.rearrangeHandler.active = ordered;
+        
+        if (listView.visible)
+        {
+            adm.clear();
+            adm.append(data);
+        }
         
         clock.reset();
         clock.start();
@@ -31,6 +39,11 @@ Page
             persist.showToast( "You failedsh Mush!!", "images/bugs/ic_bugs_cancel.png" );
             navigationPane.pop();
         }
+    }
+    
+    onCreationCompleted: {
+        var map = {};
+        
     }
     
     titleBar: TitleBar
@@ -48,110 +61,85 @@ Page
         }
     }
     
+    function processNumeric(answerValue)
+    {
+        var result = global.randomInt(1,2);
+        var data;
+        
+        if (result == 1) {
+            data = offloader.generateChoices(answerValue);
+        } else {
+            numericInput.answer = answerValue;
+        }
+        
+        answerPending(result > 1, false, data);
+    }
+    
     function onDataLoaded(id, data)
     {
         if (data.length == 0) {
             nextQuestion();
-        }
-        
-        if (id == QueryId.FetchRandomVerseCount)
-        {
-            question.text = qsTr("How many verses does %1 contain?").arg(data[0].surah_name);
-            var result = global.randomInt(1,2);
-            
-            if (result == 1)
-            {
-                data = offloader.generateChoices(data[0].verse_count);
-                adm.clear();
-                adm.append(data);
-            } else {
-                numericInput.answer = data[0].verse_count;
-            }
-            
-            answerPending(result > 1, false);
-        } else if (id == QueryId.FetchRandomSurahs || id == QueryId.FetchSurahsByRevealed || id == QueryId.FetchSurahRandomVerses) {
-            listView.rearrangeHandler.active = false;
-            adm.clear();
-            adm.append(data);
-            
-            if (id == QueryId.FetchRandomSurahs) {
-                question.text = qsTr("Please arrange the following surahs in order.");
-            } else if (id == QueryId.FetchSurahsByRevealed) {
-                question.text = qsTr("<html>Please arrange the following surahs in the <b>original order of revelation</b></html>");
-            } else {
-                question.text = qsTr("Please arrange the following verses from %1 in order").arg(surahName);
-            }
-
-            answerPending(false, true);
-        } else if (id == QueryId.FetchVersesForRandomSurah || id == QueryId.FetchRandomSajdaSurah) {
-            data = offloader.mergeAndShuffle(data, tempData);
-            adm.clear();
-            adm.append(data);
-            
-            if (id == QueryId.FetchVersesForRandomSurah) {
-                question.text = qsTr("Which of the following are verses found in %1?").arg(surahName);
-            } else if (id == QueryId.FetchRandomSajdaSurah) {
-                question.text = qsTr("Which of the following surahs contain a Sujud al-Tilawah (Prostration of Qu'ran Recitation)?");
-            }
-            
-            answerPending(false, false);
-        } else if (id == QueryId.PendingQuery) {
-            tempData = data;
-        } else if (id == QueryId.FetchSurahHeader) {
-            surahName = data[0].surah_name;
-        } else if (id == QueryId.FetchRandomSurahLocation) {
-            var type = data[0].type;
-            surahName = data[0].surah_name;
-            var i = global.randomInt(1,2);
-            
-            data = offloader.generateBooleanChoices(
-            question,
-            qsTr("%1 was revealed in Mecca").arg(surahName),
-            i == 1 ? qsTr("%1 was revealed in Medina").arg(surahName) : qsTr("%1 was not revealed in Mecca").arg(surahName),
-            qsTr("Was %1 revealed in Mecca?").arg(surahName),
-            qsTr("Was %1 revealed in Medina?").arg(surahName),
-            qsTr("%1 was revealed in").arg(surahName),
-            qsTr("Mecca"),
-            qsTr("Medina")
-            );
-            
-            adm.clear();
-            adm.append(data);
-
-            answerPending(false, false);
         } else {
-            question.text = qsTr("Internal error! No question found~");
+            if ( qb.isNumeric(id) )
+            {
+                var x = qb.getBody(id);
+                
+                if (id == QueryId.FetchRandomVerseCount) {
+                    x = x.arg(data[0].surah_name);
+                }
+                
+                question.text = x;
+                processNumeric(data[0].total_count);
+            } else if ( qb.isOrdered(id) ) {
+                var x = qb.getBody(id);
+                
+                if (id == QueryId.FetchSurahRandomVerses) {
+                    x = x.arg(surahName);
+                }
+                
+                question.text = x;
+                answerPending(false, true, data);
+            } else if ( qb.isStandard(id) ) {
+                data = offloader.mergeAndShuffle(data, tempData);
+                var x = qb.getBody(id);
+                
+                if (id == QueryId.FetchVersesForRandomSurah) {
+                    x = x.arg(surahName);
+                }
+                
+                question.text = x;
+                answerPending(false, false, data);
+            } else if (id == QueryId.FetchRandomSurahLocation) {
+                var type = data[0].type;
+                surahName = data[0].surah_name;
+                var i = global.randomInt(1,2);
+                
+                data = offloader.generateBooleanChoices(
+                question,
+                qsTr("%1 was revealed in Mecca").arg(surahName),
+                i == 1 ? qsTr("%1 was revealed in Medina").arg(surahName) : qsTr("%1 was not revealed in Mecca").arg(surahName),
+                qsTr("Was %1 revealed in Mecca?").arg(surahName),
+                qsTr("Was %1 revealed in Medina?").arg(surahName),
+                qsTr("%1 was revealed in").arg(surahName),
+                qsTr("Mecca"),
+                qsTr("Medina")
+                );
+                
+                answerPending(false, false, data);
+            } else if (id == QueryId.PendingQuery) {
+                tempData = data;
+            } else if (id == QueryId.FetchSurahHeader) {
+                surahName = data[0].surah_name;
+            } else {
+                question.text = qsTr("Internal error! No question found~");
+            }
         }
     }
     
     function nextQuestion()
     {
-        var result = global.randomInt(1,7);
-        
-        switch (result)
-        {
-            case 1:
-                quran.fetchVersesForRandomSurah(examPage);
-                break;
-            case 2:
-                quran.fetchRandomVerseCount(examPage);
-                break;
-            case 3:
-                quran.fetchRandomSajdaSurah(examPage);
-                break;
-            case 4:
-                quran.fetchRandomSurahLocation(examPage);
-                break;
-            case 5:
-                quran.fetchRandomSurahs(examPage, true);
-                break;
-            case 6:
-                quran.fetchSurahRandomVerses(examPage);
-                break;
-            default:
-                quran.fetchRandomSurahs(examPage);
-                break;
-        }
+        var result = global.randomInt(QueryId.Unknown+1, QueryId.PendingQuery-1);
+        game.nextQuestion(examPage, result);
     }
     
     actions: [
@@ -167,8 +155,6 @@ Page
                 
                 if (numericInput.visible)
                 {
-                    numericInput.resetText();
-                    
                     var input = numericInput.text.trim();
                     answered( input.length > 0 && parseInt(input) == numericInput.answer );
                 } else if (listView.rearrangeHandler.active) {
@@ -307,6 +293,10 @@ Page
     attachedObjects: [
         LifeLinePane {
             id: llp
+        },
+        
+        QuestionBank {
+            id: qb
         }
     ]
 }

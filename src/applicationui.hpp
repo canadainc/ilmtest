@@ -2,6 +2,7 @@
 #define ApplicationUI_HPP_
 
 #include "DatabaseHelper.h"
+#include "Game.h"
 #include "InvokeHelper.h"
 #include "LifelineManager.h"
 #include "NetworkProcessor.h"
@@ -31,6 +32,7 @@ class ApplicationUI : public QObject
     LifelineManager m_life;
     SoundManager m_sound;
     UserManager m_user;
+    Game m_game;
 
     void init(QString const& qml);
 

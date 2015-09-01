@@ -9,6 +9,8 @@
 
 #define DB_ARABIC "quran_arabic"
 #define DB_ENGLISH "quran_english"
+#define TOTAL_COUNT_VALUE "total_count"
+#define FETCH_TABLE_COUNT(table) QString("SELECT COUNT() AS %1 FROM %2").arg(TOTAL_COUNT_VALUE).arg(table)
 #define MERGE_COLUMNS(col1, col2, alias) QString("%1 || ' (' || %2 || ')' AS %3").arg(col1).arg(col2).arg(alias)
 #define MERGE_SURAH_NAME MERGE_COLUMNS("name", "transliteration", "surah_name")
 #define MERGE_SURAH_VALUE MERGE_COLUMNS("name", "transliteration", "value")
@@ -40,10 +42,15 @@ void QuranHelper::lazyInit()
 }
 
 
-void QuranHelper::fetchRandomSurahs(QObject* caller, bool revelation)
+void QuranHelper::fetchRandomSurahs(QObject* caller)
 {
-    LOGGER(revelation);
-    m_sql->executeQuery(caller, QString("SELECT surahs.%3 AS %2,%1 FROM surahs INNER JOIN chapters ON surahs.id=chapters.id ORDER BY RANDOM() LIMIT %4").arg( MERGE_COLUMNS("name", "transliteration", "value") ).arg(KEY_SORT_ORDER).arg(revelation ? "revelation_order" : "id").arg(RESULT_SET_LIMIT), revelation ? QueryId::FetchSurahsByRevealed : QueryId::FetchRandomSurahs);
+    m_sql->executeQuery(caller, QString("SELECT surahs.id AS %2,%1 FROM surahs INNER JOIN chapters ON surahs.id=chapters.id ORDER BY RANDOM() LIMIT %4").arg( MERGE_COLUMNS("name", "transliteration", "value") ).arg(KEY_SORT_ORDER).arg(RESULT_SET_LIMIT), QueryId::FetchRandomSurahs);
+}
+
+
+void QuranHelper::fetchRandomRevelationSurahs(QObject* caller)
+{
+    m_sql->executeQuery(caller, QString("SELECT surahs.revelation_order AS %2,%1 FROM surahs INNER JOIN chapters ON surahs.id=chapters.id ORDER BY RANDOM() LIMIT %4").arg( MERGE_COLUMNS("name", "transliteration", "value") ).arg(KEY_SORT_ORDER).arg(RESULT_SET_LIMIT), QueryId::FetchRandomRevelationSurahs);
 }
 
 
@@ -80,7 +87,7 @@ void QuranHelper::fetchRandomSajdaSurah(QObject* caller)
 
 
 void QuranHelper::fetchRandomVerseCount(QObject* caller) {
-    m_sql->executeQuery(caller, QString("SELECT %1,verse_count FROM surahs INNER JOIN chapters ON surahs.id=chapters.id ORDER BY RANDOM() LIMIT 1").arg(MERGE_SURAH_NAME), QueryId::FetchRandomVerseCount);
+    m_sql->executeQuery(caller, QString("SELECT %1,verse_count AS total_count FROM surahs INNER JOIN chapters ON surahs.id=chapters.id ORDER BY RANDOM() LIMIT 1").arg(MERGE_SURAH_NAME), QueryId::FetchRandomVerseCount);
 }
 
 
@@ -103,6 +110,24 @@ void QuranHelper::fetchSurahRandomVerses(QObject* caller)
     int surahId = RANDOM_SURAH;
     fetchSurahHeader(caller, surahId);
     m_sql->executeQuery(caller, QString("SELECT %1,%2,verse_id AS %3 FROM ayahs INNER JOIN verses ON ayahs.surah_id=verses.chapter_id WHERE surah_id=%4 AND length(content) < 50 GROUP BY %3 ORDER BY RANDOM() LIMIT %5").arg(AYAT_AS_VALUE).arg(TRANSLATION_AS_DESCRIPTION).arg(KEY_SORT_ORDER).arg(surahId).arg(RESULT_SET_LIMIT), QueryId::FetchSurahRandomVerses);
+}
+
+
+void QuranHelper::fetchTotalSurahCount(QObject* caller) {
+    m_sql->executeQuery(caller, FETCH_TABLE_COUNT("surahs"), QueryId::FetchTotalSurahCount);
+}
+
+
+void QuranHelper::fetchTotalAyatCount(QObject* caller) {
+    m_sql->executeQuery(caller, FETCH_TABLE_COUNT("ayahs"), QueryId::FetchTotalAyatCount);
+}
+
+void QuranHelper::fetchMaxVerseCount(QObject* caller) {
+    m_sql->executeQuery(caller, QString("SELECT MAX(verse_count) AS %1 FROM surahs").arg(TOTAL_COUNT_VALUE), QueryId::FetchMaxVerseCount);
+}
+
+void QuranHelper::fetchMinVerseCount(QObject* caller) {
+    m_sql->executeQuery(caller, QString("SELECT MIN(verse_count) AS %1 FROM surahs").arg(TOTAL_COUNT_VALUE), QueryId::FetchMinVerseCount);
 }
 
 

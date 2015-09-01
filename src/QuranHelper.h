@@ -24,12 +24,17 @@ public:
 	QuranHelper(DatabaseHelper* sql);
 	virtual ~QuranHelper();
 
-    Q_INVOKABLE void fetchRandomSurahs(QObject* caller, bool revelation=false);
+    Q_INVOKABLE void fetchRandomSurahs(QObject* caller);
+    Q_INVOKABLE void fetchRandomRevelationSurahs(QObject* caller);
     Q_INVOKABLE void fetchVersesForRandomSurah(QObject* caller);
     Q_INVOKABLE void fetchRandomVerseCount(QObject* caller);
     Q_INVOKABLE void fetchRandomSajdaSurah(QObject* caller);
     Q_INVOKABLE void fetchRandomSurahLocation(QObject* caller);
     Q_INVOKABLE void fetchSurahRandomVerses(QObject* caller);
+    Q_INVOKABLE void fetchTotalSurahCount(QObject* caller);
+    Q_INVOKABLE void fetchTotalAyatCount(QObject* caller);
+    Q_INVOKABLE void fetchMaxVerseCount(QObject* caller);
+    Q_INVOKABLE void fetchMinVerseCount(QObject* caller);
 	void lazyInit();
 };
 

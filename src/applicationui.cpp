@@ -16,8 +16,8 @@ using namespace bb::system;
 using namespace canadainc;
 
 ApplicationUI::ApplicationUI(bb::system::InvokeManager* im) : m_sql( QString("%1/master.db").arg( QDir::homePath() ) ),
-        m_persistance(im),
-        m_quran(&m_sql), m_invoke(im), m_sound(&m_persistance), m_user(&m_persistance)
+        m_persistance(im), m_quran(&m_sql), m_invoke(im),
+        m_sound(&m_persistance), m_user(&m_persistance), m_game(&m_quran)
 {
     switch ( im->startupMode() )
     {
@@ -49,6 +49,7 @@ void ApplicationUI::invoked(bb::system::InvokeRequest const& request) {
 void ApplicationUI::init(QString const& qmlDoc)
 {
     QMap<QString, QObject*> context;
+    context["game"] = &m_game;
     context["life"] = &m_life;
     context["offloader"] = &m_offloader;
     context["quran"] = &m_quran;
@@ -94,6 +95,7 @@ void ApplicationUI::lazyInit()
 
     m_quran.lazyInit();
     m_sound.lazyInit();
+    m_game.lazyInit();
 
     m_invoke.process();
 
