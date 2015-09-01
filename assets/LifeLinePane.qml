@@ -66,11 +66,25 @@ QtObject
         }
     }
     
+    property variant freezeClock: ActionItem
+    {
+        title: qsTr("Freeze Time") + Retranslate.onLanguageChanged
+        imageSource: "images/list/lifelines/ic_lifeline_clock.png"
+        
+        onTriggered: {
+            console.log("UserEvent: FreezeTime");
+            
+            clock.stop();
+            sound.playLifeLineSelect();
+        }
+    }
+    
     onCreationCompleted: {
         examPage.addAction(fifty);
         examPage.addAction(popularOpinion);
         examPage.addAction(takeOne);
         examPage.addAction(changeQuestion);
         examPage.addAction(askExpert);
+        examPage.addAction(freezeClock);
     }
 }

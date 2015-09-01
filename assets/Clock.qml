@@ -20,6 +20,7 @@ ProgressIndicator
     {
         timer.stop();
         sound.stopClock();
+        state = ProgressIndicatorState.Complete;
     }
     
     function reset()
