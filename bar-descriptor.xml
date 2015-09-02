@@ -109,6 +109,7 @@
 
     <asset path="/Users/synonymous2/workspace/java/CanadaIncIslamicUtils/res/quran10/quran_arabic.db">assets/dbase/quran_arabic.db</asset>
     <asset path="/Users/synonymous2/workspace/java/CanadaIncIslamicUtils/res/quran10/quran_english.db">assets/dbase/quran_english.db</asset>
+    <asset path="/Users/synonymous2/workspace/java/CanadaIncIslamicUtils/res/quran10/quran_tafsir_english.db">assets/dbase/quran_tafsir_english.db</asset>
 
     <!-- Request permission to execute native code.  Required for native applications. -->
     <permission system="true">run_native</permission>

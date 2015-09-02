@@ -16,8 +16,8 @@ using namespace bb::system;
 using namespace canadainc;
 
 ApplicationUI::ApplicationUI(bb::system::InvokeManager* im) : m_sql( QString("%1/master.db").arg( QDir::homePath() ) ),
-        m_persistance(im), m_quran(&m_sql), m_ilm(&m_sql), m_invoke(im),
-        m_sound(&m_persistance), m_user(&m_persistance), m_game(&m_quran, &m_ilm)
+        m_persistance(im), m_invoke(im),
+        m_sound(&m_persistance), m_user(&m_persistance), m_game(&m_sql)
 {
     switch ( im->startupMode() )
     {
@@ -92,8 +92,6 @@ void ApplicationUI::lazyInit()
     m_sql.setVerboseLogging();
     m_sql.createDatabaseIfNotExists();
 
-    m_quran.lazyInit();
-    m_ilm.lazyInit();
     m_sound.lazyInit();
     m_game.lazyInit();
 

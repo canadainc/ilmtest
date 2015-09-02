@@ -4,46 +4,48 @@ import com.canadainc.data 1.0
 Page
 {
     id: examPage
-    property string surahName
-    property variant tempData
-    property variant numericDB
-    signal answerPending(bool numeric, bool ordered, variant data);
-    signal answered(bool correctly);
     
-    function cleanUp() {
+    function cleanUp()
+    {
         clock.stop();
+        game.currentQuestionChanged.disconnect(onNewQuestion);
     }
     
     function nextQuestion()
     {
-        var result = global.randomInt(QueryId.Unknown+1, QueryId.PendingQuery-1);
-        game.nextQuestion(examPage, result);
+        var result = global.randomInt(QueryId.Unknown+1, QueryId.TempArgument1-1);
+        game.nextQuestion(QueryId.NumericMaxVerseCount);
     }
     
-    onAnswerPending: {
-        listView.rearrangeHandler.active = false;
-        listView.visible = !numeric;
+    function onNewQuestion()
+    {
+        var current = game.currentQuestion;
         
-        if (listView.visible)
+        numericInput.visible = false;
+        listView.visible = false;
+        listView.rearrangeHandler.active = false;
+        
+        question.text = qb.getBody(current.id);
+        
+        if (game.multipleChoice)
         {
             adm.clear();
-            adm.append(data);
+            adm.append(current.choices);
+            
+            listView.visible = true;
+            
+            if (current.ordered) {
+                listView.rearrangeHandler.active = true;
+            }
+        } else if (game.numeric) {
+            numericInput.visible = true;
         }
-        
-        numericInput.resetText();
-        numericInput.visible = numeric;
-        listView.rearrangeHandler.active = ordered;
         
         clock.reset();
     }
     
-    onAnswered: {
-        if (correctly) {
-            nextQuestion();
-        } else {
-            persist.showToast( "You failedsh Mush!!", "images/bugs/ic_bugs_cancel.png" );
-            navigationPane.pop();
-        }
+    onCreationCompleted: {
+        game.currentQuestionChanged.connect(onNewQuestion);
     }
     
     titleBar: TitleBar
@@ -55,85 +57,9 @@ Page
                 id: clock
                 
                 onExpired: {
+                    persist.showToast("POPPING");
                     navigationPane.pop();
                 }
-            }
-        }
-    }
-    
-    function processNumeric(answerValue)
-    {
-        var result = global.randomInt(1,2);
-        var data;
-        
-        if (result == 1) {
-            data = offloader.generateChoices(answerValue);
-        } else {
-            numericInput.answer = answerValue;
-        }
-        
-        answerPending(result > 1, false, data);
-    }
-    
-    function onDataLoaded(id, data)
-    {
-        if (data.length == 0) {
-            nextQuestion();
-        } else {
-            if ( qb.isNumeric(id) )
-            {
-                var x = qb.getBody(id);
-                
-                if (id == QueryId.FetchRandomVerseCount) {
-                    x = x.arg(data[0].surah_name);
-                } else if (id == QueryId.GetBirthYearForIndividual) {
-                    x = x.arg(data[0].name);
-                }
-                
-                question.text = x;
-                processNumeric(data[0].total_count);
-            } else if ( qb.isOrdered(id) ) {
-                var x = qb.getBody(id);
-                
-                if (id == QueryId.FetchSurahRandomVerses) {
-                    x = x.arg(surahName);
-                }
-                
-                question.text = x;
-                answerPending(false, true, data);
-            } else if ( qb.isStandard(id) ) {
-                data = offloader.mergeAndShuffle(data, tempData);
-                var x = qb.getBody(id);
-                
-                if (id == QueryId.FetchVersesForRandomSurah) {
-                    x = x.arg(surahName);
-                }
-                
-                question.text = x;
-                answerPending(false, false, data);
-            } else if (id == QueryId.FetchRandomSurahLocation) {
-                var type = data[0].type;
-                surahName = data[0].surah_name;
-                var i = global.randomInt(1,2);
-                
-                data = offloader.generateBooleanChoices(
-                question,
-                qsTr("%1 was revealed in Mecca").arg(surahName),
-                i == 1 ? qsTr("%1 was revealed in Medina").arg(surahName) : qsTr("%1 was not revealed in Mecca").arg(surahName),
-                qsTr("Was %1 revealed in Mecca?").arg(surahName),
-                qsTr("Was %1 revealed in Medina?").arg(surahName),
-                qsTr("%1 was revealed in").arg(surahName),
-                qsTr("Mecca"),
-                qsTr("Medina")
-                );
-                
-                answerPending(false, false, data);
-            } else if (id == QueryId.PendingQuery) {
-                tempData = data;
-            } else if (id == QueryId.FetchSurahHeader) {
-                surahName = data[0].surah_name;
-            } else {
-                question.text = qsTr("Internal error! No question found~");
             }
         }
     }
@@ -146,14 +72,26 @@ Page
             title: qsTr("Accept")
             ActionBar.placement: ActionBarPlacement.Signature
             
+            function answered(correctly)
+            {
+                if (correctly) {
+                    nextQuestion();
+                } else {
+                    persist.showToast( "You failedsh Mush!!", "images/bugs/ic_bugs_cancel.png" );
+                    navigationPane.pop();
+                }
+            }
+            
             onTriggered: {
+                console.log("UserEvent: FinalANswer");
+                
                 clock.stop();
                 sound.playUserInput();
                 
                 if (numericInput.visible)
                 {
                     var input = numericInput.text.trim();
-                    answered( input.length > 0 && parseInt(input) == numericInput.answer );
+                    answered( input.length > 0 && parseInt(input) == game.currentQuestion.answer );
                 } else if (listView.rearrangeHandler.active) {
                     answered( offloader.verifyOrdered(adm) );
                 } else {
@@ -184,23 +122,22 @@ Page
             MultipleChoiceListView
             {
                 id: listView
-                visible: false
                 
                 dataModel: ArrayDataModel {
                     id: adm
                 }
                 
                 onLayoutComplete: {
-                    clock.start();
+                    if (visible) {
+                        clock.start();
+                    }
                 }
             }
             
             TextField
             {
                 id: numericInput
-                property int answer
                 inputMode: TextFieldInputMode.NumbersAndPunctuation
-                visible: false
                 input.submitKey: SubmitKey.Submit
                 input.onSubmitted: {
                     finalAnswer.triggered();
@@ -208,7 +145,12 @@ Page
                 
                 onVisibleChanged: {
                     opacity = 0;
-                    ft.play();
+                    
+                    if (visible) {
+                        ft.play();
+                    } else {
+                        resetText();
+                    }
                 }
                 
                 animations: [

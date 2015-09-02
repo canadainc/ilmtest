@@ -13,21 +13,22 @@ class QueryId
 public:
     enum Type {
         Unknown,
-        FetchMaxVerseCount,
-        FetchMinVerseCount,
-        FetchRandomRevelationSurahs,
-        FetchRandomSajdaSurah,
-        FetchRandomSurahLocation,
-        FetchRandomSurahs,
-        FetchRandomSurahsByLength,
-        FetchRandomVerseCount,
-        FetchSurahRandomVerses,
-        FetchTotalAyatCount,
-        FetchTotalSurahCount,
-        FetchVersesForRandomSurah,
-        GetBirthYearForIndividual,
-        PendingQuery,
-        FetchSurahHeader
+        BoolSurahLocation,
+        NumericMaxVerseCount,
+        NumericMinVerseCount,
+        NumericTotalAyatCount,
+        NumericTotalSurahCount,
+        NumericVerseCount,
+        OrderedRevelationSurahs,
+        OrderedSurahs,
+        OrderedSurahsByLength,
+        OrderedSurahVerses,
+        StandardSajdaSurah,
+        StandardVersesForSurah,
+        NumericBirthYearForIndividual,
+        NumericDeathYearForIndividual,
+        TempArgument1,
+        TempList
     };
 };
 

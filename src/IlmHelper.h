@@ -23,7 +23,8 @@ public:
     IlmHelper(DatabaseHelper* sql);
     virtual ~IlmHelper();
 
-    Q_INVOKABLE void getBirthYearForIndividual(QObject* caller);
+    Q_INVOKABLE void numericBirthYearForIndividual(QObject* caller);
+    Q_INVOKABLE void numericDeathYearForIndividual(QObject* caller);
 
     void lazyInit();
 };

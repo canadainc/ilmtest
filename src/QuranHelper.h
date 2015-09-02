@@ -7,7 +7,7 @@ namespace canadainc {
     class DatabaseHelper;
 }
 
-namespace quran {
+namespace ilmtest {
 
 using namespace canadainc;
 
@@ -24,18 +24,18 @@ public:
 	QuranHelper(DatabaseHelper* sql);
 	virtual ~QuranHelper();
 
-    Q_INVOKABLE void fetchRandomSurahs(QObject* caller);
-    Q_INVOKABLE void fetchRandomRevelationSurahs(QObject* caller);
-    Q_INVOKABLE void fetchVersesForRandomSurah(QObject* caller);
-    Q_INVOKABLE void fetchRandomVerseCount(QObject* caller);
-    Q_INVOKABLE void fetchRandomSajdaSurah(QObject* caller);
-    Q_INVOKABLE void fetchRandomSurahLocation(QObject* caller);
-    Q_INVOKABLE void fetchSurahRandomVerses(QObject* caller);
-    Q_INVOKABLE void fetchTotalSurahCount(QObject* caller);
-    Q_INVOKABLE void fetchTotalAyatCount(QObject* caller);
-    Q_INVOKABLE void fetchMaxVerseCount(QObject* caller);
-    Q_INVOKABLE void fetchMinVerseCount(QObject* caller);
-    Q_INVOKABLE void fetchRandomSurahsByLength(QObject* caller);
+    Q_INVOKABLE void boolSurahLocation(QObject* caller);
+    Q_INVOKABLE void numericMaxVerseCount(QObject* caller);
+    Q_INVOKABLE void numericMinVerseCount(QObject* caller);
+    Q_INVOKABLE void numericTotalAyatCount(QObject* caller);
+    Q_INVOKABLE void numericTotalSurahCount(QObject* caller);
+    Q_INVOKABLE void numericVerseCount(QObject* caller);
+    Q_INVOKABLE void orderedSurahs(QObject* caller);
+    Q_INVOKABLE void orderedRevelationSurahs(QObject* caller);
+    Q_INVOKABLE void orderedSurahVerses(QObject* caller);
+    Q_INVOKABLE void orderedSurahsByLength(QObject* caller);
+    Q_INVOKABLE void standardSajdaSurah(QObject* caller);
+    Q_INVOKABLE void standardVersesForSurah(QObject* caller);
 	void lazyInit();
 };
 

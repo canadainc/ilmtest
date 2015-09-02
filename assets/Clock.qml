@@ -13,6 +13,7 @@ ProgressIndicator
     value: currentValue
     
     function start() {
+        console.log("*** START SCALERS");
         scaler.play();
     }
     
@@ -28,6 +29,7 @@ ProgressIndicator
         currentValue = toValue;
         state = ProgressIndicatorState.Progress;
         scaleX = 0;
+        console.log("*** RESETTED!", currentValue);
     }
     
     animations: [
@@ -56,6 +58,7 @@ ProgressIndicator
 
 			onTriggered: {
                 currentValue -= 1;
+                console.log("**", currentValue);
 
                 if (currentValue == -1)
                 {

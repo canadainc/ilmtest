@@ -3,13 +3,11 @@
 
 #include "DatabaseHelper.h"
 #include "Game.h"
-#include "IlmHelper.h"
 #include "InvokeHelper.h"
 #include "LifelineManager.h"
 #include "NetworkProcessor.h"
 #include "Offloader.h"
 #include "Persistance.h"
-#include "QuranHelper.h"
 #include "SoundManager.h"
 #include "TextUtils.h"
 #include "UserManager.h"
@@ -27,8 +25,6 @@ class ApplicationUI : public QObject
     DatabaseHelper m_sql;
     Persistance m_persistance;
     NetworkProcessor m_network;
-    quran::QuranHelper m_quran;
-    IlmHelper m_ilm;
     InvokeHelper m_invoke;
     Offloader m_offloader;
     LifelineManager m_life;
