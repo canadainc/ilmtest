@@ -5,24 +5,27 @@ QtObject
 {
     property variant questionDB
     
-    function getBody(type)
+    function getBodies(type)
     {
         if (!questionDB)
         {
             var map = {};
-            map[QueryId.NumericVerseCount] = qsTr("How many verses does %1 contain?");
-            map[QueryId.NumericTotalSurahCount] = qsTr("How many surahs are there in the Qu'ran?");
-            map[QueryId.NumericTotalAyatCount] = qsTr("How many total ayats are there in the Qu'ran?");
-            map[QueryId.NumericMaxVerseCount] = qsTr("How many verses are there in the longest surah in the Qu'ran?");
-            map[QueryId.NumericMinVerseCount] = qsTr("How many verses are there in the shortest surah in the Qu'ran?");
-            map[QueryId.NumericBirthYearForIndividual] = qsTr("What year (after Hijrah) was %1 born?");
-            map[QueryId.NumericDeathYearForIndividual] = qsTr("What year (after Hijrah) did %1 pass away?");
-            map[QueryId.OrderedSurahs] = qsTr("Please arrange the following surahs in order.");
-            map[QueryId.OrderedRevelationSurahs] = qsTr("<html>Please arrange the following surahs in the <b>original order of revelation</b></html>");
-            map[QueryId.OrderedSurahVerses] = qsTr("Please arrange the following verses from %1 in order");
-            map[QueryId.OrderedSurahsByLength] = qsTr("Please arrange the following surahs in order from shortest to longest.");
-            map[QueryId.StandardVersesForSurah] = qsTr("Which of the following are verses found in %1?");
-            map[QueryId.StandardSajdaSurah] = qsTr("Which of the following surahs contain a Sujud al-Tilawah (Prostration of Qu'ran Recitation)?");
+            map[QueryId.BoolSurahLocation] = {'trueStrings': [ qsTr("%1 was revealed in Mecca") ], 'falseStrings': [qsTr("%1 was revealed in Medina"), qsTr("%1 was not revealed in Mecca")], 'truePrompts': [qsTr("Was %1 revealed in Mecca?")], 'falsePrompts': [qsTr("Was %1 revealed in Medina?")], 'choiceTexts': [qsTr("%1 was revealed in")], 'corrects': [qsTr("Mecca")], 'incorrects': [qsTr("Medina")]};
+            map[QueryId.NumericVerseCount] = {'choiceTexts': [qsTr("How many verses does %1 contain?")]};
+            map[QueryId.NumericTotalSurahCount] = {'choiceTexts': [qsTr("How many surahs are there in the Qu'ran?")]};
+            map[QueryId.NumericTotalAyatCount] = {'choiceTexts': [qsTr("How many total ayats are there in the Qu'ran?")]};
+            map[QueryId.NumericMaxVerseCount] = {'choiceTexts': [qsTr("How many verses are there in the longest surah in the Qu'ran?")]};
+            map[QueryId.NumericMinVerseCount] = {'choiceTexts': [qsTr("How many verses are there in the shortest surah in the Qu'ran?")]};
+            map[QueryId.NumericBirthYearForIndividual] = {'choiceTexts': [qsTr("What year (after Hijrah) was %1 born?")]};
+            map[QueryId.NumericDeathYearForIndividual] = {'choiceTexts': [qsTr("What year (after Hijrah) did %1 pass away?")]};
+            map[QueryId.OrderedPeopleByBirth] = {'choiceTexts': [qsTr("Rearrange the following individuals in order of birth (from the earliest to the latest)?")]};
+            map[QueryId.OrderedPeopleByDeath] = {'choiceTexts': [qsTr("Rearrange the following individuals in order of death (from the earliest to the latest)?")]};
+            map[QueryId.OrderedSurahs] = {'choiceTexts': [qsTr("Please arrange the following surahs in order.")]};
+            map[QueryId.OrderedRevelationSurahs] = {'choiceTexts': [qsTr("<html>Please arrange the following surahs in the <b>original order of revelation</b></html>")]};
+            map[QueryId.OrderedSurahVerses] = {'choiceTexts': [qsTr("Please arrange the following verses from %1 in order")]};
+            map[QueryId.OrderedSurahsByLength] = {'choiceTexts': [qsTr("Please arrange the following surahs in order from shortest to longest.")]};
+            map[QueryId.StandardVersesForSurah] = {'choiceTexts': [qsTr("Which of the following are verses found in %1?")]};
+            map[QueryId.StandardSajdaSurah] = {'choiceTexts': [qsTr("Which of the following surahs contain a Sujud al-Tilawah (Prostration of Qu'ran Recitation)?")]};
             questionDB = map;
         }
         

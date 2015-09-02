@@ -5,9 +5,24 @@
 #include "Logger.h"
 #include "TextUtils.h"
 
-#define KEY_CHOICE_VALUE "value"
+#define KEY_BOOLEAN_RAND_TEXT(x) x[ TextUtils::randInt( 0, x.size()-1 ) ].toString().arg(arg)
 
 namespace {
+
+class BooleanQuestion
+{
+    Q_GADGET
+    Q_ENUMS(Type)
+
+public:
+    enum Type {
+        TrueIsCorrect,
+        FalseIsCorrect,
+        YesIsCorrect,
+        NoIsCorrect,
+        ShowChoices
+    };
+};
 
 bool compareInts(QVariant const& v1, QVariant const& v2) {
     return v1.toMap().value(KEY_CHOICE_VALUE).toInt() < v2.toMap().value(KEY_CHOICE_VALUE).toInt();
@@ -43,6 +58,8 @@ QVariantList setChoices(bb::cascades::AbstractTextControl* atc, QString const& l
 }
 
 namespace ilmtest {
+
+using namespace canadainc;
 
 Offloader::Offloader()
 {
@@ -82,27 +99,27 @@ QVariantList Offloader::mergeAndShuffle(QVariantList i1, QVariantList const& i2)
 }
 
 
-QVariantList Offloader::generateBooleanChoices(bb::cascades::AbstractTextControl* atc, QString const& trueString, QString const& falseString, QString const& truePrompt, QString const& falsePrompt, QString const& choiceText, QString const& correct, QString const& incorrect)
+QVariantList Offloader::generateBooleanChoices(bb::cascades::AbstractTextControl* atc, QVariantList const& trueStrings, QVariantList const& falseStrings, QVariantList const& truePrompts, QVariantList const& falsePrompts, QVariantList const& choiceTexts, QVariantList const& corrects, QVariantList const& incorrects, QString const& arg)
 {
     QVariantList result;
-    int questionType = canadainc::TextUtils::randInt(1,5);
+    BooleanQuestion::Type questionType = (BooleanQuestion::Type)TextUtils::randInt(BooleanQuestion::TrueIsCorrect, BooleanQuestion::ShowChoices);
 
     switch (questionType)
     {
-        case 1:
-            result = setChoices(atc, trueString, tr("True"), tr("False") );
+        case BooleanQuestion::TrueIsCorrect:
+            result = setChoices(atc, KEY_BOOLEAN_RAND_TEXT(trueStrings), tr("True"), tr("False") );
             break;
-        case 2:
-            result = setChoices(atc, falseString, tr("True"), tr("False"), false );
+        case BooleanQuestion::FalseIsCorrect:
+            result = setChoices(atc, KEY_BOOLEAN_RAND_TEXT(falseStrings), tr("True"), tr("False"), false );
             break;
-        case 3:
-            result = setChoices(atc, truePrompt);
+        case BooleanQuestion::YesIsCorrect:
+            result = setChoices(atc, KEY_BOOLEAN_RAND_TEXT(truePrompts));
             break;
-        case 4:
-            result = setChoices(atc, falsePrompt, tr("Yes"), tr("No"), false);
+        case BooleanQuestion::NoIsCorrect:
+            result = setChoices(atc, KEY_BOOLEAN_RAND_TEXT(falsePrompts), tr("Yes"), tr("No"), false);
             break;
-        case 5:
-            result = setChoices(atc, choiceText, correct, incorrect);
+        case BooleanQuestion::ShowChoices:
+            result = setChoices(atc, KEY_BOOLEAN_RAND_TEXT(choiceTexts), KEY_BOOLEAN_RAND_TEXT(corrects), KEY_BOOLEAN_RAND_TEXT(incorrects));
             result = mergeAndShuffle( result, QVariantList() );
             break;
         default:

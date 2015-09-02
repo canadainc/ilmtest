@@ -40,7 +40,7 @@ public:
      *
      * @return From these lists, each QVariantMap will contain a "correct" property if it is the correct one.
      */
-    Q_INVOKABLE static QVariantList generateBooleanChoices(bb::cascades::AbstractTextControl* atc, QString const& trueString, QString const& falseString, QString const& truePrompt, QString const& falsePrompt, QString const& choiceText, QString const& correct, QString const& incorrect);
+    Q_INVOKABLE static QVariantList generateBooleanChoices(bb::cascades::AbstractTextControl* atc, QVariantList const& trueStrings, QVariantList const& falseStrings, QVariantList const& truePrompts, QVariantList const& falsePrompts, QVariantList const& choiceTexts, QVariantList const& corrects, QVariantList const& incorrects, QString const& arg);
 
     Q_INVOKABLE static bool verifyMultipleChoice(bb::cascades::ArrayDataModel* adm, QVariantList const& selected);
     Q_INVOKABLE static bool verifyOrdered(bb::cascades::ArrayDataModel* adm);

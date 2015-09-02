@@ -14,7 +14,7 @@ Page
     function nextQuestion()
     {
         var result = global.randomInt(QueryId.Unknown+1, QueryId.TempArgument1-1);
-        game.nextQuestion(QueryId.NumericBirthYearForIndividual);
+        game.nextQuestion(result);
     }
     
     function onNewQuestion()
@@ -23,10 +23,20 @@ Page
         listView.reset();
 
         var current = game.currentQuestion;
-        question.text = game.formatQuestion( qb.getBody(current.id) );
+        var bodies = qb.getBodies(current.id);
+        
+        if (!game.booleanQuestion)
+        {
+            bodies = bodies.choiceTexts;
+            question.text = game.formatQuestion( bodies[ global.randomInt(0, bodies.length-1) ] );
+        }
         
         if (game.multipleChoice)
         {
+            if (game.booleanQuestion) {
+                current.choices = offloader.generateBooleanChoices(question, bodies.trueStrings, bodies.falseStrings, bodies.truePrompts, bodies.falsePrompts, bodies.choiceTexts, bodies.corrects, bodies.incorrects, game.arg1);
+            }
+            
             adm.clear();
             adm.append(current.choices);
             

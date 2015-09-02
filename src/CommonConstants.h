@@ -3,6 +3,7 @@
 
 #include <QUrl>
 
+#define KEY_CHOICE_VALUE "value"
 #define KEY_FLAG_CORRECT "correct"
 #define KEY_SORT_ORDER "sort_order"
 #define KEY_ANSWER "answer"

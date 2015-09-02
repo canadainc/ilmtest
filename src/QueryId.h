@@ -27,6 +27,8 @@ public:
         StandardVersesForSurah,
         NumericBirthYearForIndividual,
         NumericDeathYearForIndividual,
+        OrderedPeopleByBirth,
+        OrderedPeopleByDeath,
         TempArgument1,
         TempList
     };

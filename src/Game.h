@@ -16,6 +16,7 @@ class Game : public QObject
     Q_PROPERTY(QString arg1 READ arg1 FINAL)
     Q_PROPERTY(bool numeric READ numeric NOTIFY currentQuestionChanged)
     Q_PROPERTY(bool multipleChoice READ multipleChoice NOTIFY currentQuestionChanged)
+    Q_PROPERTY(bool booleanQuestion READ booleanQuestion NOTIFY currentQuestionChanged)
 
     QuranHelper m_quran;
     IlmHelper m_ilm;
@@ -38,6 +39,7 @@ public:
     QString arg1() const;
     bool multipleChoice() const;
     bool numeric() const;
+    bool booleanQuestion() const;
     Q_SLOT void nextQuestion(int q);
     Q_INVOKABLE QString formatQuestion(QString input);
 };

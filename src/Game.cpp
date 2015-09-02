@@ -61,13 +61,13 @@ void Game::onDataLoaded(QVariant idV, QVariant dataV)
     {
         bool questionChanged = true;
 
+        if ( data.size() == 1 && data.first().toMap().contains(KEY_ARG_1) ) {
+            m_arg1 = data.first().toMap().value(KEY_ARG_1).toString();
+        }
+
         if ( t.startsWith("Numeric") )
         {
             QVariantMap qvm = data.first().toMap();
-
-            if ( qvm.contains(KEY_ARG_1) ) {
-                m_arg1 = qvm.value(KEY_ARG_1).toString();
-            }
 
             int answer = qvm.value(TOTAL_COUNT_VALUE).toInt();
             NumericQuestion::Type type = (NumericQuestion::Type)TextUtils::randInt(NumericQuestion::MultipleChoice, NumericQuestion::TextInput);
@@ -90,9 +90,7 @@ void Game::onDataLoaded(QVariant idV, QVariant dataV)
             questionChanged = false;
         }
 
-        if ( id == QueryId::TempArgument1 ) {
-            m_arg1 = data.first().toMap().value(KEY_ARG_1).toString();
-        } else if ( id == QueryId::TempList ) {
+        if ( id == QueryId::TempList ) {
             m_tempList = data;
         }
 
@@ -137,7 +135,7 @@ QString Game::arg1() const {
 
 
 bool Game::multipleChoice() const {
-    return m_currentQuestion.contains(KEY_STANDARD) || m_currentQuestion.contains(KEY_BOOLEAN) || m_currentQuestion.contains(KEY_ORDERED);
+    return m_currentQuestion.contains(KEY_STANDARD) || booleanQuestion() || m_currentQuestion.contains(KEY_ORDERED);
 }
 
 
@@ -146,8 +144,12 @@ bool Game::numeric() const {
 }
 
 
+bool Game::booleanQuestion() const {
+    return m_currentQuestion.contains(KEY_BOOLEAN);
+}
+
+
 QString Game::formatQuestion(QString input) {
-    LOGGER(m_arg1 << input);
     return input.arg(m_arg1);
 }
 

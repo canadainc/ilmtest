@@ -10,6 +10,7 @@ QtObject
         onTriggered: {
             console.log("UserEvent: FiftyFifty");
 
+            clock.stop();
             life.useFiftyFifty(adm, numericInput, listView.rearrangeHandler.active);
             sound.playLifeLineSelect();
         }
@@ -22,6 +23,8 @@ QtObject
         
         onTriggered: {
             console.log("UserEvent: PopularOpinion");
+
+            clock.stop();
             var dialog = definition.init("PopularOpinionDialog.qml");
             dialog.open();
         }
@@ -35,6 +38,7 @@ QtObject
         onTriggered: {
             console.log("UserEvent: TakeOne");
             
+            clock.stop();
             life.useTakeOne(adm, numericInput, listView.rearrangeHandler.active);
             sound.playLifeLineSelect();
         }
@@ -48,6 +52,7 @@ QtObject
         onTriggered: {
             console.log("UserEvent: ChangeQuestion");
             
+            clock.stop();
             examPage.nextQuestion();
             sound.playLifeLineSelect();
         }
@@ -61,6 +66,7 @@ QtObject
         onTriggered: {
             console.log("UserEvent: AskExpert");
             
+            clock.stop();
             life.useAskExpert(adm, numericInput, listView.rearrangeHandler.active);
             sound.playLifeLineSelect();
         }

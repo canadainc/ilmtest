@@ -12,14 +12,14 @@
 #define FETCH_TABLE_COUNT(table) QString("SELECT COUNT() AS %1 FROM %2").arg(TOTAL_COUNT_VALUE).arg(table)
 #define MERGE_COLUMNS(col1, col2, alias) QString("%1 || ' (' || %2 || ')' AS %3").arg(col1).arg(col2).arg(alias)
 #define MERGE_SURAH_NAME MERGE_COLUMNS("name", "transliteration", KEY_ARG_1)
-#define MERGE_SURAH_VALUE MERGE_COLUMNS("name", "transliteration", "value")
-#define SURAH_AS_VALUE "name AS value"
-#define AYAT_AS_VALUE "content AS value"
+#define MERGE_SURAH_VALUE MERGE_COLUMNS("name", "transliteration", KEY_CHOICE_VALUE)
+#define SURAH_AS_VALUE QString("name AS %1").arg(KEY_CHOICE_VALUE)
+#define AYAT_AS_VALUE QString("content AS %1").arg(KEY_CHOICE_VALUE)
 #define TRANSLATION_AS_DESCRIPTION "translation AS description"
 #define RANDOM_SURAH TextUtils::randInt(1,114)
 #define RESULT_SET_MIN 2
 #define RESULT_SET_MAX 8
-#define RESULT_SET_LIMIT TextUtils::randInt(RESULT_SET_MIN,RESULT_SET_MAX)
+#define RESULT_SET_LIMIT TextUtils::randInt(RESULT_SET_MIN, RESULT_SET_MAX)
 
 namespace ilmtest {
 
