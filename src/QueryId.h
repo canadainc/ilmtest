@@ -29,6 +29,7 @@ public:
         NumericDeathYearForIndividual,
         OrderedPeopleByBirth,
         OrderedPeopleByDeath,
+        StandardSahabah,
         TempArgument1,
         TempList
     };

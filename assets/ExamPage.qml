@@ -14,7 +14,7 @@ Page
     function nextQuestion()
     {
         var result = global.randomInt(QueryId.Unknown+1, QueryId.TempArgument1-1);
-        game.nextQuestion(result);
+        game.nextQuestion(QueryId.StandardSahabah);
     }
     
     function onNewQuestion()

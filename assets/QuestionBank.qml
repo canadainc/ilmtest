@@ -24,8 +24,9 @@ QtObject
             map[QueryId.OrderedRevelationSurahs] = {'choiceTexts': [qsTr("<html>Please arrange the following surahs in the <b>original order of revelation</b></html>")]};
             map[QueryId.OrderedSurahVerses] = {'choiceTexts': [qsTr("Please arrange the following verses from %1 in order")]};
             map[QueryId.OrderedSurahsByLength] = {'choiceTexts': [qsTr("Please arrange the following surahs in order from shortest to longest.")]};
-            map[QueryId.StandardVersesForSurah] = {'choiceTexts': [qsTr("Which of the following are verses found in %1?")]};
+            map[QueryId.StandardSahabah] = {'choiceTexts': [qsTr("Who of the following was a Sahabah?"), qsTr("Who of the following was a companion of the Prophet sallalahu alayhi wa'sallam?")]};
             map[QueryId.StandardSajdaSurah] = {'choiceTexts': [qsTr("Which of the following surahs contain a Sujud al-Tilawah (Prostration of Qu'ran Recitation)?")]};
+            map[QueryId.StandardVersesForSurah] = {'choiceTexts': [qsTr("Which of the following are verses found in %1?")]};
             questionDB = map;
         }
         

@@ -27,6 +27,7 @@ public:
     Q_INVOKABLE void numericDeathYearForIndividual(QObject* caller);
     Q_INVOKABLE void orderedPeopleByBirth(QObject* caller);
     Q_INVOKABLE void orderedPeopleByDeath(QObject* caller);
+    Q_INVOKABLE void standardSahabah(QObject* caller);
 
     void lazyInit();
 };

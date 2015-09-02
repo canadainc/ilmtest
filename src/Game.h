@@ -41,7 +41,7 @@ public:
     bool numeric() const;
     bool booleanQuestion() const;
     Q_SLOT void nextQuestion(int q);
-    Q_INVOKABLE QString formatQuestion(QString input);
+    Q_INVOKABLE QString formatQuestion(QString const& input);
 };
 
 } /* namespace ilmtest */

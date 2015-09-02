@@ -57,48 +57,46 @@ void Game::onDataLoaded(QVariant idV, QVariant dataV)
     QVariantList data = dataV.toList();
     LOGGER(t);
 
-    if ( !data.isEmpty() )
+    bool questionChanged = true;
+    int n = data.size();
+
+    if ( n == 1 && data.first().toMap().contains(KEY_ARG_1) ) {
+        m_arg1 = data.first().toMap().value(KEY_ARG_1).toString();
+    }
+
+    if ( t.startsWith("Numeric") && n > 0 )
     {
-        bool questionChanged = true;
+        QVariantMap qvm = data.first().toMap();
 
-        if ( data.size() == 1 && data.first().toMap().contains(KEY_ARG_1) ) {
-            m_arg1 = data.first().toMap().value(KEY_ARG_1).toString();
-        }
+        int answer = qvm.value(TOTAL_COUNT_VALUE).toInt();
+        NumericQuestion::Type type = (NumericQuestion::Type)TextUtils::randInt(NumericQuestion::MultipleChoice, NumericQuestion::TextInput);
 
-        if ( t.startsWith("Numeric") )
-        {
-            QVariantMap qvm = data.first().toMap();
-
-            int answer = qvm.value(TOTAL_COUNT_VALUE).toInt();
-            NumericQuestion::Type type = (NumericQuestion::Type)TextUtils::randInt(NumericQuestion::MultipleChoice, NumericQuestion::TextInput);
-
-            if (type == NumericQuestion::MultipleChoice) {
-                data = Offloader::generateChoices(answer);
-                m_currentQuestion[KEY_STANDARD] = true;
-            } else {
-                m_currentQuestion[KEY_NUMERIC] = true;
-                m_currentQuestion[KEY_ANSWER] = answer;
-            }
-        } else if ( t.startsWith("Ordered") ) {
-            m_currentQuestion[KEY_ORDERED] = true;
-        } else if ( t.startsWith("Standard") ) {
+        if (type == NumericQuestion::MultipleChoice) {
+            data = Offloader::generateChoices(answer);
             m_currentQuestion[KEY_STANDARD] = true;
-            data = Offloader::mergeAndShuffle(data, m_tempList);
-        } else if ( t.startsWith("Bool") ) {
-            m_currentQuestion[KEY_BOOLEAN] = true;
         } else {
-            questionChanged = false;
+            m_currentQuestion[KEY_NUMERIC] = true;
+            m_currentQuestion[KEY_ANSWER] = answer;
         }
+    } else if ( t.startsWith("Ordered") ) {
+        m_currentQuestion[KEY_ORDERED] = true;
+    } else if ( t.startsWith("Standard") ) {
+        m_currentQuestion[KEY_STANDARD] = true;
+        data = Offloader::mergeAndShuffle(data, m_tempList);
+    } else if ( t.startsWith("Bool") ) {
+        m_currentQuestion[KEY_BOOLEAN] = true;
+    } else {
+        questionChanged = false;
+    }
 
-        if ( id == QueryId::TempList ) {
-            m_tempList = data;
-        }
+    if ( id == QueryId::TempList ) {
+        m_tempList = data;
+    }
 
-        if (questionChanged) {
-            m_currentQuestion["choices"] = data;
-            LOGGER(m_currentQuestion);
-            emit currentQuestionChanged();
-        }
+    if (questionChanged) {
+        m_currentQuestion["choices"] = data;
+        LOGGER(m_currentQuestion);
+        emit currentQuestionChanged();
     }
 }
 
@@ -149,8 +147,13 @@ bool Game::booleanQuestion() const {
 }
 
 
-QString Game::formatQuestion(QString input) {
-    return input.arg(m_arg1);
+QString Game::formatQuestion(QString const& input)
+{
+    if ( input.contains("%1") ) {
+        return input.arg(m_arg1);
+    } else {
+        return input;
+    }
 }
 
 
