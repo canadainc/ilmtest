@@ -1,9 +1,13 @@
+#include "precompiled.h"
+
 #include "LifelineManager.h"
 #include "CommonConstants.h"
+#include "Game.h"
 #include "Logger.h"
 #include "TextUtils.h"
 
 #define KEY_CHOICE_DISABLED "disabled"
+#define NUMERIC_ANSWER m_game->currentQuestion().value(KEY_ANSWER).toInt()
 
 namespace {
 
@@ -22,52 +26,100 @@ void bubbleSort(bb::cascades::ArrayDataModel* adm)
     }
 }
 
+class BelowAbove
+{
+    Q_GADGET
+    Q_ENUMS(Type)
+
+public:
+    enum Type {
+        Below,
+        Above
+    };
+};
+
 }
 
 namespace ilmtest {
 
-LifelineManager::LifelineManager()
+using namespace canadainc;
+
+LifelineManager::LifelineManager(Game* game) : m_game(game)
 {
 }
 
 
-void LifelineManager::useAskExpert(bb::cascades::ArrayDataModel* adm, bool sorted)
+void LifelineManager::useAskExpert(bb::cascades::ArrayDataModel* adm, bb::cascades::TextField* tf, bool sorted)
 {
     LOGGER(sorted);
 
-    int n = adm->size();
+    if ( m_game->numeric() ) {
+        tf->setHintText( QString::number(NUMERIC_ANSWER) );
+    } else if ( m_game->multipleChoice() ) {
+        int n = adm->size();
 
-    if (sorted) {
-        bubbleSort(adm);
-    } else {
-        eliminateIncorrect(adm, n);
+        if (sorted) {
+            bubbleSort(adm);
+        } else {
+            eliminateIncorrect(adm, n);
+        }
     }
 }
 
 
-void LifelineManager::useFiftyFifty(bb::cascades::ArrayDataModel* adm, bool sorted)
+void LifelineManager::useFiftyFifty(bb::cascades::ArrayDataModel* adm, bb::cascades::TextField* tf, bool sorted)
 {
     LOGGER(sorted);
 
-    int n = adm->size()/2;
+    if ( m_game->numeric() )
+    {
+        int answer = NUMERIC_ANSWER;
+        int half = answer/2;
 
-    if (sorted) {
-        solveSorted(adm, n);
-    } else {
-        eliminateIncorrect(adm, n);
+        BelowAbove::Type path = (BelowAbove::Type)TextUtils::randInt(BelowAbove::Below, BelowAbove::Above);
+
+        if (path == BelowAbove::Below) {
+            half = TextUtils::randInt(answer-half, answer-1);
+        } else if (path == BelowAbove::Above) {
+            half = TextUtils::randInt(answer+1, answer+half);
+        }
+
+        QStringList possible = QStringList() << QString::number(answer) << QString::number(half);
+        possible.sort();
+
+        tf->setHintText( tr("Either %1 ").arg( possible.join(" or ") ) );
+    } else if ( m_game->multipleChoice() ) {
+        int n = adm->size()/2;
+
+        if (sorted) {
+            solveSorted(adm, n);
+        } else {
+            eliminateIncorrect(adm, n);
+        }
     }
 }
 
 
-void LifelineManager::useTakeOne(bb::cascades::ArrayDataModel* adm, bool sorted)
+void LifelineManager::useTakeOne(bb::cascades::ArrayDataModel* adm, bb::cascades::TextField* tf, bool sorted)
 {
     LOGGER(sorted);
 
-    if (sorted) {
-        solveSorted(adm, 1);
-    } else {
-        eliminateIncorrect(adm, 1);
+    if ( m_game->numeric() )
+    {
+        int answer = NUMERIC_ANSWER;
+        int half = answer/2;
+        QStringList possible = QStringList() << QString::number(answer) << QString::number( TextUtils::randInt(answer-half, answer-1) ) << QString::number( TextUtils::randInt(answer+1, answer+half) );
+        possible.sort();
+
+        tf->setHintText( tr("Either %1 ").arg( possible.join(" or ") ) );
+    } else if ( m_game->multipleChoice() ) {
+        if (sorted) {
+            solveSorted(adm, 1);
+        } else {
+            eliminateIncorrect(adm, 1);
+        }
     }
+
 }
 
 

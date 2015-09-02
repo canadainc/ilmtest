@@ -5,6 +5,12 @@ ListView
     property variant soundManager: sound
     signal layoutComplete()
     
+    function reset()
+    {
+        visible = false;
+        rearrangeHandler.active = false;
+    }
+    
     rearrangeHandler
     {
         property int itemOrigin: -1
@@ -75,7 +81,6 @@ ListView
                         delay: sli.ListItem.indexPath[0] * global.presentAnimSpeed
                         
                         onEnded: {
-                            console.log("***", sli.ListItem.indexPath[0], sli.ListItem.view.dataModel.size());
                             if ( sli.ListItem.indexPath[0] == sli.ListItem.view.dataModel.size()-1 ) {
                                 sli.ListItem.view.layoutComplete();
                             }

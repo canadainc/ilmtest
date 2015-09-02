@@ -16,8 +16,8 @@ using namespace bb::system;
 using namespace canadainc;
 
 ApplicationUI::ApplicationUI(bb::system::InvokeManager* im) : m_sql( QString("%1/master.db").arg( QDir::homePath() ) ),
-        m_persistance(im), m_invoke(im),
-        m_sound(&m_persistance), m_user(&m_persistance), m_game(&m_sql)
+        m_persistance(im), m_invoke(im), m_sound(&m_persistance),
+        m_user(&m_persistance), m_game(&m_sql), m_life(&m_game)
 {
     switch ( im->startupMode() )
     {

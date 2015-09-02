@@ -1,7 +1,7 @@
-#include <bb/cascades/AbstractTextControl>
 #include <bb/cascades/Application>
 #include <bb/cascades/ArrayDataModel>
 #include <bb/cascades/QmlDocument>
+#include <bb/cascades/TextField>
 
 #include <bb/multimedia/MediaPlayer>
 

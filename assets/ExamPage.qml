@@ -14,18 +14,16 @@ Page
     function nextQuestion()
     {
         var result = global.randomInt(QueryId.Unknown+1, QueryId.TempArgument1-1);
-        game.nextQuestion(QueryId.NumericMaxVerseCount);
+        game.nextQuestion(QueryId.NumericBirthYearForIndividual);
     }
     
     function onNewQuestion()
     {
+        numericInput.reset();
+        listView.reset();
+
         var current = game.currentQuestion;
-        
-        numericInput.visible = false;
-        listView.visible = false;
-        listView.rearrangeHandler.active = false;
-        
-        question.text = qb.getBody(current.id);
+        question.text = game.formatQuestion( qb.getBody(current.id) );
         
         if (game.multipleChoice)
         {
@@ -57,7 +55,6 @@ Page
                 id: clock
                 
                 onExpired: {
-                    persist.showToast("POPPING");
                     navigationPane.pop();
                 }
             }
@@ -83,7 +80,7 @@ Page
             }
             
             onTriggered: {
-                console.log("UserEvent: FinalANswer");
+                console.log("UserEvent: FinalAnswer");
                 
                 clock.stop();
                 sound.playUserInput();
@@ -141,6 +138,14 @@ Page
                 input.submitKey: SubmitKey.Submit
                 input.onSubmitted: {
                     finalAnswer.triggered();
+                }
+                
+                function reset()
+                {
+                    visible = false;
+                    loseFocus();
+                    resetText();
+                    hintText = qsTr("Enter a numeric value");
                 }
                 
                 onVisibleChanged: {

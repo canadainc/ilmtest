@@ -27,10 +27,10 @@ class ApplicationUI : public QObject
     NetworkProcessor m_network;
     InvokeHelper m_invoke;
     Offloader m_offloader;
-    LifelineManager m_life;
     SoundManager m_sound;
     UserManager m_user;
     Game m_game;
+    LifelineManager m_life;
 
     void init(QString const& qml);
 

@@ -8,7 +8,6 @@
 #include "QueryId.h"
 #include "TextUtils.h"
 
-#define KEY_ANSWER "answer"
 #define KEY_BOOLEAN "boolean"
 #define KEY_NUMERIC "numeric"
 #define KEY_ORDERED "ordered"
@@ -64,7 +63,13 @@ void Game::onDataLoaded(QVariant idV, QVariant dataV)
 
         if ( t.startsWith("Numeric") )
         {
-            int answer = data.first().toMap().value(TOTAL_COUNT_VALUE).toInt();
+            QVariantMap qvm = data.first().toMap();
+
+            if ( qvm.contains(KEY_ARG_1) ) {
+                m_arg1 = qvm.value(KEY_ARG_1).toString();
+            }
+
+            int answer = qvm.value(TOTAL_COUNT_VALUE).toInt();
             NumericQuestion::Type type = (NumericQuestion::Type)TextUtils::randInt(NumericQuestion::MultipleChoice, NumericQuestion::TextInput);
 
             if (type == NumericQuestion::MultipleChoice) {
@@ -132,7 +137,6 @@ QString Game::arg1() const {
 
 
 bool Game::multipleChoice() const {
-    LOGGER("*** CHECK MULTICHOICE" << m_currentQuestion.contains(KEY_STANDARD) << m_currentQuestion.contains(KEY_BOOLEAN));
     return m_currentQuestion.contains(KEY_STANDARD) || m_currentQuestion.contains(KEY_BOOLEAN) || m_currentQuestion.contains(KEY_ORDERED);
 }
 
@@ -143,6 +147,7 @@ bool Game::numeric() const {
 
 
 QString Game::formatQuestion(QString input) {
+    LOGGER(m_arg1 << input);
     return input.arg(m_arg1);
 }
 

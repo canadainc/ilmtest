@@ -10,7 +10,7 @@ QtObject
         onTriggered: {
             console.log("UserEvent: FiftyFifty");
 
-            life.useFiftyFifty(adm, listView.rearrangeHandler.active);
+            life.useFiftyFifty(adm, numericInput, listView.rearrangeHandler.active);
             sound.playLifeLineSelect();
         }
     }
@@ -35,7 +35,7 @@ QtObject
         onTriggered: {
             console.log("UserEvent: TakeOne");
             
-            life.useTakeOne(adm, listView.rearrangeHandler.active);
+            life.useTakeOne(adm, numericInput, listView.rearrangeHandler.active);
             sound.playLifeLineSelect();
         }
     }
@@ -61,7 +61,7 @@ QtObject
         onTriggered: {
             console.log("UserEvent: AskExpert");
             
-            life.useAskExpert(adm, listView.rearrangeHandler.active);
+            life.useAskExpert(adm, numericInput, listView.rearrangeHandler.active);
             sound.playLifeLineSelect();
         }
     }
