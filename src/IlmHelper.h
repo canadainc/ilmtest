@@ -3,6 +3,8 @@
 
 #include <QObject>
 
+#include "QueryId.h"
+
 #define QUESTION_BANK(lang) QString("quran_tafsir_%1").arg(lang)
 
 namespace canadainc {
@@ -19,6 +21,8 @@ class IlmHelper : public QObject
 
     DatabaseHelper* m_sql;
 
+    void lookupByCompanionField(QObject* caller, int fieldValue, QueryId::Type t);
+
 public:
     IlmHelper(DatabaseHelper* sql);
     virtual ~IlmHelper();
@@ -28,6 +32,8 @@ public:
     Q_INVOKABLE void orderedPeopleByBirth(QObject* caller);
     Q_INVOKABLE void orderedPeopleByDeath(QObject* caller);
     Q_INVOKABLE void standardSahabah(QObject* caller);
+    Q_INVOKABLE void standardTabiee(QObject* caller);
+    Q_INVOKABLE void standardTabiTabiee(QObject* caller);
 
     void lazyInit();
 };

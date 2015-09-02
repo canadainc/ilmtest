@@ -30,6 +30,8 @@ public:
         OrderedPeopleByBirth,
         OrderedPeopleByDeath,
         StandardSahabah,
+        StandardTabiee,
+        StandardTabiTabiee,
         TempArgument1,
         TempList
     };
