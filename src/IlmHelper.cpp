@@ -57,7 +57,7 @@ void IlmHelper::standardTabiTabiee(QObject* caller) {
 void IlmHelper::lookupByCompanionField(QObject* caller, int fieldValue, QueryId::Type t)
 {
     int correctAnswerLimits = TextUtils::randInt(1,4);
-    int incorrectAnswerLimits = TextUtils::randInt(0,4-correctAnswerLimits);
+    int incorrectAnswerLimits = TextUtils::randInt(correctAnswerLimits > 1 ? 0 : 1, 4-correctAnswerLimits);
 
     m_sql->executeQuery(caller, QString("SELECT %1,1 AS correct FROM individuals i WHERE is_companion=%3 ORDER BY RANDOM() LIMIT %2").arg( NAME_FIELD("i", KEY_CHOICE_VALUE) ).arg(correctAnswerLimits).arg(fieldValue), QueryId::TempList);
     m_sql->executeQuery(caller, QString("SELECT %1 FROM individuals i WHERE is_companion <> %3 AND hidden ISNULL AND prefix ISNULL ORDER BY RANDOM() LIMIT %2").arg( NAME_FIELD("i", KEY_CHOICE_VALUE) ).arg(incorrectAnswerLimits).arg(fieldValue), t);
@@ -73,6 +73,20 @@ void IlmHelper::customQuestion(QObject* caller)
 void IlmHelper::getChoicesForCustomQuestion(QObject* caller, int questionId)
 {
     m_sql->executeQuery(caller, QString("SELECT choices.id AS id,value_text AS value,sort_order,correct,source_id FROM answers INNER JOIN choices ON answers.choice_id=choices.id WHERE question_id=%1 UNION SELECT choices.id,choices.value_text AS value,NULL AS sort_order,NULL AS correct,source_id FROM choices WHERE source_id IN (SELECT choice_id FROM answers WHERE question_id=%1) ORDER BY source_id").arg(questionId), QueryId::GetChoicesForCustomQuestion);
+}
+
+
+void IlmHelper::getOrderedChoicesForCustomQuestion(QObject* caller, int questionId)
+{
+    int limit = TextUtils::randInt(2,8);
+
+    m_sql->executeQuery(caller, QString("SELECT choices.id AS id,value_text AS value,sort_order,source_id FROM answers INNER JOIN choices ON answers.choice_id=choices.id WHERE question_id=%1 AND correct=1 UNION SELECT choices.id,choices.value_text AS value,NULL AS sort_order,source_id FROM choices WHERE source_id IN (SELECT choice_id FROM answers WHERE question_id=%1 AND correct=1) ORDER BY source_id LIMIT %2").arg(questionId).arg(limit), QueryId::GetOrderedChoicesForCustomQuestion);
+}
+
+
+void IlmHelper::getCorrectCountForCustomQuestion(QObject* caller, int questionId)
+{
+    m_sql->executeQuery(caller, QString("SELECT COUNT() AS %2 FROM answers INNER JOIN choices ON answers.choice_id=choices.id WHERE question_id=%1 AND correct=1").arg(questionId).arg(TOTAL_COUNT_VALUE), QueryId::GetCorrectCountForCustomQuestion);
 }
 
 

@@ -24,12 +24,7 @@ class QuestionFormats
 public:
     enum Type {
         MultipleChoice,
-        TextInput,
-        StandardMultipleChoice,
-        Ordered,
-        CountNumeric,
-        BeforeChoice,
-        AfterChoice
+        TextInput
     };
 };
 
@@ -82,17 +77,32 @@ void Game::onDataLoaded(QVariant idV, QVariant dataV)
     } else if (id == QueryId::CustomQuestion) {
         m_currentQuestion = data.first().toMap();
         int questionId = REAL_ID(m_currentQuestion);
-        m_ilm.getChoicesForCustomQuestion(this, questionId);
-    } else if (id == QueryId::GetChoicesForCustomQuestion) {
-        if ( n == 1 && QRegExp("\\d$").exactMatch( data.first().toMap().value(KEY_CHOICE_VALUE).toString() ) ) {
-            data = generateNumeric(data);
+
+        m_arg1 = Offloader::getRandomQuestionColumn(m_currentQuestion);
+        QVariant body = m_currentQuestion[m_arg1];
+        m_currentQuestion.clear();
+        m_currentQuestion["question"] = body;
+
+        if (m_arg1 == "count_body") {
+            m_ilm.getCorrectCountForCustomQuestion(this, questionId);
+        } else if (m_arg1 == "ordered_body") {
+            m_ilm.getOrderedChoicesForCustomQuestion(this, questionId);
         } else {
+            m_ilm.getChoicesForCustomQuestion(this, questionId);
+        }
+    } else if (id == QueryId::GetOrderedChoicesForCustomQuestion) {
+        data = Offloader::transformToStandard(data);
+        m_currentQuestion[KEY_ORDERED] = true;
+    } else if (id == QueryId::GetCorrectCountForCustomQuestion) {
+        data = generateNumeric(data);
+    } else if (id == QueryId::GetChoicesForCustomQuestion) {
+        if ( n == 1 && QRegExp("\\d+$").exactMatch( data.first().toMap().value(KEY_CHOICE_VALUE).toString() ) ) {
+            data = generateNumeric(data, KEY_CHOICE_VALUE);
+        } else if (m_arg1 == "before_body" || m_arg1 == "after_body") {
+            //TODO: To do...
+        } else if (m_arg1 == "standard_body") {
             data = Offloader::transformToStandard(data);
-
-            QuestionFormats::Type type = (QuestionFormats::Type)TextUtils::randInt(QuestionFormats::StandardMultipleChoice, QuestionFormats::AfterChoice);
-
-            m_currentQuestion[KEY_ORDERED] = true;
-            m_currentQuestion["question"] = m_currentQuestion["ordered_body"];
+            m_currentQuestion[KEY_STANDARD] = true;
         }
     }
 
@@ -110,11 +120,11 @@ void Game::onDataLoaded(QVariant idV, QVariant dataV)
 }
 
 
-QVariantList Game::generateNumeric(QVariantList data)
+QVariantList Game::generateNumeric(QVariantList data, QString const& key)
 {
     QVariantMap qvm = data.first().toMap();
 
-    int answer = qvm.value(TOTAL_COUNT_VALUE).toInt();
+    int answer = qvm.value( !key.isNull() ? key : TOTAL_COUNT_VALUE ).toInt();
     QuestionFormats::Type type = (QuestionFormats::Type)TextUtils::randInt(QuestionFormats::MultipleChoice, QuestionFormats::TextInput);
 
     if (type == QuestionFormats::MultipleChoice) {

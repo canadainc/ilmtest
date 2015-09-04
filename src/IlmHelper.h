@@ -37,6 +37,8 @@ public:
 
     Q_INVOKABLE void customQuestion(QObject* caller);
     Q_INVOKABLE void getChoicesForCustomQuestion(QObject* caller, int questionId);
+    Q_INVOKABLE void getOrderedChoicesForCustomQuestion(QObject* caller, int questionId);
+    Q_INVOKABLE void getCorrectCountForCustomQuestion(QObject* caller, int questionId);
 
     void lazyInit();
 };

@@ -46,6 +46,7 @@ public:
     Q_INVOKABLE static bool verifyOrdered(bb::cascades::ArrayDataModel* adm);
 
     static QVariantList transformToStandard(QVariantList data);
+    static QString getRandomQuestionColumn(QVariantMap const& qvm);
 };
 
 } /* namespace quran */

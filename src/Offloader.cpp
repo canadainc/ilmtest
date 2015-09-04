@@ -137,7 +137,7 @@ bool Offloader::verifyMultipleChoice(bb::cascades::ArrayDataModel* adm, QVariant
     {
         QVariantMap qvm = adm->value(i).toMap();
 
-        if ( qvm.contains(KEY_FLAG_CORRECT) ) {
+        if ( qvm.value(KEY_FLAG_CORRECT).toInt() == 1 ) {
             correctIndices << i;
         }
     }
@@ -177,9 +177,11 @@ QVariantList Offloader::transformToStandard(QVariantList data)
         int realID = REAL_ID(qvm);
         QVariantList list = map[realID];
 
-        if ( !list.isEmpty() ) {
-            qvm["sort_order"] = list.first().toMap().value("sort_order");
-            qvm["correct"] = list.first().toMap().value("correct");
+        if ( !list.isEmpty() )
+        {
+            QVariantMap first = list.first().toMap();
+            qvm["sort_order"] = first.value("sort_order");
+            qvm["correct"] = first.value("correct");
         }
 
         qvm.remove("source_id");
@@ -191,12 +193,41 @@ QVariantList Offloader::transformToStandard(QVariantList data)
     QList<int> ids = map.keys();
     data.clear();
 
-    foreach (id, ids) {
+    foreach (int id, ids) {
         QVariantList x = map[id];
         data << x[ TextUtils::randInt( 0, x.size()-1 ) ];
     }
 
+    std::random_shuffle( data.begin(), data.end() );
+
+    if ( data.size() > 2 )
+    {
+        int x = TextUtils::randInt( 0, data.size()-2 );
+
+        for (int i = 0; i < x; i++) {
+            data.removeLast();
+        }
+    }
+
     return data;
+}
+
+
+QString Offloader::getRandomQuestionColumn(QVariantMap const& qvm)
+{
+    QStringList interested = QStringList() << "standard_body" << "ordered_body" << "count_body"/* << "before_body" << "after_body"*/;
+    QStringList availableKeys;
+
+    foreach (QString const& key, interested)
+    {
+        QString currentBody = qvm.value(key).toString();
+
+        if ( !currentBody.isEmpty() ) {
+            availableKeys << key;
+        }
+    }
+
+    return availableKeys[ TextUtils::randInt( 0, availableKeys.size()-1 ) ];
 }
 
 

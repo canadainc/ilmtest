@@ -35,6 +35,8 @@ public:
         StandardTabiTabiee,
         TempArgument1,
         GetChoicesForCustomQuestion,
+        GetOrderedChoicesForCustomQuestion,
+        GetCorrectCountForCustomQuestion,
         TempList,
     };
 };
