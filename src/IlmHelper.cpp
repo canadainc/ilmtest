@@ -40,27 +40,37 @@ void IlmHelper::orderedPeopleByDeath(QObject* caller) {
 
 
 void IlmHelper::standardSahabah(QObject* caller) {
-    lookupByCompanionField(caller, 1, QueryId::StandardSahabah);
+    lookupByField(caller, 1, QueryId::StandardSahabah);
 }
 
 
 void IlmHelper::standardTabiee(QObject* caller) {
-    lookupByCompanionField(caller, 2, QueryId::StandardTabiee);
+    lookupByField(caller, 2, QueryId::StandardTabiee);
 }
 
 
-void IlmHelper::standardTabiTabiee(QObject* caller) {
-    lookupByCompanionField(caller, 3, QueryId::StandardTabiTabiee);
-}
-
-
-void IlmHelper::lookupByCompanionField(QObject* caller, int fieldValue, QueryId::Type t)
+void IlmHelper::standardFemale(QObject* caller)
 {
     int correctAnswerLimits = TextUtils::randInt(1,4);
     int incorrectAnswerLimits = TextUtils::randInt(correctAnswerLimits > 1 ? 0 : 1, 4-correctAnswerLimits);
 
-    m_sql->executeQuery(caller, QString("SELECT %1,1 AS correct FROM individuals i WHERE is_companion=%3 ORDER BY RANDOM() LIMIT %2").arg( NAME_FIELD("i", KEY_CHOICE_VALUE) ).arg(correctAnswerLimits).arg(fieldValue), QueryId::TempList);
-    m_sql->executeQuery(caller, QString("SELECT %1 FROM individuals i WHERE is_companion <> %3 AND hidden ISNULL AND prefix ISNULL ORDER BY RANDOM() LIMIT %2").arg( NAME_FIELD("i", KEY_CHOICE_VALUE) ).arg(incorrectAnswerLimits).arg(fieldValue), t);
+    m_sql->executeQuery(caller, QString("SELECT %1,1 AS correct FROM individuals i WHERE female=1 AND hidden ISNULL AND death > 0 ORDER BY RANDOM() LIMIT %2").arg( NAME_FIELD("i", KEY_CHOICE_VALUE) ).arg(correctAnswerLimits), QueryId::TempList);
+    m_sql->executeQuery(caller, QString("SELECT %1 FROM individuals i WHERE female ISNULL AND hidden ISNULL AND prefix ISNULL ORDER BY RANDOM() LIMIT %2").arg( NAME_FIELD("i", KEY_CHOICE_VALUE) ).arg(incorrectAnswerLimits), QueryId::StandardFemale);
+}
+
+
+void IlmHelper::standardTabiTabiee(QObject* caller) {
+    lookupByField(caller, 3, QueryId::StandardTabiTabiee);
+}
+
+
+void IlmHelper::lookupByField(QObject* caller, int fieldValue, QueryId::Type t, QString const& field)
+{
+    int correctAnswerLimits = TextUtils::randInt(1,4);
+    int incorrectAnswerLimits = TextUtils::randInt(correctAnswerLimits > 1 ? 0 : 1, 4-correctAnswerLimits);
+
+    m_sql->executeQuery(caller, QString("SELECT %1,1 AS correct FROM individuals i WHERE %4=%3 AND hidden ISNULL ORDER BY RANDOM() LIMIT %2").arg( NAME_FIELD("i", KEY_CHOICE_VALUE) ).arg(correctAnswerLimits).arg(fieldValue).arg(field), QueryId::TempList);
+    m_sql->executeQuery(caller, QString("SELECT %1 FROM individuals i WHERE %4 <> %3 AND hidden ISNULL AND prefix ISNULL ORDER BY RANDOM() LIMIT %2").arg( NAME_FIELD("i", KEY_CHOICE_VALUE) ).arg(incorrectAnswerLimits).arg(fieldValue).arg(field), t);
 }
 
 

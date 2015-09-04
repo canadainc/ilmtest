@@ -32,6 +32,7 @@ public:
         OrderedPeopleByDeath,
         StandardSahabah,
         StandardTabiee,
+        StandardFemale,
         StandardTabiTabiee,
         TempArgument1,
         GetChoicesForCustomQuestion,
