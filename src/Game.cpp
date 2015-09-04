@@ -16,7 +16,7 @@
 
 namespace {
 
-class NumericQuestion
+class QuestionFormats
 {
     Q_GADGET
     Q_ENUMS(Type)
@@ -24,7 +24,12 @@ class NumericQuestion
 public:
     enum Type {
         MultipleChoice,
-        TextInput
+        TextInput,
+        StandardMultipleChoice,
+        Ordered,
+        CountNumeric,
+        BeforeChoice,
+        AfterChoice
     };
 };
 
@@ -50,14 +55,10 @@ void Game::onDataLoaded(QVariant idV, QVariant dataV)
 {
     int id = idV.toInt();
 
-    m_currentQuestion.clear();
-    m_currentQuestion["id"] = idV;
-
     QString t = ID_TO_QSTR(id);
     QVariantList data = dataV.toList();
     LOGGER(t);
 
-    bool questionChanged = true;
     int n = data.size();
 
     if ( n == 1 && data.first().toMap().contains(KEY_ARG_1) ) {
@@ -66,38 +67,65 @@ void Game::onDataLoaded(QVariant idV, QVariant dataV)
 
     if ( t.startsWith("Numeric") && n > 0 )
     {
-        QVariantMap qvm = data.first().toMap();
-
-        int answer = qvm.value(TOTAL_COUNT_VALUE).toInt();
-        NumericQuestion::Type type = (NumericQuestion::Type)TextUtils::randInt(NumericQuestion::MultipleChoice, NumericQuestion::TextInput);
-
-        if (type == NumericQuestion::MultipleChoice) {
-            data = Offloader::generateChoices(answer);
-            m_currentQuestion[KEY_STANDARD] = true;
-        } else {
-            m_currentQuestion[KEY_NUMERIC] = true;
-            m_currentQuestion[KEY_ANSWER] = answer;
-        }
+        m_currentQuestion.clear();
+        data = generateNumeric(data);
     } else if ( t.startsWith("Ordered") ) {
+        m_currentQuestion.clear();
         m_currentQuestion[KEY_ORDERED] = true;
     } else if ( t.startsWith("Standard") ) {
+        m_currentQuestion.clear();
         m_currentQuestion[KEY_STANDARD] = true;
         data = Offloader::mergeAndShuffle(data, m_tempList);
     } else if ( t.startsWith("Bool") ) {
+        m_currentQuestion.clear();
         m_currentQuestion[KEY_BOOLEAN] = true;
-    } else {
-        questionChanged = false;
+    } else if (id == QueryId::CustomQuestion) {
+        m_currentQuestion = data.first().toMap();
+        int questionId = REAL_ID(m_currentQuestion);
+        m_ilm.getChoicesForCustomQuestion(this, questionId);
+    } else if (id == QueryId::GetChoicesForCustomQuestion) {
+        if ( n == 1 && QRegExp("\\d$").exactMatch( data.first().toMap().value(KEY_CHOICE_VALUE).toString() ) ) {
+            data = generateNumeric(data);
+        } else {
+            data = Offloader::transformToStandard(data);
+
+            QuestionFormats::Type type = (QuestionFormats::Type)TextUtils::randInt(QuestionFormats::StandardMultipleChoice, QuestionFormats::AfterChoice);
+
+            m_currentQuestion[KEY_ORDERED] = true;
+            m_currentQuestion["question"] = m_currentQuestion["ordered_body"];
+        }
     }
 
-    if ( id == QueryId::TempList ) {
+    if (id == QueryId::TempList) {
         m_tempList = data;
     }
 
-    if (questionChanged) {
+    if ( multipleChoice() || numeric() )
+    {
+        m_currentQuestion["id"] = idV;
         m_currentQuestion["choices"] = data;
         LOGGER(m_currentQuestion);
         emit currentQuestionChanged();
     }
+}
+
+
+QVariantList Game::generateNumeric(QVariantList data)
+{
+    QVariantMap qvm = data.first().toMap();
+
+    int answer = qvm.value(TOTAL_COUNT_VALUE).toInt();
+    QuestionFormats::Type type = (QuestionFormats::Type)TextUtils::randInt(QuestionFormats::MultipleChoice, QuestionFormats::TextInput);
+
+    if (type == QuestionFormats::MultipleChoice) {
+        data = Offloader::generateChoices(answer);
+        m_currentQuestion[KEY_STANDARD] = true;
+    } else {
+        m_currentQuestion[KEY_NUMERIC] = true;
+        m_currentQuestion[KEY_ANSWER] = answer;
+    }
+
+    return data;
 }
 
 

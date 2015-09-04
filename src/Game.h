@@ -24,6 +24,8 @@ class Game : public QObject
     QVariantList m_tempList;
     QString m_arg1;
 
+    QVariantList generateNumeric(QVariantList data);
+
 private slots:
     void onDataLoaded(QVariant id, QVariant data);
 

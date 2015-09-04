@@ -35,6 +35,9 @@ public:
     Q_INVOKABLE void standardTabiee(QObject* caller);
     Q_INVOKABLE void standardTabiTabiee(QObject* caller);
 
+    Q_INVOKABLE void customQuestion(QObject* caller);
+    Q_INVOKABLE void getChoicesForCustomQuestion(QObject* caller, int questionId);
+
     void lazyInit();
 };
 

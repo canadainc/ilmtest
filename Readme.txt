@@ -10,7 +10,7 @@ CREATE TABLE choices (id INTEGER PRIMARY KEY, value TEXT, source_id INTEGER REFE
 1,Belief in Allah
 2,Belief in Last Day
 3,Belief in Books
-4,Belief in Angels,
+4,Belief in Angels
 5,Belief in Divine Decree
 6,Belief in His Messengers
 7,Duha

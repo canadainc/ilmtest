@@ -14,18 +14,22 @@ Page
     function nextQuestion()
     {
         var result = global.randomInt(QueryId.Unknown+1, QueryId.TempArgument1-1);
-        game.nextQuestion(result);
+        game.nextQuestion(QueryId.CustomQuestion);
     }
     
     function onNewQuestion()
     {
         numericInput.reset();
         listView.reset();
-
+        
         var current = game.currentQuestion;
         var bodies = qb.getBodies(current.id);
         
-        if (!game.booleanQuestion)
+        if (current.question) {
+            question.text = current.question;
+        }
+        
+        if (!game.booleanQuestion && bodies)
         {
             bodies = bodies.choiceTexts;
             question.text = game.formatQuestion( bodies[ global.randomInt(0, bodies.length-1) ] );

@@ -44,6 +44,8 @@ public:
 
     Q_INVOKABLE static bool verifyMultipleChoice(bb::cascades::ArrayDataModel* adm, QVariantList const& selected);
     Q_INVOKABLE static bool verifyOrdered(bb::cascades::ArrayDataModel* adm);
+
+    static QVariantList transformToStandard(QVariantList data);
 };
 
 } /* namespace quran */

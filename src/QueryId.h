@@ -25,6 +25,7 @@ public:
         OrderedSurahVerses,
         StandardSajdaSurah,
         StandardVersesForSurah,
+        CustomQuestion,
         NumericBirthYearForIndividual,
         NumericDeathYearForIndividual,
         OrderedPeopleByBirth,
@@ -33,7 +34,8 @@ public:
         StandardTabiee,
         StandardTabiTabiee,
         TempArgument1,
-        TempList
+        GetChoicesForCustomQuestion,
+        TempList,
     };
 };
 

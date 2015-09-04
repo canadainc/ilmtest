@@ -64,6 +64,18 @@ void IlmHelper::lookupByCompanionField(QObject* caller, int fieldValue, QueryId:
 }
 
 
+void IlmHelper::customQuestion(QObject* caller)
+{
+    m_sql->executeQuery(caller, QString("SELECT * FROM (SELECT q.id,q.standard_body,q.ordered_body,q.count_body,q.before_body,q.after_body,sp1.heading AS heading1,sp2.heading AS heading2,q.source_id FROM questions q LEFT JOIN questions p ON q.source_id=p.id LEFT JOIN suite_pages sp1 ON q.suite_page_id=sp1.id LEFT JOIN suite_pages sp2 ON p.suite_page_id=sp2.id) ORDER BY RANDOM() LIMIT 1"), QueryId::CustomQuestion);
+}
+
+
+void IlmHelper::getChoicesForCustomQuestion(QObject* caller, int questionId)
+{
+    m_sql->executeQuery(caller, QString("SELECT choices.id AS id,value_text AS value,sort_order,correct,source_id FROM answers INNER JOIN choices ON answers.choice_id=choices.id WHERE question_id=%1 UNION SELECT choices.id,choices.value_text AS value,NULL AS sort_order,NULL AS correct,source_id FROM choices WHERE source_id IN (SELECT choice_id FROM answers WHERE question_id=%1) ORDER BY source_id").arg(questionId), QueryId::GetChoicesForCustomQuestion);
+}
+
+
 void IlmHelper::lazyInit()
 {
     QStringList languages = QStringList() << QUESTION_BANK("english");

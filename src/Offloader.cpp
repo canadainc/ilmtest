@@ -167,6 +167,39 @@ bool Offloader::verifyOrdered(bb::cascades::ArrayDataModel* adm)
 }
 
 
+QVariantList Offloader::transformToStandard(QVariantList data)
+{
+    QMap<int,QVariantList> map;
+
+    foreach (QVariant const& q, data)
+    {
+        QVariantMap qvm = q.toMap();
+        int realID = REAL_ID(qvm);
+        QVariantList list = map[realID];
+
+        if ( !list.isEmpty() ) {
+            qvm["sort_order"] = list.first().toMap().value("sort_order");
+            qvm["correct"] = list.first().toMap().value("correct");
+        }
+
+        qvm.remove("source_id");
+
+        list << qvm;
+        map[realID] = list;
+    }
+
+    QList<int> ids = map.keys();
+    data.clear();
+
+    foreach (id, ids) {
+        QVariantList x = map[id];
+        data << x[ TextUtils::randInt( 0, x.size()-1 ) ];
+    }
+
+    return data;
+}
+
+
 Offloader::~Offloader()
 {
 }
