@@ -12,36 +12,21 @@
 #define KEY_NUMERIC "numeric"
 #define KEY_ORDERED "ordered"
 #define KEY_STANDARD "standard"
+#define KEY_QUESTION_BODY "question"
 #define ID_TO_QSTR(t) QString( QueryId::staticMetaObject.enumerator(0).valueToKey( (QueryId::Type)t ) )
-
-namespace {
-
-class QuestionFormats
-{
-    Q_GADGET
-    Q_ENUMS(Type)
-
-public:
-    enum Type {
-        MultipleChoice,
-        TextInput
-    };
-};
-
-}
 
 namespace ilmtest {
 
 using namespace canadainc;
 
-Game::Game(DatabaseHelper* db) : m_quran(db), m_ilm(db)
+Game::Game(DatabaseHelper* db) :
+        m_ilm(db)
 {
 }
 
 
 void Game::lazyInit()
 {
-    m_quran.lazyInit();
     m_ilm.lazyInit();
 }
 
@@ -50,59 +35,33 @@ void Game::onDataLoaded(QVariant idV, QVariant dataV)
 {
     int id = idV.toInt();
 
+    m_currentQuestion.clear();
     QString t = ID_TO_QSTR(id);
     QVariantList data = dataV.toList();
     LOGGER(t);
 
     int n = data.size();
 
-    if ( n == 1 && data.first().toMap().contains(KEY_ARG_1) ) {
-        m_arg1 = data.first().toMap().value(KEY_ARG_1).toString();
-    }
-
-    if ( t.startsWith("Numeric") && n > 0 )
+    if (n > 0)
     {
-        m_currentQuestion.clear();
-        data = generateNumeric(data);
-    } else if ( t.startsWith("Ordered") ) {
-        m_currentQuestion.clear();
-        m_currentQuestion[KEY_ORDERED] = true;
-    } else if ( t.startsWith("Standard") ) {
-        m_currentQuestion.clear();
-        m_currentQuestion[KEY_STANDARD] = true;
-        data = Offloader::mergeAndShuffle(data, m_tempList);
-    } else if ( t.startsWith("Bool") ) {
-        m_currentQuestion.clear();
-        m_currentQuestion[KEY_BOOLEAN] = true;
-    } else if (id == QueryId::CustomQuestion) {
-        m_currentQuestion = data.first().toMap();
-        int questionId = REAL_ID(m_currentQuestion);
-
-        m_arg1 = Offloader::getRandomQuestionColumn(m_currentQuestion);
-        QVariant body = m_currentQuestion[m_arg1];
-        m_currentQuestion.clear();
-        m_currentQuestion["question"] = body;
-
-        if (m_arg1 == "count_body") {
-            m_ilm.getCorrectCountForCustomQuestion(this, questionId);
-        } else if (m_arg1 == "ordered_body") {
-            m_ilm.getOrderedChoicesForCustomQuestion(this, questionId);
-        } else {
-            m_ilm.getChoicesForCustomQuestion(this, questionId);
+        if ( n == 1 && data.first().toMap().contains(KEY_ARG_1) ) {
+            m_arg1 = data.first().toMap().value(KEY_ARG_1).toString();
         }
-    } else if (id == QueryId::GetOrderedChoicesForCustomQuestion) {
-        data = Offloader::transformToStandard(data);
-        m_currentQuestion[KEY_ORDERED] = true;
-    } else if (id == QueryId::GetCorrectCountForCustomQuestion) {
-        data = generateNumeric(data);
-    } else if (id == QueryId::GetChoicesForCustomQuestion) {
-        if ( n == 1 && QRegExp("\\d+$").exactMatch( data.first().toMap().value(KEY_CHOICE_VALUE).toString() ) ) {
-            data = generateNumeric(data, KEY_CHOICE_VALUE);
-        } else if (m_arg1 == "before_body" || m_arg1 == "after_body") {
-            //TODO: To do...
-        } else if (m_arg1 == "standard_body") {
-            data = Offloader::transformToStandard(data);
+
+        if ( t.startsWith("Numeric") ) {
+            data = generateNumeric(data);
+        } else if ( t.startsWith("Ordered") ) {
+            m_currentQuestion[KEY_ORDERED] = true;
+        } else if ( t.startsWith("Standard") ) {
             m_currentQuestion[KEY_STANDARD] = true;
+            data = Offloader::mergeAndShuffle(data, m_tempList);
+        } else if ( t.startsWith("Bool") ) {
+            m_currentQuestion[KEY_BOOLEAN] = true;
+        } else if ( t.startsWith("Custom") ) {
+            m_currentQuestion = data.first().toMap();
+            processCustom( (QueryId::Type)id );
+        } else if ( t.startsWith("AnswersForCustom") ) {
+            data = processAnswersForCustomQuestion( (QueryId::Type)id, data );
         }
     }
 
@@ -120,17 +79,71 @@ void Game::onDataLoaded(QVariant idV, QVariant dataV)
 }
 
 
+QVariantList Game::processAnswersForCustomQuestion(QueryId::Type id, QVariantList data)
+{
+    if (id == QueryId::AnswersForCustomBoolStandardQuestion || id == QueryId::AnswersForCustomPromptStandardQuestion) {
+        m_arg1 = m_arg1.arg( data.first().toMap().value(KEY_CHOICE_VALUE).toString() );
+        data = Offloader::transformToStandard(data, false);
+        data = Offloader::setChoices( id == QueryId::AnswersForCustomBoolStandardQuestion ? tr("True") : tr("Yes"), id == QueryId::AnswersForCustomBoolStandardQuestion ? tr("False") : tr("No"), data.first().toMap().value(KEY_FLAG_CORRECT).toInt() == 1 );
+        m_currentQuestion[KEY_STANDARD] = true;
+    } else if (id == QueryId::AnswersForCustomBoolCountQuestion || id == QueryId::AnswersForCustomPromptCountQuestion) {
+        bool truth = m_destiny.truthType == QueryId::GenerateTruth;
+        int answer = data.first().toMap().value(TOTAL_COUNT_VALUE).toInt();
+        data = Offloader::setChoices( id == QueryId::AnswersForCustomBoolCountQuestion ? tr("True") : tr("Yes"), id == QueryId::AnswersForCustomBoolCountQuestion ? tr("False") : tr("No"), truth );
+        m_arg1 = m_arg1.arg( truth ? answer : TextUtils::randInt(answer+1, answer+15) );
+        m_currentQuestion[KEY_STANDARD] = true;
+    } else if (id == QueryId::AnswersForCustomOrderedQuestion) {
+        data = Offloader::transformToStandard(data);
+        m_currentQuestion[KEY_ORDERED] = true;
+    } else if (id == QueryId::AnswersForCustomCountQuestion) {
+        data = generateNumeric(data);
+    } else if (id == QueryId::AnswersForCustomStandardQuestion) {
+        if ( data.size() == 1 && QRegExp("\\d+$").exactMatch( data.first().toMap().value(KEY_CHOICE_VALUE).toString() ) ) {
+            data = generateNumeric(data, KEY_CHOICE_VALUE);
+        } else {
+            data = Offloader::transformToStandard(data);
+            m_currentQuestion[KEY_STANDARD] = true;
+        }
+    }
+
+    m_currentQuestion["question"] = m_arg1;
+
+    return data;
+}
+
+
+void Game::processCustom(QueryId::Type t)
+{
+    int questionId = REAL_ID(m_currentQuestion);
+
+    if (t == QueryId::CustomBoolCountQuestion) {
+        m_ilm.answersForCustomBoolCountQuestion(this, questionId);
+    } else if (t == QueryId::CustomBoolStandardQuestion) {
+        m_ilm.answersForCustomBoolStandardQuestion(this, questionId, m_destiny.truthType == QueryId::GenerateTruth);
+    } else if (t == QueryId::CustomCountQuestion) {
+        m_ilm.answersForCustomCountQuestion(this, questionId);
+    } else if (t == QueryId::CustomOrderedQuestion) {
+        m_ilm.answersForCustomOrderedQuestion(this, questionId);
+    } else if (t == QueryId::CustomPromptCountQuestion) {
+        m_ilm.answersForCustomPromptCountQuestion(this, questionId);
+    } else if (t == QueryId::CustomPromptStandardQuestion) {
+        m_ilm.answersForCustomPromptStandardQuestion(this, questionId, m_destiny.truthType == QueryId::GenerateTruth);
+    } else if (t == QueryId::CustomStandardQuestion) {
+        m_ilm.answersForCustomStandardQuestion(this, questionId);
+    }
+}
+
+
 QVariantList Game::generateNumeric(QVariantList data, QString const& key)
 {
     QVariantMap qvm = data.first().toMap();
 
     int answer = qvm.value( !key.isNull() ? key : TOTAL_COUNT_VALUE ).toInt();
-    QuestionFormats::Type type = (QuestionFormats::Type)TextUtils::randInt(QuestionFormats::MultipleChoice, QuestionFormats::TextInput);
 
-    if (type == QuestionFormats::MultipleChoice) {
+    if (m_destiny.formatType == QueryId::MultipleChoice) {
         data = Offloader::generateChoices(answer);
         m_currentQuestion[KEY_STANDARD] = true;
-    } else {
+    } else if (m_destiny.formatType == QueryId::TextInput) {
         m_currentQuestion[KEY_NUMERIC] = true;
         m_currentQuestion[KEY_ANSWER] = answer;
     }
@@ -139,24 +152,17 @@ QVariantList Game::generateNumeric(QVariantList data, QString const& key)
 }
 
 
-void Game::nextQuestion(int t)
+void Game::nextQuestion(int q, int requestedFormat, int requestedBool)
 {
-    m_currentQuestion.clear();
+    m_destiny = Destiny(requestedFormat, q, requestedBool);
     m_tempList.clear();
     m_arg1.clear();
 
-    QString f = ID_TO_QSTR(t);
+    QString f = ID_TO_QSTR(q);
     f = f.at(0).toLower() + f.mid(1);
     QByteArray qba = f.toUtf8();
-    const char* func = qba.constData();
 
-    QObject* target = &m_quran;
-
-    if (t > QueryId::StandardVersesForSurah) {
-        target = &m_ilm;
-    }
-
-    QMetaObject::invokeMethod( target, func, Qt::QueuedConnection, Q_ARG(QObject*, this) );
+    QMetaObject::invokeMethod( &m_ilm, qba.constData(), Qt::QueuedConnection, Q_ARG(QObject*, this) );
 }
 
 

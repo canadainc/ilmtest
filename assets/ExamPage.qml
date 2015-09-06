@@ -14,7 +14,9 @@ Page
     function nextQuestion()
     {
         var result = global.randomInt(QueryId.Unknown+1, QueryId.TempArgument1-1);
-        game.nextQuestion(result);
+        var formatFlag = global.randomInt(QueryId.MultipleChoice, QueryId.TextInput);
+        var truthFlag = global.randomInt(QueryId.GenerateTruth, QueryId.GenerateFalsehood);
+        game.nextQuestion(result, formatFlag, truthFlag);
     }
     
     function onNewQuestion()
@@ -27,10 +29,7 @@ Page
         
         if (current.question) {
             question.text = current.question;
-        }
-        
-        if (!game.booleanQuestion && bodies)
-        {
+        } else if (!game.booleanQuestion && bodies) {
             bodies = bodies.choiceTexts;
             question.text = game.formatQuestion( bodies[ global.randomInt(0, bodies.length-1) ] );
         }

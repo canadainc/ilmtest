@@ -14,30 +14,46 @@ public:
     enum Type {
         Unknown,
         BoolSurahLocation,
+        CustomAfterQuestion, // Which pillar of eemaan comes after Belief in Allah?
+        CustomBeforeQuestion, // Which pillar of eemaan comes before Belief in the Angels?
+        CustomBoolCountQuestion, // There are [5,7] obligatory prayers
+        CustomBoolStandardQuestion, // ["Belief in the Big Bang","Belief in Angels"] is one of the pillars of eeman
+        CustomCountQuestion, // How many pillars of eemaan are there?
+        CustomOrderedQuestion, // Rearrange the pillars of eemaan in order
+        CustomPromptCountQuestion, // Are there [5,7] obligatory prayers daily?
+        CustomPromptStandardQuestion, // Is ["Belief in the Big Bang","Belief in Angels"] one of the pillars of faith?
+        CustomStandardQuestion, // Which of the following are pillars of faith?
+        NumericBirthYearForIndividual,
+        NumericDeathYearForIndividual,
         NumericMaxVerseCount,
         NumericMinVerseCount,
         NumericTotalAyatCount,
         NumericTotalSurahCount,
         NumericVerseCount,
+        OrderedPeopleByBirth,
+        OrderedPeopleByDeath,
         OrderedRevelationSurahs,
         OrderedSurahs,
         OrderedSurahsByLength,
         OrderedSurahVerses,
-        StandardSajdaSurah,
-        StandardVersesForSurah,
-        CustomQuestion,
-        NumericBirthYearForIndividual,
-        NumericDeathYearForIndividual,
-        OrderedPeopleByBirth,
-        OrderedPeopleByDeath,
-        StandardSahabah,
-        StandardTabiee,
         StandardFemale,
+        StandardSahabah,
+        StandardSajdaSurah,
+        StandardTabiee,
         StandardTabiTabiee,
+        StandardVersesForSurah,
         TempArgument1,
-        GetChoicesForCustomQuestion,
-        GetOrderedChoicesForCustomQuestion,
-        GetCorrectCountForCustomQuestion,
+        MultipleChoice,
+        TextInput,
+        GenerateTruth,
+        GenerateFalsehood,
+        AnswersForCustomBoolCountQuestion,
+        AnswersForCustomBoolStandardQuestion,
+        AnswersForCustomCountQuestion,
+        AnswersForCustomOrderedQuestion,
+        AnswersForCustomPromptCountQuestion,
+        AnswersForCustomPromptStandardQuestion,
+        AnswersForCustomStandardQuestion,
         TempList,
     };
 };

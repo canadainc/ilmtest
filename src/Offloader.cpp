@@ -28,33 +28,6 @@ bool compareInts(QVariant const& v1, QVariant const& v2) {
     return v1.toMap().value(KEY_CHOICE_VALUE).toInt() < v2.toMap().value(KEY_CHOICE_VALUE).toInt();
 }
 
-QVariantList setChoices(bb::cascades::AbstractTextControl* atc, QString const& label, QString const& trueString=QObject::tr("Yes"), QString const& falseString=QObject::tr("No"), bool yesCorrect=true)
-{
-    QVariantList result;
-
-    QVariantMap qvm;
-    qvm[KEY_CHOICE_VALUE] = trueString;
-
-    if (yesCorrect) {
-        qvm[KEY_FLAG_CORRECT] = 1;
-    }
-
-    result << qvm;
-
-    qvm.clear();
-    qvm[KEY_CHOICE_VALUE] = falseString;
-
-    if (!yesCorrect) {
-        qvm[KEY_FLAG_CORRECT] = 1;
-    }
-
-    result << qvm;
-
-    atc->setText(label);
-
-    return result;
-}
-
 }
 
 namespace ilmtest {
@@ -102,28 +75,38 @@ QVariantList Offloader::mergeAndShuffle(QVariantList i1, QVariantList const& i2)
 QVariantList Offloader::generateBooleanChoices(bb::cascades::AbstractTextControl* atc, QVariantList const& trueStrings, QVariantList const& falseStrings, QVariantList const& truePrompts, QVariantList const& falsePrompts, QVariantList const& choiceTexts, QVariantList const& corrects, QVariantList const& incorrects, QString const& arg)
 {
     QVariantList result;
+    QString label;
     BooleanQuestion::Type questionType = (BooleanQuestion::Type)TextUtils::randInt(BooleanQuestion::TrueIsCorrect, BooleanQuestion::ShowChoices);
 
     switch (questionType)
     {
         case BooleanQuestion::TrueIsCorrect:
-            result = setChoices(atc, KEY_BOOLEAN_RAND_TEXT(trueStrings), tr("True"), tr("False") );
+            label = KEY_BOOLEAN_RAND_TEXT(trueStrings);
+            result = setChoices( tr("True"), tr("False") );
             break;
         case BooleanQuestion::FalseIsCorrect:
-            result = setChoices(atc, KEY_BOOLEAN_RAND_TEXT(falseStrings), tr("True"), tr("False"), false );
+            label = KEY_BOOLEAN_RAND_TEXT(falseStrings);
+            result = setChoices( tr("True"), tr("False"), false );
             break;
         case BooleanQuestion::YesIsCorrect:
-            result = setChoices(atc, KEY_BOOLEAN_RAND_TEXT(truePrompts));
+            label = KEY_BOOLEAN_RAND_TEXT(truePrompts);
+            result = setChoices();
             break;
         case BooleanQuestion::NoIsCorrect:
-            result = setChoices(atc, KEY_BOOLEAN_RAND_TEXT(falsePrompts), tr("Yes"), tr("No"), false);
+            label = KEY_BOOLEAN_RAND_TEXT(falsePrompts);
+            result = setChoices( tr("Yes"), tr("No"), false );
             break;
         case BooleanQuestion::ShowChoices:
-            result = setChoices(atc, KEY_BOOLEAN_RAND_TEXT(choiceTexts), KEY_BOOLEAN_RAND_TEXT(corrects), KEY_BOOLEAN_RAND_TEXT(incorrects));
+            label = KEY_BOOLEAN_RAND_TEXT(choiceTexts);
+            result = setChoices( KEY_BOOLEAN_RAND_TEXT(corrects), KEY_BOOLEAN_RAND_TEXT(incorrects) );
             result = mergeAndShuffle( result, QVariantList() );
             break;
         default:
             break;
+    }
+
+    if ( !label.isNull() ) {
+        atc->setText(label);
     }
 
     return result;
@@ -167,7 +150,7 @@ bool Offloader::verifyOrdered(bb::cascades::ArrayDataModel* adm)
 }
 
 
-QVariantList Offloader::transformToStandard(QVariantList data)
+QVariantList Offloader::transformToStandard(QVariantList data, bool trim)
 {
     QMap<int,QVariantList> map;
 
@@ -180,11 +163,14 @@ QVariantList Offloader::transformToStandard(QVariantList data)
         if ( !list.isEmpty() )
         {
             QVariantMap first = list.first().toMap();
-            qvm["sort_order"] = first.value("sort_order");
-            qvm["correct"] = first.value("correct");
+            qvm[KEY_FLAG_CORRECT] = first.value(KEY_FLAG_CORRECT);
+
+            if ( first.contains(KEY_SORT_ORDER) ) {
+                qvm[KEY_SORT_ORDER] = first.value(KEY_SORT_ORDER);
+            }
         }
 
-        qvm.remove("source_id");
+        qvm.remove(KEY_SOURCE_ID);
 
         list << qvm;
         map[realID] = list;
@@ -200,7 +186,7 @@ QVariantList Offloader::transformToStandard(QVariantList data)
 
     std::random_shuffle( data.begin(), data.end() );
 
-    if ( data.size() > 2 )
+    if ( data.size() > 2 && trim )
     {
         int x = TextUtils::randInt( 0, data.size()-2 );
 
@@ -213,21 +199,29 @@ QVariantList Offloader::transformToStandard(QVariantList data)
 }
 
 
-QString Offloader::getRandomQuestionColumn(QVariantMap const& qvm)
+QVariantList Offloader::setChoices(QString const& trueString, QString const& falseString, bool yesCorrect)
 {
-    QStringList interested = QStringList() << "standard_body" << "ordered_body" << "count_body"/* << "before_body" << "after_body"*/;
-    QStringList availableKeys;
+    QVariantList result;
 
-    foreach (QString const& key, interested)
-    {
-        QString currentBody = qvm.value(key).toString();
+    QVariantMap qvm;
+    qvm[KEY_CHOICE_VALUE] = trueString;
 
-        if ( !currentBody.isEmpty() ) {
-            availableKeys << key;
-        }
+    if (yesCorrect) {
+        qvm[KEY_FLAG_CORRECT] = 1;
     }
 
-    return availableKeys[ TextUtils::randInt( 0, availableKeys.size()-1 ) ];
+    result << qvm;
+
+    qvm.clear();
+    qvm[KEY_CHOICE_VALUE] = falseString;
+
+    if (!yesCorrect) {
+        qvm[KEY_FLAG_CORRECT] = 1;
+    }
+
+    result << qvm;
+
+    return result;
 }
 
 

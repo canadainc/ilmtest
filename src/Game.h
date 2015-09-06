@@ -4,10 +4,18 @@
 #include <QSet>
 
 #include "IlmHelper.h"
-#include "QueryId.h"
-#include "QuranHelper.h"
 
 namespace ilmtest {
+
+struct Destiny
+{
+    QueryId::Type formatType;
+    QueryId::Type questionType;
+    QueryId::Type truthType;
+
+    Destiny(int format=QueryId::MultipleChoice, int q=QueryId::Unknown, int tt=QueryId::GenerateTruth) :
+        formatType( (QueryId::Type)format ), questionType( (QueryId::Type)q ), truthType( (QueryId::Type)tt ) {}
+};
 
 class Game : public QObject
 {
@@ -18,13 +26,15 @@ class Game : public QObject
     Q_PROPERTY(bool multipleChoice READ multipleChoice NOTIFY currentQuestionChanged)
     Q_PROPERTY(bool booleanQuestion READ booleanQuestion NOTIFY currentQuestionChanged)
 
-    QuranHelper m_quran;
     IlmHelper m_ilm;
     QVariantMap m_currentQuestion;
     QVariantList m_tempList;
     QString m_arg1;
+    Destiny m_destiny;
 
     QVariantList generateNumeric(QVariantList data, QString const& key=QString());
+    void processCustom(QueryId::Type t);
+    QVariantList processAnswersForCustomQuestion(QueryId::Type t, QVariantList data);
 
 private slots:
     void onDataLoaded(QVariant id, QVariant data);
@@ -42,7 +52,11 @@ public:
     bool multipleChoice() const;
     bool numeric() const;
     bool booleanQuestion() const;
-    Q_SLOT void nextQuestion(int q);
+
+    /**
+     * @param numericFlag Either MultipleChoice or TextInput
+     */
+    Q_SLOT void nextQuestion(int q, int requestedFormat=QueryId::MultipleChoice, int requestedBool=QueryId::GenerateTruth);
     Q_INVOKABLE QString formatQuestion(QString const& input);
 };
 
