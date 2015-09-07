@@ -5,6 +5,8 @@
 
 #include "DeviceUtils.h"
 
+#define TARGET_SHARE "com.canadainc.IlmTest.share"
+
 namespace bb {
     namespace system {
         class InvokeManager;
@@ -23,6 +25,9 @@ class InvokeHelper : public QObject
     bb::system::InvokeRequest m_request;
     QObject* m_root;
     InvokeManager* m_invokeManager;
+
+private slots:
+    void onDatabasePorted();
 
 public:
     InvokeHelper(InvokeManager* invokeManager);

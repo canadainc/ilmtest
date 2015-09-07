@@ -41,7 +41,12 @@ ApplicationUI::ApplicationUI(bb::system::InvokeManager* im) : m_sql( QString("%1
 }
 
 
-void ApplicationUI::invoked(bb::system::InvokeRequest const& request) {
+void ApplicationUI::invoked(bb::system::InvokeRequest const& request)
+{
+    if ( request.target() == TARGET_SHARE ) {
+        m_sql.setEnabled(false);
+    }
+
     init( m_invoke.invoked(request) );
 }
 

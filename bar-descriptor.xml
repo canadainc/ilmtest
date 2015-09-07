@@ -84,6 +84,16 @@
     <icon>
         <image>icon.png</image>
     </icon>
+    
+	<invoke-target id="com.canadainc.IlmTest.share">
+		<invoke-target-type>card.composer</invoke-target-type>
+		<filter>
+			<action>bb.action.SHARE</action>
+			<mime-type>application/x-sqlite3</mime-type>
+			<property var="uris" value="file://" />
+			<property var="exts" value="db"/>
+		</filter>
+	</invoke-target>
 
     <asset path="icon.png">icon.png</asset>
     <asset path="assets">assets</asset>
@@ -109,7 +119,6 @@
 
     <asset path="/Users/synonymous2/workspace/java/CanadaIncIslamicUtils/res/quran10/quran_arabic.db">assets/dbase/quran_arabic.db</asset>
     <asset path="/Users/synonymous2/workspace/java/CanadaIncIslamicUtils/res/quran10/quran_english.db">assets/dbase/quran_english.db</asset>
-    <asset path="/Users/synonymous2/workspace/java/CanadaIncIslamicUtils/res/quran10/quran_tafsir_english.db">assets/dbase/quran_tafsir_english.db</asset>
 
     <!-- Request permission to execute native code.  Required for native applications. -->
     <permission system="true">run_native</permission>

@@ -34,13 +34,18 @@ Page
                 
                 CheckBox
                 {
-                    id: nightStartsIsha
                     checked: sound.muted
                     text: qsTr("Mute Sounds") + Retranslate.onLanguageChanged
                     
                     onCheckedChanged: {
                         sound.muted = checked;
                     }
+                }
+                
+                PersistCheckBox
+                {
+                    key: "customOnly"
+                    text: qsTr("Show Custom Questions Only") + Retranslate.onLanguageChanged
                 }
             }
         }

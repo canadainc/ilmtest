@@ -16,6 +16,22 @@ void ThreadUtils::compressFiles(Report& r, QString const& zipPath, const char* p
 }
 
 
+bool ThreadUtils::replaceDatabase(QString const& src)
+{
+    QFileInfo qfi(src);
+    QString dest = QString("%1/%2").arg( QDir::homePath() ).arg( qfi.fileName() );
+
+    if ( QFile::exists(dest) ) {
+        LOGGER("Removing" << dest);
+        LOGGER( QFile::remove(dest) );
+    }
+
+    LOGGER(src << dest);
+
+    return QFile::copy(src, dest);
+}
+
+
 QVariantMap ThreadUtils::writePluginArchive(QVariantMap const& cookie, QByteArray const& data, QString const& pathKey)
 {
     QVariantMap q = cookie;

@@ -245,10 +245,17 @@ void IlmHelper::standardVersesForSurah(QObject* caller)
 
 void IlmHelper::lazyInit()
 {
-    QStringList languages = QStringList() << QUESTION_BANK("english") << DB_ARABIC << DB_ENGLISH;
+    QStringList languages = QStringList() << DB_ARABIC << DB_ENGLISH;
 
     foreach (QString const& language, languages) {
         m_sql->attachIfNecessary(language);
+    }
+
+    languages.clear();
+    languages << QUESTION_BANK("english");
+
+    foreach (QString const& language, languages) {
+        m_sql->attachIfNecessary(language, true);
     }
 }
 

@@ -1,9 +1,12 @@
 #include "precompiled.h"
 
 #include "InvokeHelper.h"
+#include "AppLogFetcher.h"
 #include "CardUtils.h"
 #include "Logger.h"
+#include "Persistance.h"
 #include "QueryId.h"
+#include "ThreadUtils.h"
 
 namespace ilmtest {
 
@@ -36,12 +39,12 @@ QString InvokeHelper::invoked(bb::system::InvokeRequest const& request)
     QString target = request.target();
 
     QMap<QString,QString> targetToQML;
-    //targetToQML[TARGET_EDIT_INDIVIDUAL] = "CreateIndividualPage.qml";
+    targetToQML[TARGET_SHARE] = "WelcomePane.qml";
 
     QString qml = targetToQML.value(target);
 
     if ( qml.isNull() ) {
-        qml = "CardPage.qml";
+        qml = "WelcomePane.qml";
     }
 
     m_request = request;
@@ -57,7 +60,28 @@ void InvokeHelper::process()
 
     if ( !target.isEmpty() )
     {
+        if (target == TARGET_SHARE)
+        {
+            QFutureWatcher<bool>* qfw = new QFutureWatcher<bool>(this);
+            connect( qfw, SIGNAL( finished() ), this, SLOT( onDatabasePorted() ) );
+            QFuture<bool> future = QtConcurrent::run( &ThreadUtils::replaceDatabase, m_request.uri().toLocalFile() );
+            qfw->setFuture(future);
+        }
     }
+}
+
+
+void InvokeHelper::onDatabasePorted()
+{
+    QFutureWatcher<bool>* qfw = static_cast< QFutureWatcher<bool>* >( sender() );
+    bool copied = qfw->result();
+
+    LOGGER(copied);
+
+    qfw->deleteLater();
+
+    Persistance::showBlockingDialog( tr("IlmTest"), copied ? tr("Database ported successfully!") : tr("Database could not be copied!"), tr("OK"), "" );
+    m_invokeManager->sendCardDone( CardDoneMessage() );
 }
 
 

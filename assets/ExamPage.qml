@@ -14,6 +14,11 @@ Page
     function nextQuestion()
     {
         var result = global.randomInt(QueryId.Unknown+1, QueryId.TempArgument1-1);
+        
+        if ( persist.getValueFor("customOnly") == 1 ) {
+            result = global.randomInt(QueryId.CustomAfterQuestion, QueryId.CustomStandardQuestion);
+        }
+        
         var formatFlag = global.randomInt(QueryId.MultipleChoice, QueryId.TextInput);
         var truthFlag = global.randomInt(QueryId.GenerateTruth, QueryId.GenerateFalsehood);
         game.nextQuestion(result, formatFlag, truthFlag);
