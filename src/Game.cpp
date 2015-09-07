@@ -85,12 +85,14 @@ QVariantList Game::processAnswersForCustomQuestion(QueryId::Type id, QVariantLis
         m_arg1 = m_arg1.arg( data.first().toMap().value(KEY_CHOICE_VALUE).toString() );
         data = Offloader::transformToStandard(data, false);
         data = Offloader::setChoices( id == QueryId::AnswersForCustomBoolStandardQuestion ? tr("True") : tr("Yes"), id == QueryId::AnswersForCustomBoolStandardQuestion ? tr("False") : tr("No"), data.first().toMap().value(KEY_FLAG_CORRECT).toInt() == 1 );
+        m_currentQuestion[KEY_BOOLEAN] = true;
         m_currentQuestion[KEY_STANDARD] = true;
     } else if (id == QueryId::AnswersForCustomBoolCountQuestion || id == QueryId::AnswersForCustomPromptCountQuestion) {
         bool truth = m_destiny.truthType == QueryId::GenerateTruth;
         int answer = data.first().toMap().value(TOTAL_COUNT_VALUE).toInt();
         data = Offloader::setChoices( id == QueryId::AnswersForCustomBoolCountQuestion ? tr("True") : tr("Yes"), id == QueryId::AnswersForCustomBoolCountQuestion ? tr("False") : tr("No"), truth );
         m_arg1 = m_arg1.arg( truth ? answer : TextUtils::randInt(answer+1, answer+15) );
+        m_currentQuestion[KEY_BOOLEAN] = true;
         m_currentQuestion[KEY_STANDARD] = true;
     } else if (id == QueryId::AnswersForCustomOrderedQuestion) {
         data = Offloader::transformToStandard(data);
@@ -137,6 +139,7 @@ void Game::processCustom(QueryId::Type t)
 QVariantList Game::generateNumeric(QVariantList data, QString const& key)
 {
     QVariantMap qvm = data.first().toMap();
+    m_currentQuestion[KEY_NUMERIC] = true;
 
     int answer = qvm.value( !key.isNull() ? key : TOTAL_COUNT_VALUE ).toInt();
 
@@ -144,7 +147,6 @@ QVariantList Game::generateNumeric(QVariantList data, QString const& key)
         data = Offloader::generateChoices(answer);
         m_currentQuestion[KEY_STANDARD] = true;
     } else if (m_destiny.formatType == QueryId::TextInput) {
-        m_currentQuestion[KEY_NUMERIC] = true;
         m_currentQuestion[KEY_ANSWER] = answer;
     }
 

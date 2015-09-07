@@ -1,3 +1,5 @@
+CREATE TABLE static_questions (id INTEGER PRIMARY KEY, question_type TEXT NOT NULL, body TEXT NOT NULL);
+CREATE INDEX type_index ON static_questions(question_type);
 CREATE TABLE questions (id INTEGER PRIMARY KEY, standard_body TEXT NOT NULL, ordered_body TEXT, count_body TEXT, before_body TEXT, after_body TEXT, difficulty INTEGER, source_id INTEGER REFERENCES questions(id) ON DELETE CASCADE ON UPDATE CASCADE, suite_page_id INTEGER REFERENCES suite_pages(id) ON DELETE CASCADE ON UPDATE CASCADE);
 1, "Which of the following are pillars of faith?", "Rearrange the pillars of faith in order", "How many pillars of faith are there?", "Which pillar of faith comes right before ['Belief in Books']", "Which pillar of faith comes right after ['Belief in Books']"
 2, "Which of the following are obligatory prayers?", "Rearrange the obligatory prayers in order", "How many obligatory prayers are there each day?", "Which prayer is the next one after ['Fajr']", "Which prayer is the one before ['Isha']"

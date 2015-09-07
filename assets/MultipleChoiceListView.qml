@@ -92,12 +92,19 @@ ListView
     ]
     
     onTriggered: {
-        if ( isSelected(indexPath) ) {
-            sound.playDeselect();
-        } else {
-            sound.playSelectChoice();
+        if (!rearrangeHandler.active)
+        {
+            if (game.numeric || game.booleanQuestion) {
+                clearSelection();
+            }
+            
+            if ( isSelected(indexPath) ) {
+                sound.playDeselect();
+            } else {
+                sound.playSelectChoice();
+            }
+            
+            toggleSelection(indexPath);
         }
-        
-        toggleSelection(indexPath);
     }
 }

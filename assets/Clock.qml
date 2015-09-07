@@ -1,16 +1,14 @@
 import QtQuick 1.0
 import bb.cascades 1.0
 
-ProgressIndicator
+Container
 {
     id: clock
     property int currentValue
     signal ready();
     signal expired();
-    fromValue: 0
-    toValue: 30;
+    horizontalAlignment: HorizontalAlignment.Fill
     scaleX: 0
-    value: currentValue
     
     function start() {
         scaler.play();
@@ -20,14 +18,33 @@ ProgressIndicator
     {
         timer.stop();
         sound.stopClock();
-        state = ProgressIndicatorState.Complete;
+        progress.state = ProgressIndicatorState.Complete;
     }
     
     function reset()
     {
-        currentValue = toValue;
-        state = ProgressIndicatorState.Progress;
+        currentValue = progress.toValue;
+        progress.state = ProgressIndicatorState.Progress;
         scaleX = 0;
+    }
+    
+    ProgressControl
+    {
+        id: busy
+        asset: "images/progress/spinner_clock.png"
+        delegateActive: timer.running
+        scaleY: scaleX
+        loadingText: currentValue.toString()
+    }
+    
+    ProgressIndicator
+    {
+        id: progress
+        horizontalAlignment: HorizontalAlignment.Fill
+        verticalAlignment: VerticalAlignment.Bottom
+        fromValue: 0
+        toValue: 30;
+        value: currentValue
     }
     
     animations: [
@@ -43,30 +60,33 @@ ProgressIndicator
                 
                 ready();
                 timer.start();
+                
+                progress.translationY = 1;
             }
         }
     ]
-
+    
     attachedObjects: [
         Timer {
             id: timer
             repeat: true
             running: false
             interval: 1000
-
-			onTriggered: {
+            
+            onTriggered: {
                 currentValue -= 1;
-
+                busy.scaleX = currentValue % 2 == 0 ? busy.scaleX*0.9 : 1;
+                
                 if (currentValue == -1)
                 {
                     stop();
                     expired();
                 } else {
                     if (currentValue < 10) {
-	                    clock.state = ProgressIndicatorState.Error;
-	                } else if (currentValue < 20) {
-	                    clock.state = ProgressIndicatorState.Pause;
-	                }
+                        progress.state = ProgressIndicatorState.Error;
+                    } else if (currentValue < 20) {
+                        progress.state = ProgressIndicatorState.Pause;
+                    }
                 }
             }
         }

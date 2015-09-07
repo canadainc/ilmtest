@@ -15,8 +15,13 @@ Page
     {
         var result = global.randomInt(QueryId.Unknown+1, QueryId.TempArgument1-1);
         
-        if ( persist.getValueFor("customOnly") == 1 ) {
+        if ( persist.getValueFor("customOnly") == 1 )
+        {
             result = global.randomInt(QueryId.CustomAfterQuestion, QueryId.CustomStandardQuestion);
+            
+            if (result >= 2 && result <= 3) {
+                result = 4;
+            }
         }
         
         var formatFlag = global.randomInt(QueryId.MultipleChoice, QueryId.TextInput);
@@ -37,14 +42,12 @@ Page
         } else if (!game.booleanQuestion && bodies) {
             bodies = bodies.choiceTexts;
             question.text = game.formatQuestion( bodies[ global.randomInt(0, bodies.length-1) ] );
+        } else if (game.booleanQuestion) {
+            current.choices = offloader.generateBooleanChoices(question, bodies.trueStrings, bodies.falseStrings, bodies.truePrompts, bodies.falsePrompts, bodies.choiceTexts, bodies.corrects, bodies.incorrects, game.arg1);
         }
         
         if (game.multipleChoice)
         {
-            if (game.booleanQuestion) {
-                current.choices = offloader.generateBooleanChoices(question, bodies.trueStrings, bodies.falseStrings, bodies.truePrompts, bodies.falsePrompts, bodies.choiceTexts, bodies.corrects, bodies.incorrects, game.arg1);
-            }
-            
             adm.clear();
             adm.append(current.choices);
             
