@@ -2,6 +2,10 @@ import bb.cascades 1.3
 
 QtObject
 {
+    function cleanUp() {
+        
+    }
+    
     property variant fifty: ActionItem
     {
         imageSource: "images/list/lifelines/ic_lifeline_50.png"

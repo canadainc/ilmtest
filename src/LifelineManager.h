@@ -23,6 +23,9 @@ class LifelineManager : public QObject
     void solveSorted(bb::cascades::ArrayDataModel* adm, int count);
     void eliminateIncorrect(bb::cascades::ArrayDataModel* adm, int count);
 
+signals:
+    void lifeLifeAvailable(QString const& title, QString const& imageSource, int key);
+
 public:
     LifelineManager(Game* game);
     virtual ~LifelineManager();
