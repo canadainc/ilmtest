@@ -16,13 +16,8 @@ Page
     {
         var result = global.randomInt(QueryId.Unknown+1, QueryId.TempArgument1-1);
         
-        if ( persist.getValueFor("customOnly") == 1 )
-        {
-            result = global.randomInt(QueryId.CustomAfterQuestion, QueryId.CustomStandardQuestion);
-            
-            if (result >= 2 && result <= 3) {
-                result = 4;
-            }
+        if ( persist.getValueFor("customOnly") == 1 ) {
+            result = global.randomInt(QueryId.CustomBoolCountQuestion, QueryId.CustomStandardQuestion);
         }
         
         var formatFlag = global.randomInt(QueryId.MultipleChoice, QueryId.TextInput);
@@ -34,12 +29,18 @@ Page
     {
         numericInput.reset();
         listView.reset();
+        reference.translationY = 300;
+        reference.enabled = false;
         
         if (!game.numeric && !game.multipleChoice && !game.booleanQuestion) {
             nextQuestion();
         } else {
             var current = game.currentQuestion;
             var bodies = qb.getBodies(current.id);
+            
+            if (current.reference) {
+                reference.apply(current.reference);
+            }
             
             if (current.question) {
                 question.text = current.question;
@@ -68,6 +69,13 @@ Page
         }
     }
     
+    function pendingInput()
+    {
+        finalAnswer.enabled = true;
+        refAnim.play();
+        clock.start();
+    }
+    
     onCreationCompleted: {
         game.currentQuestionChanged.connect(onNewQuestion);
     }
@@ -94,6 +102,7 @@ Page
             imageSource: "images/menu/ic_check.png"
             title: qsTr("Accept")
             ActionBar.placement: ActionBarPlacement.Signature
+            enabled: false
             
             function answered(correctly)
             {
@@ -102,7 +111,7 @@ Page
                     nextQuestion();
                 } else {
                     persist.showToast( "You failed!!", "images/bugs/ic_bugs_cancel.png" );
-                    navigationPane.pop();
+                    reference.enabled = true;
                 }
             }
             
@@ -118,6 +127,7 @@ Page
                     }
                 }
 
+                enabled = false;
                 clock.stop();
                 sound.playUserInput();
                 
@@ -136,10 +146,15 @@ Page
     
     Container
     {
+        horizontalAlignment: HorizontalAlignment.Fill
+        verticalAlignment: VerticalAlignment.Fill
         layout: DockLayout {}
         
         Container
         {
+            horizontalAlignment: HorizontalAlignment.Fill
+            verticalAlignment: VerticalAlignment.Fill
+            
             Label
             {
                 id: question
@@ -183,7 +198,7 @@ Page
                 
                 onLayoutComplete: {
                     if (visible) {
-                        clock.start();
+                        pendingInput();
                     }
                 }
             }
@@ -235,11 +250,32 @@ Page
                         easingCurve: StockCurve.ExponentialOut
                         
                         onEnded: {
-                            clock.start();
+                            pendingInput();
                         }
                     }
                 ]
             }
+        }
+
+        QuestionReference
+        {
+            id: reference
+            translationY: 300
+            
+            animations: [
+                TranslateTransition
+                {
+                    id: refAnim
+                    fromY: 300
+                    toY: 0
+                    easingCurve: StockCurve.CircularInOut
+                    duration: 1000
+                    
+                    onEnded: {
+                        reference.show();
+                    }
+                }
+            ]
         }
     }
     

@@ -33,6 +33,18 @@ void Game::lazyInit()
 }
 
 
+void Game::setReference(QVariantMap const& first, QString const& idKey, QString const& authorKey, QString const& titleKey, QString const& headingKey)
+{
+    m_reference[KEY_ID_FIELD] = first.value(idKey);
+    m_reference["author"] = first.value(authorKey);
+    m_reference["title"] = first.value(titleKey);
+
+    if ( !first.value(headingKey).toString().isEmpty() && ( first.value(headingKey).toString() != first.value(titleKey).toString() ) ) {
+        m_reference["pageTitle"] = first.value(headingKey);
+    }
+}
+
+
 void Game::onDataLoaded(QVariant idV, QVariant dataV)
 {
     int id = idV.toInt();
@@ -46,8 +58,24 @@ void Game::onDataLoaded(QVariant idV, QVariant dataV)
 
     if (n > 0)
     {
-        if ( n == 1 && data.first().toMap().contains(KEY_ARG_1) ) {
-            m_arg1 = data.first().toMap().value(KEY_ARG_1).toString();
+        QVariantMap first = data.first().toMap();
+
+        if (n == 1)
+        {
+            LOGGER(first << first.contains("spi1"));
+
+            if ( first.contains(KEY_ARG_1) ) {
+                m_arg1 = first.value(KEY_ARG_1).toString();
+            }
+
+            if ( first.contains("spi1") )
+            {
+                if ( first.value("ref_page_id").toLongLong() > 0 ) {
+                    setReference(first, "spi2", "author2", "title2", "heading2");
+                } else {
+                    setReference(first, "spi1", "author1", "title1", "heading1");
+                }
+            }
         }
 
         if ( t.startsWith("Numeric") ) {
@@ -77,6 +105,11 @@ void Game::onDataLoaded(QVariant idV, QVariant dataV)
     {
         m_currentQuestion["id"] = idV;
         m_currentQuestion["choices"] = data;
+
+        if ( !m_reference.isEmpty() ) {
+            m_currentQuestion["reference"] = m_reference;
+        }
+
         LOGGER(m_currentQuestion);
         emit currentQuestionChanged();
     }
@@ -178,6 +211,7 @@ void Game::nextQuestion(int q, int requestedFormat, int requestedBool)
     m_destiny = Destiny(requestedFormat, q, requestedBool);
     m_tempList.clear();
     m_arg1.clear();
+    m_reference.clear();
 
     QString f = ID_TO_QSTR(q);
     f = f.at(0).toLower() + f.mid(1);
@@ -224,6 +258,11 @@ QString Game::formatQuestion(QString const& input)
 
 void Game::reset() {
     m_ilm.resetVisited();
+}
+
+
+QString Game::queryToString(int q) {
+    return ID_TO_QSTR(q);
 }
 
 

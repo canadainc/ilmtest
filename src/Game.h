@@ -30,12 +30,14 @@ class Game : public QObject
     QVariantMap m_currentQuestion;
     QVariantList m_tempList;
     QString m_arg1;
+    QVariantMap m_reference;
     Destiny m_destiny;
 
     QVariantList generateNumericBoolean(int id, QVariantList data, QString const& key=QString());
     QVariantList generateNumeric(QVariantList data, QString const& key=QString());
     void processCustom(QueryId::Type t);
     QVariantList processAnswersForCustomQuestion(QueryId::Type t, QVariantList data);
+    void setReference(QVariantMap const& qvm, QString const& idKey, QString const& authorKey, QString const& titleKey, QString const& headingKey);
 
 private slots:
     void onDataLoaded(QVariant id, QVariant data);
@@ -60,6 +62,7 @@ public:
     Q_SLOT void nextQuestion(int q, int requestedFormat=QueryId::MultipleChoice, int requestedBool=QueryId::GenerateTruth);
     Q_INVOKABLE QString formatQuestion(QString const& input);
     Q_INVOKABLE void reset();
+    Q_INVOKABLE static QString queryToString(int q);
 };
 
 } /* namespace ilmtest */
