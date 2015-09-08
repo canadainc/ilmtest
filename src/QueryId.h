@@ -54,6 +54,9 @@ public:
         AnswersForCustomPromptCountQuestion,
         AnswersForCustomPromptStandardQuestion,
         AnswersForCustomStandardQuestion,
+        MarkVisited,
+        Setup,
+        Debug,
         TempList,
     };
 };

@@ -101,7 +101,7 @@ void IlmHelper::customBoolCountQuestion(QObject* caller) {
 }
 
 void IlmHelper::customBoolStandardQuestion(QObject* caller) {
-    fetchCustomColumn(caller, "bool_standard_body", QueryId::CustomBoolStandardQuestion, 22);
+    fetchCustomColumn(caller, "bool_standard_body", QueryId::CustomBoolStandardQuestion);
 }
 
 void IlmHelper::customCountQuestion(QObject* caller) {
@@ -122,7 +122,7 @@ void IlmHelper::customPromptStandardQuestion(QObject* caller) {
 
 void IlmHelper::fetchCustomColumn(QObject* caller, QString const& column, QueryId::Type t, int questionId)
 {
-    QString constraint = questionId > 0 ? QString(" AND q.id=%1").arg(questionId) : QString();
+    QString constraint = questionId > 0 ? QString(" AND q.id=%1").arg(questionId) : QString(" AND q.id NOT IN (SELECT id FROM visited_questions)");
     m_sql->executeQuery(caller, QString("SELECT * FROM (SELECT q.id,q.%1 AS %2,sp1.heading AS heading1,sp2.heading AS heading2,q.source_id FROM questions q LEFT JOIN questions p ON q.source_id=p.id LEFT JOIN suite_pages sp1 ON q.suite_page_id=sp1.id LEFT JOIN suite_pages sp2 ON p.suite_page_id=sp2.id WHERE q.%1 NOT NULL%3) ORDER BY RANDOM() LIMIT 1").arg(column).arg(KEY_ARG_1).arg(constraint), t);
 }
 
@@ -247,6 +247,8 @@ void IlmHelper::standardVersesForSurah(QObject* caller)
 
 void IlmHelper::lazyInit()
 {
+    m_sql->executeInternal("CREATE TEMPORARY TABLE visited_questions (id INTEGER PRIMARY KEY)", QueryId::Setup);
+
     QStringList languages = QStringList() << DB_ARABIC << DB_ENGLISH;
 
     foreach (QString const& language, languages) {
@@ -259,6 +261,16 @@ void IlmHelper::lazyInit()
     foreach (QString const& language, languages) {
         m_sql->attachIfNecessary(language, true);
     }
+}
+
+
+void IlmHelper::resetVisited() {
+    m_sql->executeInternal("DELETE FROM visited_questions", QueryId::MarkVisited);
+}
+
+
+void IlmHelper::markVisited(QObject* caller, qint64 questionId) {
+    m_sql->executeInternal( "INSERT INTO visited_questions (id) VALUES (?)", QueryId::MarkVisited, QVariantList() << questionId );
 }
 
 

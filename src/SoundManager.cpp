@@ -143,7 +143,7 @@ void SoundManager::playUserInput() {
 
 void SoundManager::stopClock()
 {
-    if (!m_muted) {
+    if ( m_map.contains(FILE_CLOCK) ) {
         m_map.value(FILE_CLOCK)->stop();
     }
 }

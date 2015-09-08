@@ -9,6 +9,7 @@ Page
     {
         clock.stop();
         game.currentQuestionChanged.disconnect(onNewQuestion);
+        game.reset();
     }
     
     function nextQuestion()
@@ -34,33 +35,37 @@ Page
         numericInput.reset();
         listView.reset();
         
-        var current = game.currentQuestion;
-        var bodies = qb.getBodies(current.id);
-        
-        if (current.question) {
-            question.text = current.question;
-        } else if (!game.booleanQuestion && bodies) {
-            bodies = bodies.choiceTexts;
-            question.text = game.formatQuestion( bodies[ global.randomInt(0, bodies.length-1) ] );
-        } else if (game.booleanQuestion) {
-            current.choices = offloader.generateBooleanChoices(question, bodies.trueStrings, bodies.falseStrings, bodies.truePrompts, bodies.falsePrompts, bodies.choiceTexts, bodies.corrects, bodies.incorrects, game.arg1);
-        }
-        
-        if (game.multipleChoice)
-        {
-            adm.clear();
-            adm.append(current.choices);
+        if (!game.numeric && !game.multipleChoice && !game.booleanQuestion) {
+            nextQuestion();
+        } else {
+            var current = game.currentQuestion;
+            var bodies = qb.getBodies(current.id);
             
-            listView.visible = true;
-            
-            if (current.ordered) {
-                listView.rearrangeHandler.active = true;
+            if (current.question) {
+                question.text = current.question;
+            } else if (!game.booleanQuestion && bodies) {
+                bodies = bodies.choiceTexts;
+                question.text = game.formatQuestion( bodies[ global.randomInt(0, bodies.length-1) ] );
+            } else if (game.booleanQuestion) {
+                current.choices = offloader.generateBooleanChoices(question, bodies.trueStrings, bodies.falseStrings, bodies.truePrompts, bodies.falsePrompts, bodies.choiceTexts, bodies.corrects, bodies.incorrects, game.arg1);
             }
-        } else if (game.numeric) {
-            numericInput.visible = true;
+            
+            if (game.multipleChoice)
+            {
+                adm.clear();
+                adm.append(current.choices);
+                
+                listView.visible = true;
+                
+                if (current.ordered) {
+                    listView.rearrangeHandler.active = true;
+                }
+            } else if (game.numeric) {
+                numericInput.visible = true;
+            }
+            
+            clock.reset();
         }
-        
-        clock.reset();
     }
     
     onCreationCompleted: {

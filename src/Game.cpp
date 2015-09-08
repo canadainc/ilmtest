@@ -65,6 +65,8 @@ void Game::onDataLoaded(QVariant idV, QVariant dataV)
         } else if ( t.startsWith("AnswersForCustom") ) {
             data = processAnswersForCustomQuestion( (QueryId::Type)id, data );
         }
+    } else if ( t.startsWith("Custom") ) {
+        emit currentQuestionChanged();
     }
 
     if (id == QueryId::TempList) {
@@ -149,6 +151,8 @@ void Game::processCustom(QueryId::Type t)
     } else if (t == QueryId::CustomStandardQuestion) {
         m_ilm.answersForCustomStandardQuestion(this, questionId);
     }
+
+    m_ilm.markVisited(this, questionId);
 }
 
 
@@ -215,6 +219,11 @@ QString Game::formatQuestion(QString const& input)
     } else {
         return input;
     }
+}
+
+
+void Game::reset() {
+    m_ilm.resetVisited();
 }
 
 
