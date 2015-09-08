@@ -21,9 +21,9 @@ class IlmHelper : public QObject
 
     DatabaseHelper* m_sql;
 
-    void fetchCustomColumn(QObject* caller, QString const& column, QueryId::Type t);
+    void fetchCustomColumn(QObject* caller, QString const& column, QueryId::Type t, int questionId=0);
     void fetchSurahHeader(QObject* caller, int chapterNumber);
-    void fetchRightOrWrong(QObject* caller, int questionId, QueryId::Type t, bool correctOnly);
+    void fetchRightOrWrong(QObject* caller, int questionId, QueryId::Type t);
     void lookupByField(QObject* caller, int fieldValue, QueryId::Type t, QString const& field="is_companion");
 
 public:
@@ -41,11 +41,11 @@ public:
     Q_INVOKABLE void customPromptStandardQuestion(QObject* caller);
     Q_INVOKABLE void customStandardQuestion(QObject* caller);
     Q_INVOKABLE void answersForCustomBoolCountQuestion(QObject* caller, int questionId);
-    Q_INVOKABLE void answersForCustomBoolStandardQuestion(QObject* caller, int questionId, bool correct);
+    Q_INVOKABLE void answersForCustomBoolStandardQuestion(QObject* caller, int questionId);
     Q_INVOKABLE void answersForCustomCountQuestion(QObject* caller, int questionId, QueryId::Type t=QueryId::AnswersForCustomCountQuestion);
     Q_INVOKABLE void answersForCustomOrderedQuestion(QObject* caller, int questionId);
     Q_INVOKABLE void answersForCustomPromptCountQuestion(QObject* caller, int questionId);
-    Q_INVOKABLE void answersForCustomPromptStandardQuestion(QObject* caller, int questionId, bool correct);
+    Q_INVOKABLE void answersForCustomPromptStandardQuestion(QObject* caller, int questionId);
     Q_INVOKABLE void answersForCustomStandardQuestion(QObject* caller, int questionId);
     Q_INVOKABLE void numericBirthYearForIndividual(QObject* caller);
     Q_INVOKABLE void numericDeathYearForIndividual(QObject* caller);

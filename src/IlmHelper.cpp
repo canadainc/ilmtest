@@ -101,7 +101,7 @@ void IlmHelper::customBoolCountQuestion(QObject* caller) {
 }
 
 void IlmHelper::customBoolStandardQuestion(QObject* caller) {
-    fetchCustomColumn(caller, "bool_standard_body", QueryId::CustomBoolStandardQuestion);
+    fetchCustomColumn(caller, "bool_standard_body", QueryId::CustomBoolStandardQuestion, 22);
 }
 
 void IlmHelper::customCountQuestion(QObject* caller) {
@@ -120,8 +120,10 @@ void IlmHelper::customPromptStandardQuestion(QObject* caller) {
     fetchCustomColumn(caller, "prompt_standard_body", QueryId::CustomPromptStandardQuestion);
 }
 
-void IlmHelper::fetchCustomColumn(QObject* caller, QString const& column, QueryId::Type t) {
-    m_sql->executeQuery(caller, QString("SELECT * FROM (SELECT q.id,q.%1 AS %2,sp1.heading AS heading1,sp2.heading AS heading2,q.source_id FROM questions q LEFT JOIN questions p ON q.source_id=p.id LEFT JOIN suite_pages sp1 ON q.suite_page_id=sp1.id LEFT JOIN suite_pages sp2 ON p.suite_page_id=sp2.id WHERE q.%1 NOT NULL) ORDER BY RANDOM() LIMIT 1").arg(column).arg(KEY_ARG_1), t);
+void IlmHelper::fetchCustomColumn(QObject* caller, QString const& column, QueryId::Type t, int questionId)
+{
+    QString constraint = questionId > 0 ? QString(" AND q.id=%1").arg(questionId) : QString();
+    m_sql->executeQuery(caller, QString("SELECT * FROM (SELECT q.id,q.%1 AS %2,sp1.heading AS heading1,sp2.heading AS heading2,q.source_id FROM questions q LEFT JOIN questions p ON q.source_id=p.id LEFT JOIN suite_pages sp1 ON q.suite_page_id=sp1.id LEFT JOIN suite_pages sp2 ON p.suite_page_id=sp2.id WHERE q.%1 NOT NULL%3) ORDER BY RANDOM() LIMIT 1").arg(column).arg(KEY_ARG_1).arg(constraint), t);
 }
 
 void IlmHelper::answersForCustomBoolCountQuestion(QObject* caller, int questionId) {
@@ -132,16 +134,16 @@ void IlmHelper::answersForCustomPromptCountQuestion(QObject* caller, int questio
     answersForCustomCountQuestion(caller, questionId, QueryId::AnswersForCustomPromptCountQuestion);
 }
 
-void IlmHelper::fetchRightOrWrong(QObject* caller, int questionId, QueryId::Type t, bool correctOnly) {
-    m_sql->executeQuery(caller, QString("SELECT choices.id AS %2,value_text AS %3,correct AS %4,%5 FROM answers INNER JOIN choices ON answers.choice_id=choices.id WHERE question_id=%1 AND correct %6 UNION SELECT choices.id,choices.value_text,NULL,source_id FROM choices WHERE source_id IN (SELECT choice_id FROM answers WHERE question_id=%1 AND correct %6) ORDER BY source_id").arg(questionId).arg(KEY_ID_FIELD).arg(KEY_CHOICE_VALUE).arg(KEY_FLAG_CORRECT).arg(KEY_SOURCE_ID).arg(correctOnly ? "NOT NULL" : "ISNULL"), t);
+void IlmHelper::fetchRightOrWrong(QObject* caller, int questionId, QueryId::Type t) {
+    m_sql->executeQuery(caller, QString("SELECT choices.id AS %2,value_text AS %3,correct AS %4,%5 FROM answers INNER JOIN choices ON answers.choice_id=choices.id WHERE question_id=%1 UNION SELECT choices.id,choices.value_text,NULL,source_id FROM choices WHERE source_id IN (SELECT choice_id FROM answers WHERE question_id=%1) ORDER BY source_id").arg(questionId).arg(KEY_ID_FIELD).arg(KEY_CHOICE_VALUE).arg(KEY_FLAG_CORRECT).arg(KEY_SOURCE_ID), t);
 }
 
-void IlmHelper::answersForCustomBoolStandardQuestion(QObject* caller, int questionId, bool correct) {
-    fetchRightOrWrong(caller, questionId, QueryId::AnswersForCustomBoolStandardQuestion, correct);
+void IlmHelper::answersForCustomBoolStandardQuestion(QObject* caller, int questionId) {
+    fetchRightOrWrong(caller, questionId, QueryId::AnswersForCustomBoolStandardQuestion);
 }
 
-void IlmHelper::answersForCustomPromptStandardQuestion(QObject* caller, int questionId, bool correct) {
-    fetchRightOrWrong(caller, questionId, QueryId::AnswersForCustomPromptStandardQuestion, correct);
+void IlmHelper::answersForCustomPromptStandardQuestion(QObject* caller, int questionId) {
+    fetchRightOrWrong(caller, questionId, QueryId::AnswersForCustomPromptStandardQuestion);
 }
 
 void IlmHelper::answersForCustomStandardQuestion(QObject* caller, int questionId) {

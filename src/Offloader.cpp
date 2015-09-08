@@ -122,6 +122,7 @@ bool Offloader::verifyMultipleChoice(bb::cascades::ArrayDataModel* adm, QVariant
 
         if ( qvm.value(KEY_FLAG_CORRECT).toInt() == 1 ) {
             correctIndices << i;
+            LOGGER(qvm);
         }
     }
 
@@ -129,6 +130,8 @@ bool Offloader::verifyMultipleChoice(bb::cascades::ArrayDataModel* adm, QVariant
     foreach (QVariant const& q, selected) {
         selectedIndices << q.toList().first().toInt();
     }
+
+    LOGGER(correctIndices << selectedIndices);
 
     return correctIndices == selectedIndices;
 }
@@ -147,6 +150,26 @@ bool Offloader::verifyOrdered(bb::cascades::ArrayDataModel* adm)
     }
 
     return sorted;
+}
+
+
+QVariantMap Offloader::fetchRandomElement(QVariantList data, bool correctOnly)
+{
+    QList<QVariantMap> result;
+
+    foreach (QVariant const& q, data)
+    {
+        QVariantMap qvm = q.toMap();
+        bool isCorrect = qvm.value(KEY_FLAG_CORRECT) == 1;
+
+        if (correctOnly == isCorrect) {
+            result << qvm;
+        }
+    }
+
+    std::random_shuffle( result.begin(), result.end() );
+
+    return !data.isEmpty() ? result.first() : QVariantMap();
 }
 
 

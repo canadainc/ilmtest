@@ -99,6 +99,7 @@ void ApplicationUI::lazyInit()
 
     m_sound.lazyInit();
     m_game.lazyInit();
+    m_user.lazyInit();
 
     m_invoke.process();
 

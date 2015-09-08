@@ -10,7 +10,8 @@ namespace ilmtest {
 
 using namespace canadainc;
 
-UserProfile::UserProfile() : female(false)
+UserProfile::UserProfile() :
+        female(false), points(0)
 {
 }
 
@@ -53,6 +54,21 @@ bool UserManager::profileSet() const {
 }
 
 
+int UserManager::points() const {
+    return m_profile.points;
+}
+
+
+void UserManager::setPoints(int points)
+{
+    if (points != m_profile.points)
+    {
+        m_profile.points = points;
+        emit pointsChanged();
+    }
+}
+
+
 void UserManager::saveProfile(QString const& name, QString const& kunya, bool female)
 {
     QVariantMap qvm;
@@ -61,6 +77,11 @@ void UserManager::saveProfile(QString const& name, QString const& kunya, bool fe
     qvm[KEY_USER_NAME] = name;
 
     m_persist->saveValueFor(KEY_SETTING_USER_PROFILE, qvm);
+}
+
+
+void UserManager::lazyInit() {
+    setPoints( m_persist->getValueFor("points").toInt() );
 }
 
 

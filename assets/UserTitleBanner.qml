@@ -6,6 +6,14 @@ Container
     horizontalAlignment: HorizontalAlignment.Fill
     verticalAlignment: VerticalAlignment.Fill
     
+    function onAboutToQuit() {
+        persist.saveValueFor("points", user.points, false);
+    }
+    
+    onCreationCompleted: {
+        Application.aboutToQuit.connect(onAboutToQuit);
+    }
+    
     layout: StackLayout {
         orientation: LayoutOrientation.LeftToRight
     }
@@ -105,7 +113,7 @@ Container
             Label {
                 verticalAlignment: VerticalAlignment.Fill
                 leftMargin: 0
-                text: qsTr("Points: 0")
+                text: qsTr("Points: %1").arg(user.points)
                 textFormat: TextFormat.Plain
                 textStyle.base: SystemDefaults.TextStyles.SubtitleText
                 textStyle.fontSize: FontSize.Small

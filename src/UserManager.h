@@ -16,6 +16,7 @@ struct UserProfile
     QString name;
     QString kunya;
     bool female;
+    int points;
 
     UserProfile();
 };
@@ -26,6 +27,7 @@ class UserManager : public QObject
     Q_PROPERTY(QString name READ name NOTIFY profileChanged)
     Q_PROPERTY(QString kunya READ kunya NOTIFY profileChanged)
     Q_PROPERTY(bool female READ female NOTIFY profileChanged)
+    Q_PROPERTY(int points READ points WRITE setPoints NOTIFY pointsChanged)
     Q_PROPERTY(bool profileSet READ profileSet NOTIFY profileChanged)
 
     Persistance* m_persist;
@@ -36,6 +38,7 @@ private slots:
 
 signals:
     void profileChanged();
+    void pointsChanged();
 
 public:
     UserManager(Persistance* persist);
@@ -44,7 +47,11 @@ public:
     QString name() const;
     QString kunya() const;
     bool female() const;
+    int points() const;
     bool profileSet() const;
+    void setPoints(int points);
+
+    void lazyInit();
 
     Q_INVOKABLE void saveProfile(QString const& name, QString const& kunya, bool female);
 };

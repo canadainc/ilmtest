@@ -8,6 +8,8 @@
 #include "QueryId.h"
 #include "TextUtils.h"
 
+#define IS_NUMERIC_QUESTION(x) x.size() == 1 && QRegExp("\\d+$").exactMatch( x.first().toMap().value(KEY_CHOICE_VALUE).toString() )
+#define EXTRACT_NUMERIC_ANSWER(x,key) x.first().toMap().value( !key.isNull() ? key : TOTAL_COUNT_VALUE ).toInt();
 #define KEY_BOOLEAN "boolean"
 #define KEY_NUMERIC "numeric"
 #define KEY_ORDERED "ordered"
@@ -38,7 +40,7 @@ void Game::onDataLoaded(QVariant idV, QVariant dataV)
     m_currentQuestion.clear();
     QString t = ID_TO_QSTR(id);
     QVariantList data = dataV.toList();
-    LOGGER(t);
+    LOGGER( t << ID_TO_QSTR(m_destiny.truthType) << ID_TO_QSTR(m_destiny.formatType) );
 
     int n = data.size();
 
@@ -79,21 +81,35 @@ void Game::onDataLoaded(QVariant idV, QVariant dataV)
 }
 
 
+QVariantList Game::generateNumericBoolean(int id, QVariantList data, QString const& key)
+{
+    bool boolType = id == QueryId::AnswersForCustomBoolCountQuestion || id == QueryId::AnswersForCustomBoolStandardQuestion;
+    bool truth = m_destiny.truthType == QueryId::GenerateTruth;
+    int answer = data.first().toMap().value( !key.isNull() ? key : TOTAL_COUNT_VALUE ).toInt();
+    data = Offloader::setChoices( boolType ? tr("True") : tr("Yes"), boolType ? tr("False") : tr("No"), truth );
+    m_arg1 = m_arg1.arg( truth ? answer : TextUtils::randInt(answer+1, answer+15) );
+    m_currentQuestion[KEY_BOOLEAN] = true;
+    m_currentQuestion[KEY_STANDARD] = true;
+
+    return data;
+}
+
+
 QVariantList Game::processAnswersForCustomQuestion(QueryId::Type id, QVariantList data)
 {
-    if (id == QueryId::AnswersForCustomBoolStandardQuestion || id == QueryId::AnswersForCustomPromptStandardQuestion) {
-        m_arg1 = m_arg1.arg( data.first().toMap().value(KEY_CHOICE_VALUE).toString() );
-        data = Offloader::transformToStandard(data, false);
-        data = Offloader::setChoices( id == QueryId::AnswersForCustomBoolStandardQuestion ? tr("True") : tr("Yes"), id == QueryId::AnswersForCustomBoolStandardQuestion ? tr("False") : tr("No"), data.first().toMap().value(KEY_FLAG_CORRECT).toInt() == 1 );
-        m_currentQuestion[KEY_BOOLEAN] = true;
-        m_currentQuestion[KEY_STANDARD] = true;
+    if (id == QueryId::AnswersForCustomBoolStandardQuestion || id == QueryId::AnswersForCustomPromptStandardQuestion)
+    {
+        if ( IS_NUMERIC_QUESTION(data) ) { // admin only put in the correct numeric answer, so we need to generate the answer based on whether destiny is correct or not
+            data = generateNumericBoolean(id, data, KEY_CHOICE_VALUE);
+        } else {
+            data = Offloader::transformToStandard(data, false);
+            m_arg1 = m_arg1.arg( Offloader::fetchRandomElement(data, m_destiny.truthType == QueryId::GenerateTruth).value(KEY_CHOICE_VALUE).toString() );
+            data = Offloader::setChoices( id == QueryId::AnswersForCustomBoolStandardQuestion ? tr("True") : tr("Yes"), id == QueryId::AnswersForCustomBoolStandardQuestion ? tr("False") : tr("No"), m_destiny.truthType == QueryId::GenerateTruth );
+            m_currentQuestion[KEY_BOOLEAN] = true;
+            m_currentQuestion[KEY_STANDARD] = true;
+        }
     } else if (id == QueryId::AnswersForCustomBoolCountQuestion || id == QueryId::AnswersForCustomPromptCountQuestion) {
-        bool truth = m_destiny.truthType == QueryId::GenerateTruth;
-        int answer = data.first().toMap().value(TOTAL_COUNT_VALUE).toInt();
-        data = Offloader::setChoices( id == QueryId::AnswersForCustomBoolCountQuestion ? tr("True") : tr("Yes"), id == QueryId::AnswersForCustomBoolCountQuestion ? tr("False") : tr("No"), truth );
-        m_arg1 = m_arg1.arg( truth ? answer : TextUtils::randInt(answer+1, answer+15) );
-        m_currentQuestion[KEY_BOOLEAN] = true;
-        m_currentQuestion[KEY_STANDARD] = true;
+        data = generateNumericBoolean(id, data);
     } else if (id == QueryId::AnswersForCustomOrderedQuestion) {
         data = Offloader::transformToStandard(data);
         m_currentQuestion[KEY_ORDERED] = true;
@@ -121,7 +137,7 @@ void Game::processCustom(QueryId::Type t)
     if (t == QueryId::CustomBoolCountQuestion) {
         m_ilm.answersForCustomBoolCountQuestion(this, questionId);
     } else if (t == QueryId::CustomBoolStandardQuestion) {
-        m_ilm.answersForCustomBoolStandardQuestion(this, questionId, m_destiny.truthType == QueryId::GenerateTruth);
+        m_ilm.answersForCustomBoolStandardQuestion(this, questionId);
     } else if (t == QueryId::CustomCountQuestion) {
         m_ilm.answersForCustomCountQuestion(this, questionId);
     } else if (t == QueryId::CustomOrderedQuestion) {
@@ -129,7 +145,7 @@ void Game::processCustom(QueryId::Type t)
     } else if (t == QueryId::CustomPromptCountQuestion) {
         m_ilm.answersForCustomPromptCountQuestion(this, questionId);
     } else if (t == QueryId::CustomPromptStandardQuestion) {
-        m_ilm.answersForCustomPromptStandardQuestion(this, questionId, m_destiny.truthType == QueryId::GenerateTruth);
+        m_ilm.answersForCustomPromptStandardQuestion(this, questionId);
     } else if (t == QueryId::CustomStandardQuestion) {
         m_ilm.answersForCustomStandardQuestion(this, questionId);
     }
@@ -138,10 +154,9 @@ void Game::processCustom(QueryId::Type t)
 
 QVariantList Game::generateNumeric(QVariantList data, QString const& key)
 {
-    QVariantMap qvm = data.first().toMap();
     m_currentQuestion[KEY_NUMERIC] = true;
 
-    int answer = qvm.value( !key.isNull() ? key : TOTAL_COUNT_VALUE ).toInt();
+    int answer = EXTRACT_NUMERIC_ANSWER(data, key);
 
     if (m_destiny.formatType == QueryId::MultipleChoice) {
         data = Offloader::generateChoices(answer);

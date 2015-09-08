@@ -47,7 +47,12 @@ TabbedPane
     {
         toaster.statusMessage = "%1/%2".arg(current).arg(total);
         toaster.progress = (current/total)*100;
-        toaster.show();
+        
+        if (current == total) {
+            toaster.cancel();
+        } else {
+            toaster.show();
+        }
     }
     
     onCreationCompleted: {

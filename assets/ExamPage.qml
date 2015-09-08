@@ -93,9 +93,10 @@ Page
             function answered(correctly)
             {
                 if (correctly) {
+                    user.points = user.points+1;
                     nextQuestion();
                 } else {
-                    persist.showToast( "You failedsh Mush!!", "images/bugs/ic_bugs_cancel.png" );
+                    persist.showToast( "You failed!!", "images/bugs/ic_bugs_cancel.png" );
                     navigationPane.pop();
                 }
             }
@@ -103,6 +104,15 @@ Page
             onTriggered: {
                 console.log("UserEvent: FinalAnswer");
                 
+                if (numericInput.visible)
+                {
+                    numericInput.validator.validate();
+                    
+                    if (!numericInput.validator.valid) {
+                        return;
+                    }
+                }
+
                 clock.stop();
                 sound.playUserInput();
                 
@@ -131,6 +141,27 @@ Page
                 multiline: true
                 horizontalAlignment: HorizontalAlignment.Fill
                 textStyle.textAlign: TextAlign.Center
+                opacity: 0
+                
+                onTextChanged: {
+                    opacity = 0;
+                    questionAnim.play();
+                }
+                
+                animations: [
+                    FadeTransition
+                    {
+                        id: questionAnim
+                        fromOpacity: 0
+                        toOpacity: 1
+                        easingCurve: StockCurve.CircularOut
+                        duration: 500
+                        
+                        onStarted: {
+                            sound.playPresentQuestion();
+                        }
+                    }
+                ]
             }
             
             Divider {
@@ -159,6 +190,16 @@ Page
                 input.submitKey: SubmitKey.Submit
                 input.onSubmitted: {
                     finalAnswer.triggered();
+                }
+                
+                validator: Validator
+                {
+                    errorMessage: qsTr("Only digits can be entered!") + Retranslate.onLanguageChanged
+                    mode: ValidationMode.FocusLost
+                    
+                    onValidate: {
+                        valid = numericInput.text.match("\\d+$");
+                    }
                 }
                 
                 function reset()

@@ -32,6 +32,7 @@ class Game : public QObject
     QString m_arg1;
     Destiny m_destiny;
 
+    QVariantList generateNumericBoolean(int id, QVariantList data, QString const& key=QString());
     QVariantList generateNumeric(QVariantList data, QString const& key=QString());
     void processCustom(QueryId::Type t);
     QVariantList processAnswersForCustomQuestion(QueryId::Type t, QVariantList data);
