@@ -194,11 +194,12 @@ Page
                 
                 validator: Validator
                 {
+                    id: numericValidator
                     errorMessage: qsTr("Only digits can be entered!") + Retranslate.onLanguageChanged
                     mode: ValidationMode.FocusLost
                     
                     onValidate: {
-                        valid = numericInput.text.match("\\d+$");
+                        valid = /^\d+$/.test( numericInput.text.trim() );
                     }
                 }
                 
