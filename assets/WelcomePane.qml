@@ -47,6 +47,7 @@ NavigationPane
         {
             horizontalAlignment: HorizontalAlignment.Fill
             verticalAlignment: VerticalAlignment.Fill
+            background: welcomeBack.imagePaint
             
             PermissionToast
             {
@@ -68,17 +69,23 @@ NavigationPane
                 }
             }
         }
-        
-        attachedObjects: [
-            ComponentDefinition {
-                id: definition
-                
-                function init(qml)
-                {
-                    source = qml;
-                    return createObject();
-                }
-            }
-        ]
     }
+    
+    attachedObjects: [
+        ComponentDefinition {
+            id: definition
+            
+            function init(qml)
+            {
+                source = qml;
+                return createObject();
+            }
+        },
+        
+        ImagePaintDefinition {
+            id: welcomeBack
+            imageSource: "images/backgrounds/welcome_bg.png"
+            repeatPattern: RepeatPattern.XY
+        }
+    ]
 }

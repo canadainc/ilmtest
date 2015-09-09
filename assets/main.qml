@@ -33,6 +33,18 @@ TabbedPane
     
     Tab
     {
+        id: shopTab
+        title: qsTr("Shop") + Retranslate.onLanguageChanged
+        imageSource: "images/tabs/ic_shop.png"
+        delegateActivationPolicy: TabDelegateActivationPolicy.ActivateWhenSelected
+        
+        delegate: Delegate {
+            source: "ShopPane.qml"
+        }
+    }
+    
+    Tab
+    {
         id: userTab
         title: qsTr("Profile") + Retranslate.onLanguageChanged
         imageSource: "images/tabs/ic_user.png"

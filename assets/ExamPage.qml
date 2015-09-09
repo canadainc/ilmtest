@@ -148,12 +148,14 @@ Page
     {
         horizontalAlignment: HorizontalAlignment.Fill
         verticalAlignment: VerticalAlignment.Fill
+        background: Color.create("#1e2127")
         layout: DockLayout {}
         
         Container
         {
             horizontalAlignment: HorizontalAlignment.Fill
             verticalAlignment: VerticalAlignment.Fill
+            topPadding: 10
             
             Label
             {
@@ -280,7 +282,7 @@ Page
     }
     
     attachedObjects: [
-        LifeLinePane {
+        LifeLineHelper {
             id: llp
         },
         

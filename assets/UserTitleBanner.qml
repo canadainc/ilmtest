@@ -5,6 +5,7 @@ Container
     signal bannerTapped();
     horizontalAlignment: HorizontalAlignment.Fill
     verticalAlignment: VerticalAlignment.Fill
+    background: bgStrip.imagePaint
     
     function onAboutToQuit() {
         persist.saveValueFor("points", user.points, false);
@@ -131,6 +132,13 @@ Container
                 console.log("UserEvent: CustomTitleBannerControlTapped");
                 bannerTapped();
             }
+        }
+    ]
+    
+    attachedObjects: [
+        ImagePaintDefinition {
+            id: bgStrip
+            imageSource: "images/title/title_bar.jpg"
         }
     ]
 }

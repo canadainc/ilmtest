@@ -9,6 +9,7 @@ Container
     signal expired();
     horizontalAlignment: HorizontalAlignment.Fill
     scaleX: 0
+    background: bg.imagePaint
     
     function start() {
         scaler.play();
@@ -89,6 +90,12 @@ Container
                     }
                 }
             }
+        },
+        
+        ImagePaintDefinition {
+            id: bg
+            //repeatPattern: RepeatPattern.X
+            imageSource: "images/backgrounds/exam_bg.jpg"
         }
     ]
 }
