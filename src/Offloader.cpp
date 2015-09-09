@@ -24,6 +24,19 @@ public:
     };
 };
 
+class NumericDestiny
+{
+    Q_GADGET
+    Q_ENUMS(Type)
+
+public:
+    enum Type {
+        GenerateLessThan,
+        GenerateGreaterThan,
+        GenerateMixed
+    };
+};
+
 bool compareInts(QVariant const& v1, QVariant const& v2) {
     return v1.toMap().value(KEY_CHOICE_VALUE).toInt() < v2.toMap().value(KEY_CHOICE_VALUE).toInt();
 }
@@ -45,18 +58,56 @@ QVariantList Offloader::generateChoices(int correctAnswer)
     QVariantMap current;
     int n = RESULT_SET_LIMIT;
 
-    if (correctAnswer < n) { // for example n = 2, and
+    if (correctAnswer < n) // for example n = 4, and answer=3; then 1,2,3,4
+    {
+        for (int i = 1; i < correctAnswer; i++)
+        {
+            current[KEY_CHOICE_VALUE] = i;
+            qvl << current;
+        }
 
+        for (int i = correctAnswer+1; i < n; i++)
+        {
+            current[KEY_CHOICE_VALUE] = i;
+            qvl << current;
+        }
+    } else {
+        NumericDestiny::Type random = (NumericDestiny::Type)TextUtils::randInt(NumericDestiny::GenerateLessThan, NumericDestiny::GenerateMixed);
+
+        switch (random)
+        {
+            case NumericDestiny::GenerateLessThan:
+                for (int i = correctAnswer-n+1; i < correctAnswer; i++) // n = 8, correctAnswer = 10; 3,4,5,6,7,8,9
+                {
+                    current[KEY_CHOICE_VALUE] = i;
+                    qvl << current;
+                }
+
+                break;
+            case NumericDestiny::GenerateGreaterThan:
+                for (int i = correctAnswer+1; i < correctAnswer+n; i++) // n = 8, correctAnswer = 10; 11,12,13,14,15,16,17
+                {
+                    current[KEY_CHOICE_VALUE] = i;
+                    qvl << current;
+                }
+
+                break;
+            default:
+                for (int i = correctAnswer-n/2; i < correctAnswer; i++) // n = 7, correctAnswer = 10; 7,8,9,10,11,12
+                {
+                    current[KEY_CHOICE_VALUE] = i;
+                    qvl << current;
+                }
+
+                for (int i = correctAnswer+1; i < correctAnswer + n/2; i++) // n = 7, correctAnswer = 10; 7,8,9,10,11,12
+                {
+                    current[KEY_CHOICE_VALUE] = i;
+                    qvl << current;
+                }
+
+                break;
+        }
     }
-
-    current[KEY_CHOICE_VALUE] = correctAnswer-1;
-    qvl << current;
-
-    current[KEY_CHOICE_VALUE] = correctAnswer+1;
-    qvl << current;
-
-    current[KEY_CHOICE_VALUE] = correctAnswer-2;
-    qvl << current;
 
     current[KEY_CHOICE_VALUE] = correctAnswer;
     current[KEY_FLAG_CORRECT] = 1;
