@@ -10,6 +10,7 @@ Page
         clock.stop();
         game.currentQuestionChanged.disconnect(onNewQuestion);
         game.reset();
+        sound.stopMainLoop();
     }
     
     function nextQuestion()
@@ -29,6 +30,7 @@ Page
     {
         numericInput.reset();
         listView.reset();
+        sound.playMainLoop();
         reference.translationY = 300;
         reference.enabled = false;
         
@@ -129,6 +131,7 @@ Page
 
                 enabled = false;
                 clock.stop();
+                sound.stopMainLoop();
                 sound.playUserInput();
                 
                 if (numericInput.visible)

@@ -11,6 +11,7 @@
 #define FILE_CORRECT "asset:///audio/correct.mp3"
 #define FILE_DESELECT_CHOICE "asset:///audio/choice02.mp3"
 #define FILE_LIFELINE_SELECT "asset:///audio/sfx02.mp3"
+#define FILE_MAIN_LOOP "asset:///audio/mainLoop.mp3"
 #define FILE_QUESTION_PRESENT "asset:///audio/question.mp3"
 #define FILE_SELECT_CHOICE "asset:///audio/choice01.mp3"
 #define FILE_USER_INPUT "asset:///audio/inputted.mp3"
@@ -34,7 +35,7 @@ void SoundManager::onSettingChanged(QVariant newValue, QVariant key)
 
         if ( !m_muted && m_map.isEmpty() )
         {
-            QStringList keys = QStringList() << FILE_CHOICE_PRESENT << FILE_CLOCK << FILE_CORRECT << FILE_DESELECT_CHOICE << FILE_LIFELINE_SELECT << FILE_QUESTION_PRESENT << FILE_SELECT_CHOICE << FILE_USER_INPUT;
+            QStringList keys = QStringList() << FILE_CHOICE_PRESENT << FILE_CLOCK << FILE_CORRECT << FILE_DESELECT_CHOICE << FILE_LIFELINE_SELECT << FILE_QUESTION_PRESENT << FILE_SELECT_CHOICE << FILE_USER_INPUT << FILE_MAIN_LOOP;
 
             foreach (QString const& key, keys)
             {
@@ -42,7 +43,7 @@ void SoundManager::onSettingChanged(QVariant newValue, QVariant key)
                 connect( mp, SIGNAL( mediaStateChanged(bb::multimedia::MediaState::Type) ), this, SLOT( mediaStateChanged(bb::multimedia::MediaState::Type) ) );
                 mp->setSourceUrl( QUrl(key) );
 
-                if (key == FILE_CLOCK) {
+                if (key == FILE_CLOCK || key == FILE_MAIN_LOOP) {
                     mp->setRepeatMode(RepeatMode::Track);
                 }
 
@@ -121,6 +122,11 @@ void SoundManager::playLifeLineSelect() {
 }
 
 
+void SoundManager::playMainLoop() {
+    playSound(FILE_MAIN_LOOP);
+}
+
+
 void SoundManager::playPresentChoice() {
     playSound(FILE_CHOICE_PRESENT);
 }
@@ -145,6 +151,14 @@ void SoundManager::stopClock()
 {
     if ( m_map.contains(FILE_CLOCK) ) {
         m_map.value(FILE_CLOCK)->stop();
+    }
+}
+
+
+void SoundManager::stopMainLoop()
+{
+    if ( m_map.contains(FILE_MAIN_LOOP) ) {
+        m_map.value(FILE_MAIN_LOOP)->stop();
     }
 }
 

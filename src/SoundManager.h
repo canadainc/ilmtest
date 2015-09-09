@@ -51,11 +51,13 @@ public:
     Q_SLOT void playCorrect();
     Q_SLOT void playDeselect();
     Q_SLOT void playLifeLineSelect();
+    Q_SLOT void playMainLoop();
     Q_SLOT void playPresentChoice();
     Q_SLOT void playPresentQuestion();
     Q_SLOT void playSelectChoice();
     Q_SLOT void playUserInput();
     Q_SLOT void stopClock();
+    Q_SLOT void stopMainLoop();
 
     bool muted() const;
     void setMuted(bool mute);
