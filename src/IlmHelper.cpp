@@ -19,9 +19,6 @@
 #define AYAT_AS_VALUE QString("content AS %1").arg(KEY_CHOICE_VALUE)
 #define TRANSLATION_AS_DESCRIPTION "translation AS description"
 #define RANDOM_SURAH TextUtils::randInt(1,114)
-#define RESULT_SET_MIN 2
-#define RESULT_SET_MAX 8
-#define RESULT_SET_LIMIT TextUtils::randInt(RESULT_SET_MIN, RESULT_SET_MAX)
 
 namespace ilmtest {
 

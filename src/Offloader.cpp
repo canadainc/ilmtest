@@ -43,6 +43,11 @@ QVariantList Offloader::generateChoices(int correctAnswer)
 {
     QVariantList qvl;
     QVariantMap current;
+    int n = RESULT_SET_LIMIT;
+
+    if (correctAnswer < n) { // for example n = 2, and
+
+    }
 
     current[KEY_CHOICE_VALUE] = correctAnswer-1;
     qvl << current;
