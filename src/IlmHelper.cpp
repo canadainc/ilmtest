@@ -135,6 +135,14 @@ void IlmHelper::fetchRightOrWrong(QObject* caller, int questionId, QueryId::Type
     m_sql->executeQuery(caller, QString("SELECT choices.id AS %2,value_text AS %3,correct AS %4,%5 FROM answers INNER JOIN choices ON answers.choice_id=choices.id WHERE question_id=%1 UNION SELECT choices.id,choices.value_text,NULL,source_id FROM choices WHERE source_id IN (SELECT choice_id FROM answers WHERE question_id=%1) ORDER BY source_id").arg(questionId).arg(KEY_ID_FIELD).arg(KEY_CHOICE_VALUE).arg(KEY_FLAG_CORRECT).arg(KEY_SOURCE_ID), t);
 }
 
+void IlmHelper::answersForCustomAfterQuestion(QObject* caller, int questionId) {
+    fetchOrderedChoices(caller, questionId, QueryId::AnswersForCustomAfterQuestion);
+}
+
+void IlmHelper::answersForCustomBeforeQuestion(QObject* caller, int questionId) {
+    fetchOrderedChoices(caller, questionId, QueryId::AnswersForCustomBeforeQuestion);
+}
+
 void IlmHelper::answersForCustomBoolStandardQuestion(QObject* caller, int questionId) {
     fetchRightOrWrong(caller, questionId, QueryId::AnswersForCustomBoolStandardQuestion);
 }
@@ -145,6 +153,10 @@ void IlmHelper::answersForCustomPromptStandardQuestion(QObject* caller, int ques
 
 void IlmHelper::answersForCustomStandardQuestion(QObject* caller, int questionId) {
     m_sql->executeQuery(caller, QString("SELECT choices.id AS %2,value_text AS %3,correct AS %4,%5 FROM answers INNER JOIN choices ON answers.choice_id=choices.id WHERE question_id=%1 UNION SELECT choices.id,choices.value_text,NULL,source_id FROM choices WHERE source_id IN (SELECT choice_id FROM answers WHERE question_id=%1) ORDER BY source_id").arg(questionId).arg(KEY_ID_FIELD).arg(KEY_CHOICE_VALUE).arg(KEY_FLAG_CORRECT).arg(KEY_SOURCE_ID), QueryId::AnswersForCustomStandardQuestion);
+}
+
+void IlmHelper::fetchOrderedChoices(QObject* caller, int questionId, QueryId::Type t) {
+    m_sql->executeQuery(caller, QString("SELECT choices.id AS %1,value_text AS %2,sort_order AS %3,source_id AS %4 FROM answers INNER JOIN choices ON answers.choice_id=choices.id WHERE question_id=%5 AND sort_order NOT NULL UNION SELECT choices.id,choices.value_text,NULL,source_id FROM choices WHERE source_id IN (SELECT choice_id FROM answers WHERE question_id=%5 AND sort_order NOT NULL) ORDER BY %4").arg(KEY_ID_FIELD).arg(KEY_CHOICE_VALUE).arg(KEY_SORT_ORDER).arg(KEY_SOURCE_ID).arg(questionId), t);
 }
 
 void IlmHelper::answersForCustomOrderedQuestion(QObject* caller, int questionId)

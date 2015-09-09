@@ -22,8 +22,9 @@ class IlmHelper : public QObject
     DatabaseHelper* m_sql;
 
     void fetchCustomColumn(QObject* caller, QString const& column, QueryId::Type t, int questionId=0);
-    void fetchSurahHeader(QObject* caller, int chapterNumber);
+    void fetchOrderedChoices(QObject* caller, int questionId, QueryId::Type t);
     void fetchRightOrWrong(QObject* caller, int questionId, QueryId::Type t);
+    void fetchSurahHeader(QObject* caller, int chapterNumber);
     void lookupByField(QObject* caller, int fieldValue, QueryId::Type t, QString const& field="is_companion");
 
 public:
@@ -40,6 +41,8 @@ public:
     Q_INVOKABLE void customPromptCountQuestion(QObject* caller);
     Q_INVOKABLE void customPromptStandardQuestion(QObject* caller);
     Q_INVOKABLE void customStandardQuestion(QObject* caller);
+    Q_INVOKABLE void answersForCustomAfterQuestion(QObject* caller, int questionId);
+    Q_INVOKABLE void answersForCustomBeforeQuestion(QObject* caller, int questionId);
     Q_INVOKABLE void answersForCustomBoolCountQuestion(QObject* caller, int questionId);
     Q_INVOKABLE void answersForCustomBoolStandardQuestion(QObject* caller, int questionId);
     Q_INVOKABLE void answersForCustomCountQuestion(QObject* caller, int questionId, QueryId::Type t=QueryId::AnswersForCustomCountQuestion);

@@ -157,6 +157,13 @@ QVariantList Game::processAnswersForCustomQuestion(QueryId::Type id, QVariantLis
             data = Offloader::transformToStandard(data);
             m_currentQuestion[KEY_STANDARD] = true;
         }
+    } else if (id == QueryId::AnswersForCustomAfterQuestion) {
+        LOGGER(data);
+        //data = Offloader::transformToStandard(data, false);
+        //data = generateNumeric(data);
+    } else if (id == QueryId::AnswersForCustomBeforeQuestion) {
+        LOGGER(data);
+        //data = generateNumeric(data);
     }
 
     m_currentQuestion["question"] = m_arg1;
@@ -183,6 +190,10 @@ void Game::processCustom(QueryId::Type t)
         m_ilm.answersForCustomPromptStandardQuestion(this, questionId);
     } else if (t == QueryId::CustomStandardQuestion) {
         m_ilm.answersForCustomStandardQuestion(this, questionId);
+    } else if (t == QueryId::CustomAfterQuestion) {
+        m_ilm.answersForCustomAfterQuestion(this, questionId);
+    } else if (t == QueryId::CustomBeforeQuestion) {
+        m_ilm.answersForCustomBeforeQuestion(this, questionId);
     }
 
     m_ilm.markVisited(this, questionId);

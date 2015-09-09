@@ -47,6 +47,8 @@ public:
         TextInput,
         GenerateTruth,
         GenerateFalsehood,
+        AnswersForCustomAfterQuestion,
+        AnswersForCustomBeforeQuestion,
         AnswersForCustomBoolCountQuestion,
         AnswersForCustomBoolStandardQuestion,
         AnswersForCustomCountQuestion,
