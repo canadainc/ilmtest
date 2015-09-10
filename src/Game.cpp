@@ -8,7 +8,7 @@
 #include "QueryId.h"
 #include "TextUtils.h"
 
-#define IS_NUMERIC_QUESTION(x) x.size() == 1 && QRegExp("\\d+$").exactMatch( x.first().toMap().value(KEY_CHOICE_VALUE).toString() )
+#define EMIT_ERROR emit error( QString("NoChoicesForFound QuestionId: %1; QuestionType: %2; FormatType: %3; TruthType: %4; Debug: %5_%6:%7").arg(m_destiny.questionId).arg( ID_TO_QSTR(id) ).arg( ID_TO_QSTR(m_destiny.formatType).arg( ID_TO_QSTR(m_destiny.truthType) ).arg(__FILE__).arg(__FUNCTION__).arg(__LINE__) ) )
 #define EXTRACT_NUMERIC_ANSWER(x,key) x.first().toMap().value( !key.isNull() ? key : TOTAL_COUNT_VALUE ).toInt();
 #define KEY_BOOLEAN "boolean"
 #define KEY_NUMERIC "numeric"
@@ -16,6 +16,7 @@
 #define KEY_STANDARD "standard"
 #define KEY_QUESTION_BODY "question"
 #define ID_TO_QSTR(t) QString( QueryId::staticMetaObject.enumerator(0).valueToKey( (QueryId::Type)t ) )
+#define IS_NUMERIC_QUESTION(x) x.size() == 1 && QRegExp("\\d+$").exactMatch( x.first().toMap().value(KEY_CHOICE_VALUE).toString() )
 
 namespace ilmtest {
 
@@ -122,10 +123,12 @@ void Game::onDataLoaded(QVariant idV, QVariant dataV)
 
 QVariantList Game::generateNumericBoolean(int id, QVariantList data, QString const& key)
 {
+    LOGGER(data.size() << data);
     bool boolType = id == QueryId::AnswersForCustomBoolCountQuestion || id == QueryId::AnswersForCustomBoolStandardQuestion;
     bool truth = m_destiny.truthType == QueryId::GenerateTruth;
     int answer = data.first().toMap().value( !key.isNull() ? key : TOTAL_COUNT_VALUE ).toInt();
     data = Offloader::setChoices( boolType ? tr("True") : tr("Yes"), boolType ? tr("False") : tr("No"), truth );
+    LOGGER(data);
     m_arg1 = m_arg1.arg( truth ? answer : TextUtils::randInt(answer+1, answer+15) );
     m_currentQuestion[KEY_BOOLEAN] = true;
     m_currentQuestion[KEY_STANDARD] = true;
@@ -142,10 +145,17 @@ QVariantList Game::processAnswersForCustomQuestion(QueryId::Type id, QVariantLis
             data = generateNumericBoolean(id, data, KEY_CHOICE_VALUE);
         } else {
             data = Offloader::transformToStandard(data, false);
-            m_arg1 = m_arg1.arg( Offloader::fetchRandomElement(data, m_destiny.truthType == QueryId::GenerateTruth).value(KEY_CHOICE_VALUE).toString() );
-            data = Offloader::setChoices( id == QueryId::AnswersForCustomBoolStandardQuestion ? tr("True") : tr("Yes"), id == QueryId::AnswersForCustomBoolStandardQuestion ? tr("False") : tr("No"), m_destiny.truthType == QueryId::GenerateTruth );
-            m_currentQuestion[KEY_BOOLEAN] = true;
-            m_currentQuestion[KEY_STANDARD] = true;
+            QVariantMap qvm = Offloader::fetchRandomElement(data, m_destiny.truthType == QueryId::GenerateTruth);
+
+            if ( !qvm.isEmpty() )
+            {
+                m_arg1 = m_arg1.arg( qvm.value(KEY_CHOICE_VALUE).toString() );
+                data = Offloader::setChoices( id == QueryId::AnswersForCustomBoolStandardQuestion ? tr("True") : tr("Yes"), id == QueryId::AnswersForCustomBoolStandardQuestion ? tr("False") : tr("No"), m_destiny.truthType == QueryId::GenerateTruth );
+                m_currentQuestion[KEY_BOOLEAN] = true;
+                m_currentQuestion[KEY_STANDARD] = true;
+            } else {
+                EMIT_ERROR;
+            }
         }
     } else if (id == QueryId::AnswersForCustomBoolCountQuestion || id == QueryId::AnswersForCustomPromptCountQuestion) {
         data = generateNumericBoolean(id, data);
@@ -185,6 +195,7 @@ QVariantList Game::processOrdered(QVariantList data, bool before)
 void Game::processCustom(QueryId::Type t)
 {
     int questionId = REAL_ID(m_currentQuestion);
+    m_destiny.questionId = questionId;
 
     if (t == QueryId::CustomBoolCountQuestion) {
         m_ilm.answersForCustomBoolCountQuestion(this, questionId);

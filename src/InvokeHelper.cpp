@@ -39,12 +39,12 @@ QString InvokeHelper::invoked(bb::system::InvokeRequest const& request)
     QString target = request.target();
 
     QMap<QString,QString> targetToQML;
-    targetToQML[TARGET_SHARE] = "WelcomePane.qml";
+    targetToQML[TARGET_SHARE] = "PlaceholderPage.qml";
 
     QString qml = targetToQML.value(target);
 
     if ( qml.isNull() ) {
-        qml = "WelcomePane.qml";
+        qml = "PlaceholderPage.qml";
     }
 
     m_request = request;
@@ -73,6 +73,8 @@ void InvokeHelper::process()
 
 void InvokeHelper::onDatabasePorted()
 {
+    m_root->setProperty("isBusy", false);
+
     QFutureWatcher<bool>* qfw = static_cast< QFutureWatcher<bool>* >( sender() );
     bool copied = qfw->result();
 

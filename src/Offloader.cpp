@@ -57,6 +57,7 @@ QVariantList Offloader::generateChoices(int correctAnswer)
     QVariantList qvl;
     QVariantMap current;
     int n = RESULT_SET_LIMIT;
+    n = 8;
 
     if (correctAnswer < n) // for example n = 4, and answer=3; then 1,2,3,4
     {
@@ -223,7 +224,9 @@ QVariantMap Offloader::fetchRandomElement(QVariantList data, bool correctOnly)
         }
     }
 
-    std::random_shuffle( result.begin(), result.end() );
+    if ( !result.isEmpty() ) {
+        std::random_shuffle( result.begin(), result.end() );
+    }
 
     return !data.isEmpty() ? result.first() : QVariantMap();
 }

@@ -12,9 +12,10 @@ struct Destiny
     QueryId::Type formatType;
     QueryId::Type questionType;
     QueryId::Type truthType;
+    int questionId;
 
     Destiny(int format=QueryId::MultipleChoice, int q=QueryId::Unknown, int tt=QueryId::GenerateTruth) :
-        formatType( (QueryId::Type)format ), questionType( (QueryId::Type)q ), truthType( (QueryId::Type)tt ) {}
+        formatType( (QueryId::Type)format ), questionType( (QueryId::Type)q ), truthType( (QueryId::Type)tt ), questionId(0) {}
 };
 
 class Game : public QObject
@@ -45,6 +46,7 @@ private slots:
 
 signals:
     void currentQuestionChanged();
+    void error(QString const& q);
 
 public:
     Game(DatabaseHelper* db);
