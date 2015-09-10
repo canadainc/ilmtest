@@ -78,27 +78,27 @@ void Game::onDataLoaded(QVariant idV, QVariant dataV)
                 }
             }
         }
+    }
 
-        if ( t.startsWith("Numeric") ) {
-            data = generateNumeric(data);
-        } else if ( t.startsWith("Ordered") ) {
-            m_currentQuestion[KEY_ORDERED] = true;
-        } else if ( t.startsWith("Standard") ) {
-            m_currentQuestion[KEY_STANDARD] = true;
-            data = Offloader::mergeAndShuffle(data, m_tempList);
-        } else if ( t.startsWith("Bool") ) {
-            m_currentQuestion[KEY_BOOLEAN] = true;
-        } else if ( t.startsWith("Custom") ) {
-            m_currentQuestion = data.first().toMap();
-            processCustom( (QueryId::Type)id );
-        } else if ( t.startsWith("After") ) {
-            data = processOrdered(data, false);
-        } else if ( t.startsWith("Before") ) {
-            data = processOrdered(data, true);
-        } else if ( t.startsWith("AnswersForCustom") ) {
-            data = processAnswersForCustomQuestion( (QueryId::Type)id, data );
-        }
+    if ( t.startsWith("Numeric") && n > 0 ) {
+        data = generateNumeric(data);
+    } else if ( t.startsWith("Ordered") && n > 0 ) {
+        m_currentQuestion[KEY_ORDERED] = true;
+    } else if ( t.startsWith("Standard") ) {
+        m_currentQuestion[KEY_STANDARD] = true;
+        data = Offloader::mergeAndShuffle(data, m_tempList);
+    } else if ( t.startsWith("Bool") ) {
+        m_currentQuestion[KEY_BOOLEAN] = true;
     } else if ( t.startsWith("Custom") ) {
+        m_currentQuestion = data.first().toMap();
+        processCustom( (QueryId::Type)id );
+    } else if ( t.startsWith("After") ) {
+        data = processOrdered(data, false);
+    } else if ( t.startsWith("Before") ) {
+        data = processOrdered(data, true);
+    } else if ( t.startsWith("AnswersForCustom") ) {
+        data = processAnswersForCustomQuestion( (QueryId::Type)id, data );
+    } else if ( t.startsWith("Custom") && n == 0 ) {
         emit currentQuestionChanged();
     }
 
@@ -217,7 +217,7 @@ void Game::processCustom(QueryId::Type t)
         m_ilm.answersForCustomBeforeQuestion(this, questionId);
     }
 
-    m_ilm.markVisited(this, questionId);
+    m_ilm.markVisited(questionId);
 }
 
 

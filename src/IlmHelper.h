@@ -77,7 +77,7 @@ public:
     Q_INVOKABLE void standardVersesForSurah(QObject* caller);
 
     void lazyInit();
-    void markVisited(QObject* caller, qint64 questionId);
+    void markVisited(qint64 questionId);
     void resetVisited();
 };
 

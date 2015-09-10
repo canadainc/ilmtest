@@ -6,12 +6,12 @@
 #include "Logger.h"
 #include "TextUtils.h"
 
-#define NAME_FIELD(var,fieldName) QString("replace( replace( replace( replace( coalesce(%1.displayName, TRIM((coalesce(%1.prefix,'') || ' ' || coalesce(%1.kunya,'') || ' ' || %1.name))),\"'\",''), '%2', ''), '%3', ''), '  ', ' ' ) AS %4").arg(var).arg( QChar(8217) ).arg( QChar(8216) ).arg(fieldName)
-#define NUMERIC_FIELD_QUERY(field) QString("SELECT %1,%3 AS %2 FROM individuals i WHERE %3 > 0 AND hidden ISNULL ORDER BY RANDOM() LIMIT 1").arg( NAME_FIELD("i", KEY_ARG_1) ).arg(TOTAL_COUNT_VALUE).arg(field)
-#define ORDERED_FIELD_QUERY(field) QString("SELECT %1,%3 AS %2 FROM individuals i WHERE %3 > 0 AND hidden ISNULL ORDER BY RANDOM() LIMIT 4").arg( NAME_FIELD("i", KEY_CHOICE_VALUE) ).arg(KEY_SORT_ORDER).arg(field)
 #define DB_ARABIC "quran_arabic"
 #define DB_ENGLISH "quran_english"
 #define FETCH_TABLE_COUNT(table) QString("SELECT COUNT() AS %1 FROM %2").arg(TOTAL_COUNT_VALUE).arg(table)
+#define NAME_FIELD(var,fieldName) QString("replace( replace( replace( replace( coalesce(%1.displayName, TRIM((coalesce(%1.prefix,'') || ' ' || coalesce(%1.kunya,'') || ' ' || %1.name))),\"'\",''), '%2', ''), '%3', ''), '  ', ' ' ) AS %4").arg(var).arg( QChar(8217) ).arg( QChar(8216) ).arg(fieldName)
+#define NUMERIC_FIELD_QUERY(field) QString("SELECT %1,%3 AS %2 FROM individuals i WHERE %3 > 0 AND hidden ISNULL ORDER BY RANDOM() LIMIT 1").arg( NAME_FIELD("i", KEY_ARG_1) ).arg(TOTAL_COUNT_VALUE).arg(field)
+#define ORDERED_FIELD_QUERY(field) QString("SELECT %1,%3 AS %2 FROM individuals i WHERE %3 > 0 AND hidden ISNULL ORDER BY RANDOM() LIMIT 4").arg( NAME_FIELD("i", KEY_CHOICE_VALUE) ).arg(KEY_SORT_ORDER).arg(field)
 #define MERGE_COLUMNS(col1, col2, alias) QString("%1 || ' (' || %2 || ')' AS %3").arg(col1).arg(col2).arg(alias)
 #define MERGE_SURAH_NAME MERGE_COLUMNS("name", "transliteration", KEY_ARG_1)
 #define MERGE_SURAH_VALUE MERGE_COLUMNS("name", "transliteration", KEY_CHOICE_VALUE)
@@ -20,6 +20,19 @@
 #define TRANSLATION_AS_DESCRIPTION "translation AS description"
 #define RANDOM_SURAH TextUtils::randInt(1,114)
 #define USE_RANDOM_CONSTRAINT(q,t,id) if (t == id) q += QString(" ORDER BY RANDOM() LIMIT %1").arg(RESULT_SET_LIMIT);
+
+namespace {
+
+QPair<int,int> generateCorrectIncorrect()
+{
+    int correctAnswerLimits = canadainc::TextUtils::randInt(1,RESULT_SET_MAX);
+    int incorrectAnswerLimits = canadainc::TextUtils::randInt(correctAnswerLimits > 1 ? 0 : 1, RESULT_SET_MAX-correctAnswerLimits);
+    LOGGER(correctAnswerLimits << incorrectAnswerLimits);
+
+    return qMakePair<int,int>(correctAnswerLimits, incorrectAnswerLimits);
+}
+
+}
 
 namespace ilmtest {
 
@@ -99,11 +112,8 @@ void IlmHelper::standardTabiee(QObject* caller) {
 
 void IlmHelper::standardFemale(QObject* caller)
 {
-    int correctAnswerLimits = TextUtils::randInt(1,4);
-    int incorrectAnswerLimits = TextUtils::randInt(correctAnswerLimits > 1 ? 0 : 1, 4-correctAnswerLimits);
-
-    m_sql->executeQuery(caller, QString("SELECT %1,1 AS correct FROM individuals i WHERE female=1 AND hidden ISNULL AND death > 0 ORDER BY RANDOM() LIMIT %2").arg( NAME_FIELD("i", KEY_CHOICE_VALUE) ).arg(correctAnswerLimits), QueryId::TempList);
-    m_sql->executeQuery(caller, QString("SELECT %1 FROM individuals i WHERE female ISNULL AND hidden ISNULL AND prefix ISNULL ORDER BY RANDOM() LIMIT %2").arg( NAME_FIELD("i", KEY_CHOICE_VALUE) ).arg(incorrectAnswerLimits), QueryId::StandardFemale);
+    QPair<int,int> limits = generateCorrectIncorrect();
+    m_sql->executeQuery(caller, QString("SELECT * FROM (SELECT %1,1 AS correct FROM individuals i WHERE female=1 AND hidden ISNULL AND death > 0 ORDER BY RANDOM() LIMIT %2) UNION SELECT * FROM (SELECT %1,0 FROM individuals i WHERE female ISNULL AND hidden ISNULL AND prefix ISNULL ORDER BY RANDOM() LIMIT %3)").arg( NAME_FIELD("i", KEY_CHOICE_VALUE) ).arg(limits.first).arg(limits.second), QueryId::StandardFemale);
 }
 
 
@@ -267,11 +277,8 @@ void IlmHelper::orderedSurahVerses(QObject* caller, QueryId::Type t)
 
 void IlmHelper::standardSajdaSurah(QObject* caller)
 {
-    int correctAnswerLimits = TextUtils::randInt(1,4);
-    int incorrectAnswerLimits = TextUtils::randInt(correctAnswerLimits > 1 ? 0 : 1, 4-correctAnswerLimits);
-
-    m_sql->executeQuery(caller, QString("SELECT %1,1 AS correct FROM sajdas INNER JOIN surahs ON sajdas.surah_id=surahs.id INNER JOIN chapters ON surahs.id=chapters.id ORDER BY RANDOM() LIMIT %2").arg(MERGE_SURAH_VALUE).arg(correctAnswerLimits), QueryId::TempList);
-    m_sql->executeQuery(caller, QString("SELECT %1 FROM surahs INNER JOIN chapters ON surahs.id=chapters.id WHERE surahs.id NOT IN (SELECT surah_id FROM sajdas) ORDER BY RANDOM() LIMIT %2").arg(MERGE_SURAH_VALUE).arg(incorrectAnswerLimits), QueryId::StandardSajdaSurah);
+    QPair<int,int> limits = generateCorrectIncorrect();
+    m_sql->executeQuery(caller, QString("SELECT * FROM (SELECT %1,1 AS correct FROM sajdas INNER JOIN surahs ON sajdas.surah_id=surahs.id INNER JOIN chapters ON surahs.id=chapters.id ORDER BY RANDOM() LIMIT %2) UNION SELECT * FROM (SELECT %1,0 FROM surahs INNER JOIN chapters ON surahs.id=chapters.id WHERE surahs.id NOT IN (SELECT surah_id FROM sajdas) ORDER BY RANDOM() LIMIT %3)").arg(MERGE_SURAH_VALUE).arg(limits.first).arg(limits.second), QueryId::StandardSajdaSurah);
 }
 
 
@@ -321,18 +328,15 @@ void IlmHelper::resetVisited() {
 }
 
 
-void IlmHelper::markVisited(QObject* caller, qint64 questionId) {
+void IlmHelper::markVisited(qint64 questionId) {
     m_sql->executeInternal( "INSERT INTO visited_questions (id) VALUES (?)", QueryId::MarkVisited, QVariantList() << questionId );
 }
 
 
 void IlmHelper::lookupByField(QObject* caller, int fieldValue, QueryId::Type t, QString const& field)
 {
-    int correctAnswerLimits = TextUtils::randInt(1,4);
-    int incorrectAnswerLimits = TextUtils::randInt(correctAnswerLimits > 1 ? 0 : 1, 4-correctAnswerLimits);
-
-    m_sql->executeQuery(caller, QString("SELECT %1,1 AS correct FROM individuals i WHERE %4=%3 AND hidden ISNULL ORDER BY RANDOM() LIMIT %2").arg( NAME_FIELD("i", KEY_CHOICE_VALUE) ).arg(correctAnswerLimits).arg(fieldValue).arg(field), QueryId::TempList);
-    m_sql->executeQuery(caller, QString("SELECT %1 FROM individuals i WHERE %4 <> %3 AND hidden ISNULL AND prefix ISNULL ORDER BY RANDOM() LIMIT %2").arg( NAME_FIELD("i", KEY_CHOICE_VALUE) ).arg(incorrectAnswerLimits).arg(fieldValue).arg(field), t);
+    QPair<int,int> limits = generateCorrectIncorrect();
+    m_sql->executeQuery(caller, QString("SELECT * FROM (SELECT %1,1 AS correct FROM individuals i WHERE %2=%3 AND hidden ISNULL ORDER BY RANDOM() LIMIT %4) UNION SELECT * FROM (SELECT %1,0 FROM individuals i WHERE %2 <> %3 AND hidden ISNULL AND prefix ISNULL ORDER BY RANDOM() LIMIT %5)").arg( NAME_FIELD("i", KEY_CHOICE_VALUE) ).arg(field).arg(fieldValue).arg(limits.first).arg(limits.second), t);
 }
 
 IlmHelper::~IlmHelper()

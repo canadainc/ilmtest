@@ -67,8 +67,14 @@ TabbedPane
         }
     }
     
+    function onError(message) {
+        persist.showToast(message);
+        console.log(message);
+    }
+    
     onCreationCompleted: {
         sound.loadProgress.connect(onLoading);
+        game.error.connect(onError);
     }
     
     attachedObjects: [
