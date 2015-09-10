@@ -74,8 +74,11 @@ Page
     function pendingInput()
     {
         finalAnswer.enabled = true;
-        refAnim.play();
         clock.start();
+        
+        if (game.currentQuestion.reference) {
+            refAnim.play();
+        }
     }
     
     onCreationCompleted: {

@@ -90,6 +90,10 @@ void Game::onDataLoaded(QVariant idV, QVariant dataV)
         } else if ( t.startsWith("Custom") ) {
             m_currentQuestion = data.first().toMap();
             processCustom( (QueryId::Type)id );
+        } else if ( t.startsWith("After") ) {
+            data = processOrdered(data, false);
+        } else if ( t.startsWith("Before") ) {
+            data = processOrdered(data, true);
         } else if ( t.startsWith("AnswersForCustom") ) {
             data = processAnswersForCustomQuestion( (QueryId::Type)id, data );
         }
@@ -158,11 +162,9 @@ QVariantList Game::processAnswersForCustomQuestion(QueryId::Type id, QVariantLis
             m_currentQuestion[KEY_STANDARD] = true;
         }
     } else if (id == QueryId::AnswersForCustomAfterQuestion) {
-        int i = TextUtils::randInt( 0, data.size()-2 );
-        data = processOrdered(i, i+1, data);
+        data = processOrdered(data, false);
     } else if (id == QueryId::AnswersForCustomBeforeQuestion) {
-        int i = TextUtils::randInt( 1, data.size()-1 );
-        data = processOrdered(i, i-1, data);
+        data = processOrdered(data, true);
     }
 
     m_currentQuestion["question"] = m_arg1;
@@ -171,13 +173,9 @@ QVariantList Game::processAnswersForCustomQuestion(QueryId::Type id, QVariantLis
 }
 
 
-QVariantList Game::processOrdered(int targetIndex, int correctIndex, QVariantList data)
+QVariantList Game::processOrdered(QVariantList data, bool before)
 {
-    data = Offloader::useRandomSources(data);
-    QVariantMap qvm = data[correctIndex].toMap();
-    qvm[KEY_FLAG_CORRECT] = 1;
-    data[correctIndex] = qvm;
-    m_arg1 = m_arg1.arg( data.takeAt(targetIndex).toMap().value(KEY_CHOICE_VALUE).toString() );
+    data = Offloader::processOrdered(data, m_arg1, before, m_destiny.questionType == QueryId::CustomAfterQuestion || m_destiny.questionType == QueryId::CustomBeforeQuestion);
     m_currentQuestion[KEY_STANDARD] = true;
 
     return data;

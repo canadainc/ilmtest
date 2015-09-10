@@ -13,6 +13,12 @@ class QueryId
 public:
     enum Type {
         Unknown,
+        AfterRevealedSurah,
+        AfterSurah,
+        AfterVerse,
+        BeforeRevealedSurah,
+        BeforeSurah,
+        BeforeVerse,
         BoolSurahLocation,
         CustomAfterQuestion, // Which pillar of eemaan comes after Belief in Allah?
         CustomBeforeQuestion, // Which pillar of eemaan comes before Belief in the Angels?

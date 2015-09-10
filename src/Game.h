@@ -37,7 +37,7 @@ class Game : public QObject
     QVariantList generateNumeric(QVariantList data, QString const& key=QString());
     void processCustom(QueryId::Type t);
     QVariantList processAnswersForCustomQuestion(QueryId::Type t, QVariantList data);
-    QVariantList processOrdered(int targetIndex, int correctIndex, QVariantList data);
+    QVariantList processOrdered(QVariantList data, bool before);
     void setReference(QVariantMap const& qvm, QString const& idKey, QString const& authorKey, QString const& titleKey, QString const& headingKey);
 
 private slots:

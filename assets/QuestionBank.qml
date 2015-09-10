@@ -10,6 +10,12 @@ QtObject
         if (!questionDB)
         {
             var map = {};
+            map[QueryId.AfterRevealedSurah] = {'choiceTexts': [qsTr("Which surah was revealed right after %1?")]};
+            map[QueryId.AfterSurah] = {'choiceTexts': [qsTr("Which surah comes right after %1?")]};
+            map[QueryId.AfterVerse] = {'choiceTexts': [qsTr("Which ayat comes right after %1?")]};
+            map[QueryId.BeforeRevealedSurah] = {'choiceTexts': [qsTr("Which surah was revealed right before %1?")]};
+            map[QueryId.BeforeSurah] = {'choiceTexts': [qsTr("Which surah comes right before %1?")]};
+            map[QueryId.BeforeVerse] = {'choiceTexts': [qsTr("Which verse comes right before %1?")]};
             map[QueryId.BoolSurahLocation] = {'trueStrings': [ qsTr("%1 was revealed in Mecca") ], 'falseStrings': [qsTr("%1 was revealed in Medina"), qsTr("%1 was not revealed in Mecca")], 'truePrompts': [qsTr("Was %1 revealed in Mecca?")], 'falsePrompts': [qsTr("Was %1 revealed in Medina?")], 'choiceTexts': [qsTr("%1 was revealed in")], 'corrects': [qsTr("Mecca")], 'incorrects': [qsTr("Medina")]};
             map[QueryId.NumericVerseCount] = {'choiceTexts': [qsTr("How many verses does %1 contain?")]};
             map[QueryId.NumericTotalSurahCount] = {'choiceTexts': [qsTr("How many surahs are there in the Qu'ran?")]};

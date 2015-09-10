@@ -19,6 +19,7 @@
 #define AYAT_AS_VALUE QString("content AS %1").arg(KEY_CHOICE_VALUE)
 #define TRANSLATION_AS_DESCRIPTION "translation AS description"
 #define RANDOM_SURAH TextUtils::randInt(1,114)
+#define USE_RANDOM_CONSTRAINT(q,t,id) if (t == id) q += QString(" ORDER BY RANDOM() LIMIT %1").arg(RESULT_SET_LIMIT);
 
 namespace ilmtest {
 
@@ -26,6 +27,36 @@ using namespace canadainc;
 
 IlmHelper::IlmHelper(DatabaseHelper* sql) : m_sql(sql)
 {
+}
+
+
+void IlmHelper::afterRevealedSurah(QObject* caller) {
+    orderedRevelationSurahs(caller, QueryId::AfterRevealedSurah);
+}
+
+
+void IlmHelper::afterSurah(QObject* caller) {
+    orderedSurahs(caller, QueryId::AfterSurah);
+}
+
+
+void IlmHelper::afterVerse(QObject* caller) {
+    orderedSurahVerses(caller, QueryId::AfterVerse);
+}
+
+
+void IlmHelper::beforeRevealedSurah(QObject* caller) {
+    orderedRevelationSurahs(caller, QueryId::BeforeRevealedSurah);
+}
+
+
+void IlmHelper::beforeSurah(QObject* caller) {
+    orderedSurahs(caller, QueryId::BeforeSurah);
+}
+
+
+void IlmHelper::beforeVerse(QObject* caller) {
+    orderedSurahVerses(caller, QueryId::AfterSurah);
 }
 
 
@@ -199,26 +230,38 @@ void IlmHelper::numericVerseCount(QObject* caller) {
 }
 
 
-void IlmHelper::orderedSurahs(QObject* caller) {
-    m_sql->executeQuery(caller, QString("SELECT surahs.id AS %2,%1 FROM surahs INNER JOIN chapters ON surahs.id=chapters.id ORDER BY RANDOM() LIMIT %4").arg( MERGE_COLUMNS("name", "transliteration", "value") ).arg(KEY_SORT_ORDER).arg(RESULT_SET_LIMIT), QueryId::OrderedSurahs);
+void IlmHelper::orderedSurahs(QObject* caller, QueryId::Type t)
+{
+    QString query = QString("SELECT surahs.id AS %2,%1 FROM surahs INNER JOIN chapters ON surahs.id=chapters.id").arg( MERGE_COLUMNS("name", "transliteration", KEY_CHOICE_VALUE) ).arg(KEY_SORT_ORDER);
+    USE_RANDOM_CONSTRAINT(query, t, QueryId::OrderedSurahs);
+
+    m_sql->executeQuery(caller, query, t);
 }
 
 
-void IlmHelper::orderedRevelationSurahs(QObject* caller) {
-    m_sql->executeQuery(caller, QString("SELECT surahs.revelation_order AS %2,%1 FROM surahs INNER JOIN chapters ON surahs.id=chapters.id ORDER BY RANDOM() LIMIT %4").arg( MERGE_COLUMNS("name", "transliteration", "value") ).arg(KEY_SORT_ORDER).arg(RESULT_SET_LIMIT), QueryId::OrderedRevelationSurahs);
+void IlmHelper::orderedRevelationSurahs(QObject* caller, QueryId::Type t)
+{
+    QString query = QString("SELECT surahs.revelation_order AS %2,%1 FROM surahs INNER JOIN chapters ON surahs.id=chapters.id").arg( MERGE_COLUMNS("name", "transliteration", KEY_CHOICE_VALUE) ).arg(KEY_SORT_ORDER);
+    USE_RANDOM_CONSTRAINT(query, t, QueryId::OrderedRevelationSurahs);
+
+    m_sql->executeQuery(caller, query, t);
 }
 
 
 void IlmHelper::orderedSurahsByLength(QObject* caller) {
-    m_sql->executeQuery(caller, QString("SELECT surahs.verse_count AS %2,%1 FROM surahs INNER JOIN chapters ON surahs.id=chapters.id ORDER BY RANDOM() LIMIT %4").arg( MERGE_COLUMNS("name", "transliteration", "value") ).arg(KEY_SORT_ORDER).arg(RESULT_SET_LIMIT), QueryId::OrderedSurahsByLength);
+    m_sql->executeQuery(caller, QString("SELECT surahs.verse_count AS %2,%1 FROM surahs INNER JOIN chapters ON surahs.id=chapters.id ORDER BY RANDOM() LIMIT %4").arg( MERGE_COLUMNS("name", "transliteration", KEY_CHOICE_VALUE) ).arg(KEY_SORT_ORDER).arg(RESULT_SET_LIMIT), QueryId::OrderedSurahsByLength);
 }
 
 
-void IlmHelper::orderedSurahVerses(QObject* caller)
+void IlmHelper::orderedSurahVerses(QObject* caller, QueryId::Type t)
 {
     int surahId = RANDOM_SURAH;
     fetchSurahHeader(caller, surahId);
-    m_sql->executeQuery(caller, QString("SELECT %1,%2,verse_id AS %3 FROM ayahs INNER JOIN verses ON ayahs.surah_id=verses.chapter_id WHERE surah_id=%4 GROUP BY %3 ORDER BY RANDOM() LIMIT %5").arg(AYAT_AS_VALUE).arg(TRANSLATION_AS_DESCRIPTION).arg(KEY_SORT_ORDER).arg(surahId).arg(RESULT_SET_LIMIT), QueryId::OrderedSurahVerses);
+
+    QString query = QString("SELECT %1,%2,verse_id AS %3 FROM ayahs INNER JOIN verses ON ayahs.surah_id=verses.chapter_id WHERE surah_id=%4 GROUP BY %3").arg(AYAT_AS_VALUE).arg(TRANSLATION_AS_DESCRIPTION).arg(KEY_SORT_ORDER).arg(surahId);
+    USE_RANDOM_CONSTRAINT(query, t, QueryId::OrderedSurahVerses);
+
+    m_sql->executeQuery(caller, query, t);
 }
 
 

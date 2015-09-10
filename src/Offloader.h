@@ -50,6 +50,7 @@ public:
     static QVariantList useRandomSources(QVariantList data);
     static QVariantMap fetchRandomElement(QVariantList data, bool correctOnly);
     static QVariantList generateBoolStrings(bool trueIsCorrect);
+    static QVariantList processOrdered(QVariantList data, QString& arg1, bool before, bool hasSourceId=true);
 };
 
 } /* namespace quran */

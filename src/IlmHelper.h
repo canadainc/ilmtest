@@ -31,6 +31,12 @@ public:
     IlmHelper(DatabaseHelper* sql);
     virtual ~IlmHelper();
 
+    Q_INVOKABLE void afterRevealedSurah(QObject* caller);
+    Q_INVOKABLE void afterSurah(QObject* caller);
+    Q_INVOKABLE void afterVerse(QObject* caller);
+    Q_INVOKABLE void beforeRevealedSurah(QObject* caller);
+    Q_INVOKABLE void beforeSurah(QObject* caller);
+    Q_INVOKABLE void beforeVerse(QObject* caller);
     Q_INVOKABLE void boolSurahLocation(QObject* caller);
     Q_INVOKABLE void customAfterQuestion(QObject* caller);
     Q_INVOKABLE void customBeforeQuestion(QObject* caller);
@@ -59,10 +65,10 @@ public:
     Q_INVOKABLE void numericVerseCount(QObject* caller);
     Q_INVOKABLE void orderedPeopleByBirth(QObject* caller);
     Q_INVOKABLE void orderedPeopleByDeath(QObject* caller);
-    Q_INVOKABLE void orderedRevelationSurahs(QObject* caller);
-    Q_INVOKABLE void orderedSurahs(QObject* caller);
+    Q_INVOKABLE void orderedRevelationSurahs(QObject* caller, QueryId::Type t=QueryId::OrderedRevelationSurahs);
+    Q_INVOKABLE void orderedSurahs(QObject* caller, QueryId::Type t=QueryId::OrderedSurahs);
     Q_INVOKABLE void orderedSurahsByLength(QObject* caller);
-    Q_INVOKABLE void orderedSurahVerses(QObject* caller);
+    Q_INVOKABLE void orderedSurahVerses(QObject* caller, QueryId::Type t=QueryId::OrderedSurahVerses);
     Q_INVOKABLE void standardFemale(QObject* caller);
     Q_INVOKABLE void standardSahabah(QObject* caller);
     Q_INVOKABLE void standardSajdaSurah(QObject* caller);

@@ -312,6 +312,42 @@ QVariantList Offloader::setChoices(QString const& trueString, QString const& fal
 }
 
 
+QVariantList Offloader::processOrdered(QVariantList data, QString& arg1, bool before, bool hasSourceId)
+{
+    int targetIndex = TextUtils::randInt( before ? 1 : 0, before ? data.size()-1 : data.size()-2 );
+    int correctIndex = before ? targetIndex-1 : targetIndex+1;
+
+    if (hasSourceId) {
+        data = useRandomSources(data);
+    }
+
+    QVariantMap qvm = data.takeAt(correctIndex).toMap();
+    qvm[KEY_FLAG_CORRECT] = 1;
+
+    QString target = data.takeAt(targetIndex).toMap().value(KEY_CHOICE_VALUE).toString();
+
+    if ( arg1.isEmpty() ) {
+        arg1 = target;
+    } else {
+        arg1 = arg1.arg(target);
+    }
+
+    std::random_shuffle( data.begin(), data.end() );
+
+    int x = RESULT_SET_LIMIT;
+
+    while ( data.size() >= x ) {
+        data.removeLast();
+    }
+
+    data << qvm;
+
+    std::random_shuffle( data.begin(), data.end() );
+
+    return data;
+}
+
+
 Offloader::~Offloader()
 {
 }
