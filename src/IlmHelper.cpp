@@ -299,8 +299,8 @@ void IlmHelper::standardVersesForSurah(QObject* caller)
     }
 
     fetchSurahHeader(caller, chapter);
-    m_sql->executeQuery(caller, QString("SELECT %2,%3,1 AS correct FROM ayahs INNER JOIN verses ON ayahs.surah_id=verses.chapter_id WHERE surah_id=%1 ORDER BY RANDOM() LIMIT %4").arg(chapter).arg(AYAT_AS_VALUE).arg(TRANSLATION_AS_DESCRIPTION).arg(2), QueryId::TempList);
-    m_sql->executeQuery(caller, QString("SELECT %2,%3 FROM ayahs INNER JOIN verses ON ayahs.surah_id=verses.chapter_id WHERE surah_id=%1 ORDER BY RANDOM() LIMIT %4").arg(wrongChapter).arg(AYAT_AS_VALUE).arg(TRANSLATION_AS_DESCRIPTION).arg(2), QueryId::StandardVersesForSurah);
+    QPair<int,int> limits = generateCorrectIncorrect();
+    m_sql->executeQuery(caller, QString("SELECT * FROM (SELECT %1,%2,1 AS correct FROM ayahs INNER JOIN verses ON ayahs.surah_id=verses.chapter_id WHERE surah_id=%3 ORDER BY RANDOM() LIMIT %5) UNION SELECT * FROM (SELECT %1,%2,0 FROM ayahs INNER JOIN verses ON ayahs.surah_id=verses.chapter_id WHERE surah_id=%4 ORDER BY RANDOM() LIMIT %6)").arg(AYAT_AS_VALUE).arg(TRANSLATION_AS_DESCRIPTION).arg(chapter).arg(wrongChapter).arg(limits.first).arg(limits.second), QueryId::StandardVersesForSurah);
 }
 
 
