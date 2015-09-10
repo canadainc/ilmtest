@@ -158,15 +158,27 @@ QVariantList Game::processAnswersForCustomQuestion(QueryId::Type id, QVariantLis
             m_currentQuestion[KEY_STANDARD] = true;
         }
     } else if (id == QueryId::AnswersForCustomAfterQuestion) {
-        LOGGER(data);
-        //data = Offloader::transformToStandard(data, false);
-        //data = generateNumeric(data);
+        int i = TextUtils::randInt( 0, data.size()-2 );
+        data = processOrdered(i, i+1, data);
     } else if (id == QueryId::AnswersForCustomBeforeQuestion) {
-        LOGGER(data);
-        //data = generateNumeric(data);
+        int i = TextUtils::randInt( 1, data.size()-1 );
+        data = processOrdered(i, i-1, data);
     }
 
     m_currentQuestion["question"] = m_arg1;
+
+    return data;
+}
+
+
+QVariantList Game::processOrdered(int targetIndex, int correctIndex, QVariantList data)
+{
+    data = Offloader::useRandomSources(data);
+    QVariantMap qvm = data[correctIndex].toMap();
+    qvm[KEY_FLAG_CORRECT] = 1;
+    data[correctIndex] = qvm;
+    m_arg1 = m_arg1.arg( data.takeAt(targetIndex).toMap().value(KEY_CHOICE_VALUE).toString() );
+    m_currentQuestion[KEY_STANDARD] = true;
 
     return data;
 }

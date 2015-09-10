@@ -229,7 +229,7 @@ QVariantMap Offloader::fetchRandomElement(QVariantList data, bool correctOnly)
 }
 
 
-QVariantList Offloader::transformToStandard(QVariantList data, bool trim)
+QVariantList Offloader::useRandomSources(QVariantList data)
 {
     QMap<int,QVariantList> map;
 
@@ -262,6 +262,14 @@ QVariantList Offloader::transformToStandard(QVariantList data, bool trim)
         QVariantList x = map[id];
         data << x[ TextUtils::randInt( 0, x.size()-1 ) ];
     }
+
+    return data;
+}
+
+
+QVariantList Offloader::transformToStandard(QVariantList data, bool trim)
+{
+    data = useRandomSources(data);
 
     std::random_shuffle( data.begin(), data.end() );
 

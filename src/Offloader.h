@@ -47,6 +47,7 @@ public:
 
     static QVariantList setChoices(QString const& trueString=QObject::tr("Yes"), QString const& falseString=QObject::tr("No"), bool yesCorrect=true);
     static QVariantList transformToStandard(QVariantList data, bool trim=true);
+    static QVariantList useRandomSources(QVariantList data);
     static QVariantMap fetchRandomElement(QVariantList data, bool correctOnly);
     static QVariantList generateBoolStrings(bool trueIsCorrect);
 };
