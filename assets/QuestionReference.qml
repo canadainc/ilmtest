@@ -19,6 +19,8 @@ Container
         var titleValue = refData.pageTitle ? "%1: %2".arg(refData.title).arg(refData.pageTitle) : refData.title;
         plainText = "“%1” - %2".arg(titleValue).arg(refData.author);
         htmlText = "<html><i><a href=\"%1\">“%2”</a></i> - %3</html>".arg( refData.id.toString() ).arg( titleValue.replace(/&/g,"&amp;") ).arg( refData.author.replace(/&/g,"&amp;") );
+        ath.uri = refData.uri;
+        ath.target = refData.target;
     }
     
     Container
@@ -43,12 +45,14 @@ Container
             activeTextHandler: ActiveTextHandler
             {
                 id: ath
+                property string uri
+                property string target
                 
                 onTriggered: {
                     var link = event.href.toString();
                     
                     if ( link.match("\\d+") ) {
-                        persist.invoke( "com.canadainc.Quran10.tafsir.previewer", "", "", "quran://tafsir/"+link, "", global );
+                        persist.invoke( target, "", "", uri+link, "", global );
                     }
                     
                     event.abort();

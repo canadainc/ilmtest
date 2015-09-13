@@ -13,6 +13,7 @@
 #define COOKIE_DLOAD_DB "dload_db"
 #define KEY_ARCHIVE_NAME "archive_name"
 #define KEY_DB_VERSION "dbVersion"
+#define KEY_SERVER_DB_VERSION "version"
 #define KEY_ERROR "error"
 #define KEY_MD5 "md5"
 
@@ -83,7 +84,7 @@ void NetworkChannel::downloadLatestDatabase()
     qvm[COOKIE_DLOAD_DB] = true;
     qvm[KEY_ARCHIVE_NAME] = archiveName;
     qvm[KEY_MD5] = m_response.value(KEY_MD5);
-    qvm[KEY_DB_VERSION] = m_response.value(KEY_DB_VERSION);
+    qvm[KEY_DB_VERSION] = m_response.value(KEY_SERVER_DB_VERSION);
     m_network.doGet(url, qvm);
 }
 
@@ -121,7 +122,7 @@ void NetworkChannel::requestComplete(QVariant const& cookie, QByteArray const& d
             {
                 m_response = actualResult;
 
-                qint64 serverVersion = m_response.value("version").toLongLong();
+                qint64 serverVersion = m_response.value(KEY_SERVER_DB_VERSION).toLongLong();
                 qint64 myVersion = m_persist->getFlag(KEY_DB_VERSION).toLongLong();
 
                 if (serverVersion > myVersion) {

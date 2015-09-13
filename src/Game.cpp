@@ -34,11 +34,13 @@ void Game::lazyInit()
 }
 
 
-void Game::setReference(QVariantMap const& first, QString const& idKey, QString const& authorKey, QString const& titleKey, QString const& headingKey)
+void Game::setReference(QVariantMap const& first, QString const& idKey, QString const& authorKey, QString const& titleKey, QString const& headingKey, QString const& targetId, QString const& uriPrefix)
 {
     m_reference[KEY_ID_FIELD] = first.value(idKey);
     m_reference["author"] = first.value(authorKey);
     m_reference["title"] = first.value(titleKey);
+    m_reference["target"] = targetId;
+    m_reference["uri"] = uriPrefix;
 
     if ( !first.value(headingKey).toString().isEmpty() && ( first.value(headingKey).toString() != first.value(titleKey).toString() ) ) {
         m_reference["pageTitle"] = first.value(headingKey);

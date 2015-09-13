@@ -39,7 +39,7 @@ class Game : public QObject
     void processCustom(QueryId::Type t);
     QVariantList processAnswersForCustomQuestion(QueryId::Type t, QVariantList data);
     QVariantList processOrdered(QVariantList data, bool before);
-    void setReference(QVariantMap const& qvm, QString const& idKey, QString const& authorKey, QString const& titleKey, QString const& headingKey);
+    void setReference(QVariantMap const& qvm, QString const& idKey, QString const& authorKey, QString const& titleKey, QString const& headingKey, QString const& targetId="com.canadainc.Quran10.tafsir.previewer", QString const& uriPrefix="quran://tafsir/");
 
 private slots:
     void onDataLoaded(QVariant id, QVariant data);

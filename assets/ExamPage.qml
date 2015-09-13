@@ -79,6 +79,10 @@ Page
         if (game.currentQuestion.reference) {
             refAnim.play();
         }
+        
+        if (numericInput.visible) {
+            numericInput.requestFocus();
+        }
     }
     
     onCreationCompleted: {
