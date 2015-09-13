@@ -3,6 +3,8 @@
 #include <bb/cascades/QmlDocument>
 #include <bb/cascades/TextField>
 
+#include <bb/data/JsonDataAccess>
+
 #include <bb/multimedia/MediaPlayer>
 
 #include <bb/system/CardDoneMessage>

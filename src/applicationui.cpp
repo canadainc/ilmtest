@@ -17,7 +17,8 @@ using namespace canadainc;
 
 ApplicationUI::ApplicationUI(bb::system::InvokeManager* im) : m_sql( QString("%1/master.db").arg( QDir::homePath() ) ),
         m_persistance(im), m_invoke(im), m_sound(&m_persistance),
-        m_user(&m_persistance), m_game(&m_sql), m_life(&m_game)
+        m_user(&m_persistance), m_game(&m_sql), m_life(&m_game),
+        m_network(&m_persistance)
 {
     switch ( im->startupMode() )
     {
@@ -62,6 +63,8 @@ void ApplicationUI::init(QString const& qmlDoc)
 
     setErrorHandler(&Persistance::onErrorMessage);
 
+    QmlDocument::defaultDeclarativeEngine()->rootContext()->setContextProperty("network", &m_network);
+
     m_invoke.init(qmlDoc, context, this);
 
     emit initialize();
@@ -79,20 +82,9 @@ void ApplicationUI::childCardDone(bb::system::CardDoneMessage const& message)
 }
 
 
-void ApplicationUI::onRequestComplete(QVariant const& cookie, QByteArray const& data, bool error)
-{
-    Q_UNUSED(data);
-    LOGGER(cookie << error);
-}
-
-
 void ApplicationUI::lazyInit()
 {
     disconnect( this, SIGNAL( initialize() ), this, SLOT( lazyInit() ) ); // in case we get invoked again
-
-    connect( &m_network, SIGNAL( requestComplete(QVariant const&, QByteArray const&, bool) ), this, SLOT( onRequestComplete(QVariant const&, QByteArray const&, bool) ) );
-    connect( &m_network, SIGNAL( downloadProgress(QVariant const&, qint64, qint64) ), this, SIGNAL( transferProgress(QVariant const&, qint64, qint64) ) );
-    connect( &m_network, SIGNAL( uploadProgress(QVariant const&, qint64, qint64) ), this, SIGNAL( transferProgress(QVariant const&, qint64, qint64) ) );
 
     m_sql.setVerboseLogging();
     m_sql.createDatabaseIfNotExists();
@@ -100,12 +92,14 @@ void ApplicationUI::lazyInit()
     m_sound.lazyInit();
     m_game.lazyInit();
     m_user.lazyInit();
+    m_network.lazyInit();
 
     m_invoke.process();
 
     AppLogFetcher::create( &m_persistance, &ThreadUtils::compressFiles, this, false );
     connect( &m_sql, SIGNAL( error(QString const&) ), &m_persistance, SLOT( onError(QString const&) ) );
     connect( &m_sql, SIGNAL( setupError(QString const&) ), &m_persistance, SLOT( onError(QString const&) ) );
+    connect( &m_network, SIGNAL( questionBankUpdated() ), &m_game, SLOT( reloadQuestions() ) );
 
     emit lazyInitComplete();
 }

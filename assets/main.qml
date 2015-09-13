@@ -17,6 +17,12 @@ TabbedPane
         help.title: qsTr("Help") + Retranslate.onLanguageChanged
         settings.imageSource: "images/menu/ic_settings.png"
         settings.title: qsTr("Settings") + Retranslate.onLanguageChanged
+        
+        onFinished: {
+            if ( clean && !persist.containsFlag("dbVersion") ) {
+                network.checkForUpdates();
+            }
+        }
     }
     
     Tab
@@ -57,6 +63,7 @@ TabbedPane
     
     function onLoading(current, total)
     {
+        toaster.body = qsTr("Loading audio...");
         toaster.statusMessage = "%1/%2".arg(current).arg(total);
         toaster.progress = (current/total)*100;
         
@@ -81,8 +88,7 @@ TabbedPane
         SystemProgressToast {
             id: toaster
             autoUpdateEnabled: true
-            body: qsTr("Loading audio...") + Retranslate.onLanguageChanged
-            state: sound.muted ? SystemUiProgressState.Active : SystemUiProgressState.Inactive
+            state: SystemUiProgressState.Active
         }
     ]
 }

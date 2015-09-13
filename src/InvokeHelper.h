@@ -4,6 +4,7 @@
 #include <bb/system/InvokeRequest>
 
 #include "DeviceUtils.h"
+#include "TextUtils.h"
 
 #define TARGET_SHARE "com.canadainc.IlmTest.share"
 
@@ -25,6 +26,7 @@ class InvokeHelper : public QObject
     bb::system::InvokeRequest m_request;
     QObject* m_root;
     InvokeManager* m_invokeManager;
+    canadainc::TextUtils m_textUtils;
 
 private slots:
     void onDatabasePorted();

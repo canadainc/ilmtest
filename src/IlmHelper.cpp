@@ -278,7 +278,7 @@ void IlmHelper::orderedSurahVerses(QObject* caller, QueryId::Type t)
 void IlmHelper::standardSajdaSurah(QObject* caller)
 {
     QPair<int,int> limits = generateCorrectIncorrect();
-    m_sql->executeQuery(caller, QString("SELECT * FROM (SELECT %1,1 AS correct FROM sajdas INNER JOIN surahs ON sajdas.surah_id=surahs.id INNER JOIN chapters ON surahs.id=chapters.id ORDER BY RANDOM() LIMIT %2) UNION SELECT * FROM (SELECT %1,0 FROM surahs INNER JOIN chapters ON surahs.id=chapters.id WHERE surahs.id NOT IN (SELECT surah_id FROM sajdas) ORDER BY RANDOM() LIMIT %3)").arg(MERGE_SURAH_VALUE).arg(limits.first).arg(limits.second), QueryId::StandardSajdaSurah);
+    m_sql->executeQuery( caller, QString("SELECT * FROM (SELECT %1,1 AS correct FROM sajdas INNER JOIN surahs ON sajdas.surah_id=surahs.id INNER JOIN chapters ON surahs.id=chapters.id ORDER BY RANDOM() LIMIT %2) UNION SELECT * FROM (SELECT %1,0 FROM surahs INNER JOIN chapters ON surahs.id=chapters.id WHERE surahs.id NOT IN (SELECT surah_id FROM sajdas) ORDER BY RANDOM() LIMIT %3)").arg(MERGE_SURAH_VALUE).arg(limits.first).arg(limits.second), QueryId::StandardSajdaSurah );
 }
 
 
@@ -307,19 +307,7 @@ void IlmHelper::standardVersesForSurah(QObject* caller)
 void IlmHelper::lazyInit()
 {
     m_sql->executeInternal("CREATE TEMPORARY TABLE visited_questions (id INTEGER PRIMARY KEY)", QueryId::Setup);
-
-    QStringList languages = QStringList() << DB_ARABIC << DB_ENGLISH;
-
-    foreach (QString const& language, languages) {
-        m_sql->attachIfNecessary(language);
-    }
-
-    languages.clear();
-    languages << QUESTION_BANK("english");
-
-    foreach (QString const& language, languages) {
-        m_sql->attachIfNecessary(language, true);
-    }
+    reloadQuestionBank();
 }
 
 
@@ -338,6 +326,28 @@ void IlmHelper::lookupByField(QObject* caller, int fieldValue, QueryId::Type t, 
     QPair<int,int> limits = generateCorrectIncorrect();
     m_sql->executeQuery(caller, QString("SELECT * FROM (SELECT %1,1 AS correct FROM individuals i WHERE %2=%3 AND hidden ISNULL ORDER BY RANDOM() LIMIT %4) UNION SELECT * FROM (SELECT %1,0 FROM individuals i WHERE %2 <> %3 AND hidden ISNULL AND prefix ISNULL ORDER BY RANDOM() LIMIT %5)").arg( NAME_FIELD("i", KEY_CHOICE_VALUE) ).arg(field).arg(fieldValue).arg(limits.first).arg(limits.second), t);
 }
+
+
+void IlmHelper::reloadQuestionBank()
+{
+    QStringList languages = QStringList() << DB_ARABIC << DB_ENGLISH;
+
+    foreach (QString const& language, languages)
+    {
+        m_sql->detach(language);
+        m_sql->attachIfNecessary(language);
+    }
+
+    languages.clear();
+    languages << QUESTION_BANK("english");
+
+    foreach (QString const& language, languages)
+    {
+        m_sql->detach(language);
+        m_sql->attachIfNecessary(language, true);
+    }
+}
+
 
 IlmHelper::~IlmHelper()
 {

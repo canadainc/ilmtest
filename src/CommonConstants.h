@@ -16,7 +16,7 @@
 #define RESULT_SET_LIMIT TextUtils::randInt(RESULT_SET_MIN, RESULT_SET_MAX)
 #define TOTAL_COUNT_VALUE "total_count"
 
-namespace admin {
+namespace ilmtest {
 
 struct CommonConstants
 {

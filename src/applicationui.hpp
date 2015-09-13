@@ -5,7 +5,7 @@
 #include "Game.h"
 #include "InvokeHelper.h"
 #include "LifelineManager.h"
-#include "NetworkProcessor.h"
+#include "NetworkChannel.h"
 #include "Offloader.h"
 #include "Persistance.h"
 #include "SoundManager.h"
@@ -24,13 +24,13 @@ class ApplicationUI : public QObject
 
     DatabaseHelper m_sql;
     Persistance m_persistance;
-    NetworkProcessor m_network;
     InvokeHelper m_invoke;
     Offloader m_offloader;
     SoundManager m_sound;
     UserManager m_user;
     Game m_game;
     LifelineManager m_life;
+    NetworkChannel m_network;
 
     void init(QString const& qml);
 
@@ -38,13 +38,11 @@ signals:
     void childCardFinished(QString const& message, QString const& cookie);
     void initialize();
     void lazyInitComplete();
-    void transferProgress(QVariant const& cookie, qint64 bytesSent, qint64 bytesTotal);
 
 private slots:
     void childCardDone(bb::system::CardDoneMessage const& message=bb::system::CardDoneMessage());
     void invoked(bb::system::InvokeRequest const& request);
     void lazyInit();
-    void onRequestComplete(QVariant const& cookie, QByteArray const& data, bool error);
 
 public:
     ApplicationUI(bb::system::InvokeManager* im);

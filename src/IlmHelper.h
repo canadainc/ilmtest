@@ -5,7 +5,7 @@
 
 #include "QueryId.h"
 
-#define QUESTION_BANK(lang) QString("quran_tafsir_%1").arg(lang)
+#define QUESTION_BANK(lang) QString("ilmtest_%1").arg(lang)
 
 namespace canadainc {
     class DatabaseHelper;
@@ -79,6 +79,7 @@ public:
     void lazyInit();
     void markVisited(qint64 questionId);
     void resetVisited();
+    void reloadQuestionBank();
 };
 
 } /* namespace ilm */

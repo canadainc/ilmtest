@@ -90,16 +90,19 @@ void Game::onDataLoaded(QVariant idV, QVariant dataV)
     } else if ( t.startsWith("Bool") ) {
         m_currentQuestion[KEY_BOOLEAN] = true;
     } else if ( t.startsWith("Custom") ) {
-        m_currentQuestion = data.first().toMap();
-        processCustom( (QueryId::Type)id );
+        if (n > 0) {
+            m_currentQuestion = data.first().toMap();
+            processCustom( (QueryId::Type)id );
+        } else {
+            LOGGER("NoResults!");
+            emit currentQuestionChanged();
+        }
     } else if ( t.startsWith("After") ) {
         data = processOrdered(data, false);
     } else if ( t.startsWith("Before") ) {
         data = processOrdered(data, true);
     } else if ( t.startsWith("AnswersForCustom") ) {
         data = processAnswersForCustomQuestion( (QueryId::Type)id, data );
-    } else if ( t.startsWith("Custom") && n == 0 ) {
-        emit currentQuestionChanged();
     }
 
     if (id == QueryId::TempList) {
@@ -185,8 +188,10 @@ QVariantList Game::processAnswersForCustomQuestion(QueryId::Type id, QVariantLis
 
 QVariantList Game::processOrdered(QVariantList data, bool before)
 {
+    LOGGER("****** SDLFKJ");
     data = Offloader::processOrdered(data, m_arg1, before, m_destiny.questionType == QueryId::CustomAfterQuestion || m_destiny.questionType == QueryId::CustomBeforeQuestion);
     m_currentQuestion[KEY_STANDARD] = true;
+    LOGGER("****** SDLFKJ33");
 
     return data;
 }
@@ -223,8 +228,6 @@ void Game::processCustom(QueryId::Type t)
 
 QVariantList Game::generateNumeric(QVariantList data, QString const& key)
 {
-    m_currentQuestion[KEY_NUMERIC] = true;
-
     int answer = EXTRACT_NUMERIC_ANSWER(data, key);
 
     if (m_destiny.formatType == QueryId::MultipleChoice) {
@@ -232,6 +235,7 @@ QVariantList Game::generateNumeric(QVariantList data, QString const& key)
         m_currentQuestion[KEY_STANDARD] = true;
     } else if (m_destiny.formatType == QueryId::TextInput) {
         m_currentQuestion[KEY_ANSWER] = answer;
+        m_currentQuestion[KEY_NUMERIC] = true;
     }
 
     return data;
@@ -295,6 +299,11 @@ void Game::reset() {
 
 QString Game::queryToString(int q) {
     return ID_TO_QSTR(q);
+}
+
+
+void Game::reloadQuestions() {
+    m_ilm.reloadQuestionBank();
 }
 
 
