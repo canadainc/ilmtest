@@ -3,6 +3,8 @@
 
 #include <QObject>
 
+#include "Lifeline.h"
+
 namespace bb {
     namespace cascades {
         class ArrayDataModel;
@@ -14,25 +16,43 @@ namespace ilmtest {
 
 class Game;
 
+struct LifelineData
+{
+    Lifeline::Type key;
+    QString title;
+    QString imageSource;
+
+    LifelineData(Lifeline::Type t=Lifeline::Unknown, QString const& titleValue="", QString const& image="") : key(t), title(titleValue), imageSource(image) {}
+};
+
 class LifelineManager : public QObject
 {
     Q_OBJECT
 
     Game* m_game;
+    QMap<int, LifelineData> m_levelToLifeline;
+    QMap<QString, LifelineData> m_codeToLifeline;
 
-    void solveSorted(bb::cascades::ArrayDataModel* adm, int count);
-    void eliminateIncorrect(bb::cascades::ArrayDataModel* adm, int count);
+    void useAskExpert(bb::cascades::ArrayDataModel* adm, bb::cascades::TextField* tf, bool sorted=false);
+    void useFiftyFifty(bb::cascades::ArrayDataModel* adm, bb::cascades::TextField* tf, bool sorted=false);
+    void useTakeOne(bb::cascades::ArrayDataModel* adm, bb::cascades::TextField* tf, bool sorted=false);
+
+private slots:
+    void onCurrentLevelChanged();
 
 signals:
-    void lifeLifeAvailable(QString const& title, QString const& imageSource, int key);
+    void lifeLineAvailable(QString const& title, QString const& imageSource, int key);
+    void lifeLineUsed(int key);
 
 public:
     LifelineManager(Game* game);
     virtual ~LifelineManager();
 
-    Q_INVOKABLE void useAskExpert(bb::cascades::ArrayDataModel* adm, bb::cascades::TextField* tf, bool sorted=false);
-    Q_INVOKABLE void useFiftyFifty(bb::cascades::ArrayDataModel* adm, bb::cascades::TextField* tf, bool sorted=false);
-    Q_INVOKABLE void useTakeOne(bb::cascades::ArrayDataModel* adm, bb::cascades::TextField* tf, bool sorted=false);
+    Q_INVOKABLE void useLifeline(int key, bb::cascades::ArrayDataModel* adm, bb::cascades::TextField* tf, bool sorted);
+    Q_INVOKABLE void unlock(QString const& key);
+    Q_INVOKABLE static QString keyToString(int q);
+
+    void lazyInit();
 };
 
 } /* namespace canadainc */

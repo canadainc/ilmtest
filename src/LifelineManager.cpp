@@ -9,6 +9,8 @@
 #define KEY_CHOICE_DISABLED "disabled"
 #define NUMERIC_ANSWER m_game->currentQuestion().value(KEY_ANSWER).toInt()
 
+#define LID_TO_QSTR(t) QString( Lifeline::staticMetaObject.enumerator(0).valueToKey( (Lifeline::Type)t ) )
+
 namespace {
 
 void bubbleSort(bb::cascades::ArrayDataModel* adm)
@@ -22,6 +24,43 @@ void bubbleSort(bb::cascades::ArrayDataModel* adm)
             if ( adm->value(j).toMap().value(KEY_SORT_ORDER).toInt() > adm->value(j+1).toMap().value(KEY_SORT_ORDER).toInt() ) {
                 adm->swap(j, j+1);
             }
+        }
+    }
+}
+
+void eliminateIncorrect(bb::cascades::ArrayDataModel* adm, int choicesToRemove)
+{
+    QList<int> wrongChoices;
+
+    for (int i = adm->size()-1; i >= 0; i--)
+    {
+        QVariantMap current = adm->value(i).toMap();
+
+        if ( ( current.value(KEY_FLAG_CORRECT) != 1 ) && !current.contains(KEY_CHOICE_DISABLED) ) {
+            wrongChoices << i;
+        }
+    }
+
+    std::random_shuffle( wrongChoices.begin(), wrongChoices.end() );
+
+    for (int i = 0; i < choicesToRemove && !wrongChoices.isEmpty(); i++)
+    {
+        int index = wrongChoices.takeFirst();
+        QVariantMap qvm = adm->value(index).toMap();
+        qvm[KEY_CHOICE_DISABLED] = 1;
+        adm->replace(index, qvm);
+    }
+}
+
+
+void solveSorted(bb::cascades::ArrayDataModel* adm, int n)
+{
+    int start = canadainc::TextUtils::randInt(0,n-1);
+
+    for (int i = start; i < n; i += 2)
+    {
+        if ( adm->value(i).toMap().value(KEY_SORT_ORDER).toInt() > adm->value(i+1).toMap().value(KEY_SORT_ORDER).toInt() ) {
+            adm->swap(i, i+1);
         }
     }
 }
@@ -42,10 +81,82 @@ public:
 
 namespace ilmtest {
 
+using namespace bb::cascades;
 using namespace canadainc;
 
 LifelineManager::LifelineManager(Game* game) : m_game(game)
 {
+}
+
+
+void LifelineManager::lazyInit()
+{
+    connect( m_game, SIGNAL( levelChanged() ), this, SLOT( onCurrentLevelChanged() ) );
+
+    m_levelToLifeline.insertMulti( 1, LifelineData( Lifeline::FiftyFifty, tr("Fifty Fifty"), "images/list/lifelines/ic_lifeline_50.png" ) );
+    m_levelToLifeline.insertMulti( 1, LifelineData( Lifeline::PopularOpinion, tr("Popular Opinion"), "images/list/lifelines/ic_lifeline_audience.png" ) );
+    m_levelToLifeline.insertMulti( 1, LifelineData( Lifeline::PhoneFriend, tr("Phone a Friend"), "images/list/lifelines/ic_lifeline_friend.png" ) );
+    m_levelToLifeline.insertMulti( 5, LifelineData( Lifeline::FreezeTime, tr("Freeze Clock"), "images/list/lifelines/ic_lifeline_clock.png" ) );
+    m_levelToLifeline.insertMulti( 10, LifelineData( Lifeline::ChangeQuestion, tr("Change the Question"), "images/list/lifelines/ic_lifeline_change.png" ) );
+
+    m_codeToLifeline[ LID_TO_QSTR(Lifeline::AskAnExpert) ] = LifelineData( Lifeline::AskAnExpert, tr("Ask an Expert"), "images/list/lifelines/ic_lifeline_expert.png" );
+    m_codeToLifeline[ LID_TO_QSTR(Lifeline::SecondChance) ] = LifelineData( Lifeline::SecondChance, tr("Second Chance"), "images/list/lifelines/ic_lifeline_second.png" );
+    m_codeToLifeline[ LID_TO_QSTR(Lifeline::TakeOne) ] = LifelineData( Lifeline::TakeOne, tr("Take One"), "images/list/lifelines/ic_lifelines_take_one.png" );
+}
+
+
+void LifelineManager::onCurrentLevelChanged()
+{
+    int level = m_game->level();
+
+    if ( m_levelToLifeline.contains(level) )
+    {
+        QList<LifelineData> lifelines = m_levelToLifeline.values(level);
+
+        foreach (LifelineData ld, lifelines) {
+            emit lifeLineAvailable(ld.title, ld.imageSource, ld.key);
+        }
+    }
+}
+
+
+void LifelineManager::unlock(QString const& key)
+{
+    if ( m_codeToLifeline.contains(key) )
+    {
+        LifelineData ld = m_codeToLifeline.value(key);
+        emit lifeLineAvailable(ld.title, ld.imageSource, ld.key);
+    } else {
+        LOGGER(key << "notFound");
+    }
+}
+
+
+QString LifelineManager::keyToString(int q) {
+    return LID_TO_QSTR(q);
+}
+
+
+void LifelineManager::useLifeline(int key, bb::cascades::ArrayDataModel* adm, bb::cascades::TextField* tf, bool sorted)
+{
+    LOGGER(key);
+
+    switch (key)
+    {
+        case Lifeline::AskAnExpert:
+            useAskExpert(adm, tf, sorted);
+            break;
+        case Lifeline::FiftyFifty:
+            useFiftyFifty(adm, tf, sorted);
+            break;
+        case Lifeline::TakeOne:
+            useTakeOne(adm, tf, sorted);
+            break;
+        default:
+            break;
+    }
+
+    emit lifeLineUsed( (Lifeline::Type)key );
 }
 
 
@@ -120,44 +231,6 @@ void LifelineManager::useTakeOne(bb::cascades::ArrayDataModel* adm, bb::cascades
         }
     }
 
-}
-
-
-void LifelineManager::eliminateIncorrect(bb::cascades::ArrayDataModel* adm, int choicesToRemove)
-{
-    QList<int> wrongChoices;
-
-    for (int i = adm->size()-1; i >= 0; i--)
-    {
-        QVariantMap current = adm->value(i).toMap();
-
-        if ( ( current.value(KEY_FLAG_CORRECT) != 1 ) && !current.contains(KEY_CHOICE_DISABLED) ) {
-            wrongChoices << i;
-        }
-    }
-
-    std::random_shuffle( wrongChoices.begin(), wrongChoices.end() );
-
-    for (int i = 0; i < choicesToRemove && !wrongChoices.isEmpty(); i++)
-    {
-        int index = wrongChoices.takeFirst();
-        QVariantMap qvm = adm->value(index).toMap();
-        qvm[KEY_CHOICE_DISABLED] = 1;
-        adm->replace(index, qvm);
-    }
-}
-
-
-void LifelineManager::solveSorted(bb::cascades::ArrayDataModel* adm, int n)
-{
-    int start = canadainc::TextUtils::randInt(0,n-1);
-
-    for (int i = start; i < n; i += 2)
-    {
-        if ( adm->value(i).toMap().value(KEY_SORT_ORDER).toInt() > adm->value(i+1).toMap().value(KEY_SORT_ORDER).toInt() ) {
-            adm->swap(i, i+1);
-        }
-    }
 }
 
 

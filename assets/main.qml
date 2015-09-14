@@ -49,18 +49,6 @@ TabbedPane
         }
     }
     
-    Tab
-    {
-        id: userTab
-        title: qsTr("Profile") + Retranslate.onLanguageChanged
-        imageSource: "images/tabs/ic_user.png"
-        delegateActivationPolicy: TabDelegateActivationPolicy.ActivateWhenSelected
-        
-        delegate: Delegate {
-            source: "UserProfilePane.qml"
-        }
-    }
-    
     function onLoading(current, total)
     {
         toaster.body = qsTr("Loading audio...");

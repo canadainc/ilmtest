@@ -3,6 +3,7 @@
 #include "InvokeHelper.h"
 #include "AppLogFetcher.h"
 #include "CardUtils.h"
+#include "Lifeline.h"
 #include "Logger.h"
 #include "Persistance.h"
 #include "QueryId.h"
@@ -22,6 +23,7 @@ InvokeHelper::InvokeHelper(InvokeManager* invokeManager) :
 
 void InvokeHelper::init(QString const& qmlDoc, QMap<QString, QObject*> const& context, QObject* parent)
 {
+    qmlRegisterUncreatableType<Lifeline>("com.canadainc.data", 1, 0, "Lifeline", "Can't instantiate");
     qmlRegisterUncreatableType<QueryId>("com.canadainc.data", 1, 0, "QueryId", "Can't instantiate");
 
     QmlDocument* qml = QmlDocument::create("asset:///GlobalProperties.qml").parent(this);

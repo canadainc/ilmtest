@@ -26,6 +26,7 @@ class Game : public QObject
     Q_PROPERTY(bool numeric READ numeric NOTIFY currentQuestionChanged)
     Q_PROPERTY(bool multipleChoice READ multipleChoice NOTIFY currentQuestionChanged)
     Q_PROPERTY(bool booleanQuestion READ booleanQuestion NOTIFY currentQuestionChanged)
+    Q_PROPERTY(bool level READ level NOTIFY levelChanged)
 
     IlmHelper m_ilm;
     QVariantMap m_currentQuestion;
@@ -33,6 +34,7 @@ class Game : public QObject
     QString m_arg1;
     QVariantMap m_reference;
     Destiny m_destiny;
+    int m_level;
 
     QVariantList generateNumericBoolean(int id, QVariantList data, QString const& key=QString());
     QVariantList generateNumeric(QVariantList data, QString const& key=QString());
@@ -47,6 +49,7 @@ private slots:
 signals:
     void currentQuestionChanged();
     void error(QString const& q);
+    void levelChanged();
 
 public:
     Game(DatabaseHelper* db);
@@ -58,6 +61,7 @@ public:
     bool multipleChoice() const;
     bool numeric() const;
     bool booleanQuestion() const;
+    int level() const;
 
     /**
      * @param numericFlag Either MultipleChoice or TextInput

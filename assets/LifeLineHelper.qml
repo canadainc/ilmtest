@@ -1,100 +1,55 @@
 import bb.cascades 1.3
+import com.canadainc.data 1.0
 
 QtObject
 {
-    function cleanUp() {
-        
+    function cleanUp()
+    {
+        life.lifeLineAvailable.disconnect(onAvailable);
+        life.lifeLineUsed.disconnect(onUsed);
     }
     
-    property variant fifty: ActionItem
+    property variant actionDef: ComponentDefinition
     {
-        imageSource: "images/list/lifelines/ic_lifeline_50.png"
-        title: qsTr("50/50") + Retranslate.onLanguageChanged
-        
-        onTriggered: {
-            console.log("UserEvent: FiftyFifty");
-
-            clock.stop();
-            life.useFiftyFifty(adm, numericInput, listView.rearrangeHandler.active);
-            sound.playLifeLineSelect();
-        }
-    }
-    
-    property variant popularOpinion: ActionItem
-    {
-        imageSource: "images/list/lifelines/ic_lifeline_audience.png"
-        title: qsTr("Popular Opinion") + Retranslate.onLanguageChanged
-        
-        onTriggered: {
-            console.log("UserEvent: PopularOpinion");
-
-            clock.stop();
-            var dialog = definition.init("PopularOpinionDialog.qml");
-            dialog.open();
-        }
-    }
-    
-    property variant takeOne: ActionItem
-    {
-        imageSource: "images/list/lifelines/ic_lifeline_take_one.png"
-        title: qsTr("Take One") + Retranslate.onLanguageChanged
-        
-        onTriggered: {
-            console.log("UserEvent: TakeOne");
+        ActionItem
+        {
+            property int key
             
-            clock.stop();
-            life.useTakeOne(adm, numericInput, listView.rearrangeHandler.active);
-            sound.playLifeLineSelect();
+            onTriggered: {
+                console.log( "UserEvent: "+life.keyToString(key) );
+                
+                clock.stop();
+                sound.playLifeLineSelect();
+                life.useLifeline(key, listView.dataModel, numericInput, listView.rearrangeHandler.active);
+            }
         }
     }
     
-    property variant changeQuestion: ActionItem
+    function onAvailable(title, image, key)
     {
-        imageSource: "images/list/lifelines/ic_lifeline_change.png"
-        title: qsTr("Change Question") + Retranslate.onLanguageChanged
+        var x = actionDef.createObject();
+        x.key = key;
+        x.title = title;
+        x.imageSource = image;
         
-        onTriggered: {
-            console.log("UserEvent: ChangeQuestion");
-            
-            clock.stop();
-            examPage.nextQuestion();
-            sound.playLifeLineSelect();
-        }
+        examPage.addAction(x);
     }
     
-    property variant askExpert: ActionItem
+    function onUsed(key)
     {
-        imageSource: "images/list/lifelines/ic_lifeline_expert.png"
-        title: qsTr("Ask an Expert") + Retranslate.onLanguageChanged
-        
-        onTriggered: {
-            console.log("UserEvent: AskExpert");
+        for (var i = examPage.actionCount()-1; i >= 0; i--)
+        {
+            var current = examPage.actionAt(i);
             
-            clock.stop();
-            life.useAskExpert(adm, numericInput, listView.rearrangeHandler.active);
-            sound.playLifeLineSelect();
-        }
-    }
-    
-    property variant freezeClock: ActionItem
-    {
-        title: qsTr("Freeze Time") + Retranslate.onLanguageChanged
-        imageSource: "images/list/lifelines/ic_lifeline_clock.png"
-        
-        onTriggered: {
-            console.log("UserEvent: FreezeTime");
-            
-            clock.stop();
-            sound.playLifeLineSelect();
+            if (current.key == key) {
+                examPage.removeAction(current);
+                break;
+            }
         }
     }
     
     onCreationCompleted: {
-        examPage.addAction(fifty);
-        examPage.addAction(popularOpinion);
-        examPage.addAction(takeOne);
-        examPage.addAction(changeQuestion);
-        examPage.addAction(askExpert);
-        examPage.addAction(freezeClock);
+        life.lifeLineAvailable.connect(onAvailable);
+        life.lifeLineUsed.connect(onUsed);
     }
 }

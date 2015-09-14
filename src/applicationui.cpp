@@ -86,11 +86,12 @@ void ApplicationUI::lazyInit()
 {
     disconnect( this, SIGNAL( initialize() ), this, SLOT( lazyInit() ) ); // in case we get invoked again
 
-    m_sql.setVerboseLogging();
+    //m_sql.setVerboseLogging();
     m_sql.createDatabaseIfNotExists();
 
     m_sound.lazyInit();
     m_game.lazyInit();
+    m_life.lazyInit();
     m_user.lazyInit();
     m_network.lazyInit();
 

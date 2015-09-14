@@ -4,6 +4,7 @@ QtObject
 {
     id: globalRoot
     property int presentAnimSpeed: 1000
+    property int suspenseDuration: 2000
     
     function randomInt(min,max) {
         return Math.floor(Math.random()*(max-min+1)+min);

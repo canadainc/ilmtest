@@ -23,13 +23,12 @@ namespace ilmtest {
 using namespace canadainc;
 
 Game::Game(DatabaseHelper* db) :
-        m_ilm(db)
+        m_ilm(db), m_level(0)
 {
 }
 
 
-void Game::lazyInit()
-{
+void Game::lazyInit() {
     m_ilm.lazyInit();
 }
 
@@ -246,6 +245,9 @@ QVariantList Game::generateNumeric(QVariantList data, QString const& key)
 
 void Game::nextQuestion(int q, int requestedFormat, int requestedBool)
 {
+    ++m_level;
+    emit levelChanged();
+
     m_destiny = Destiny(requestedFormat, q, requestedBool);
     m_tempList.clear();
     m_arg1.clear();
@@ -306,6 +308,11 @@ QString Game::queryToString(int q) {
 
 void Game::reloadQuestions() {
     m_ilm.reloadQuestionBank();
+}
+
+
+int Game::level() const {
+    return m_level;
 }
 
 

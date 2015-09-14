@@ -10,6 +10,7 @@
 #define FILE_CLOCK "asset:///audio/clock.mp3"
 #define FILE_CORRECT "asset:///audio/correct.mp3"
 #define FILE_DESELECT_CHOICE "asset:///audio/choice02.mp3"
+#define FILE_INCORRECT "asset:///audio/incorrect.mp3"
 #define FILE_LIFELINE_SELECT "asset:///audio/sfx02.mp3"
 #define FILE_MAIN_LOOP "asset:///audio/mainLoop.mp3"
 #define FILE_QUESTION_PRESENT "asset:///audio/question.mp3"
@@ -35,7 +36,7 @@ void SoundManager::onSettingChanged(QVariant newValue, QVariant key)
 
         if ( !m_muted && m_map.isEmpty() )
         {
-            QStringList keys = QStringList() << FILE_CHOICE_PRESENT << FILE_CLOCK << FILE_CORRECT << FILE_DESELECT_CHOICE << FILE_LIFELINE_SELECT << FILE_QUESTION_PRESENT << FILE_SELECT_CHOICE << FILE_USER_INPUT << FILE_MAIN_LOOP;
+            QStringList keys = QStringList() << FILE_CHOICE_PRESENT << FILE_CLOCK << FILE_CORRECT << FILE_INCORRECT << FILE_DESELECT_CHOICE << FILE_LIFELINE_SELECT << FILE_QUESTION_PRESENT << FILE_SELECT_CHOICE << FILE_USER_INPUT << FILE_MAIN_LOOP;
 
             foreach (QString const& key, keys)
             {
@@ -114,6 +115,11 @@ void SoundManager::playCorrect() {
 
 void SoundManager::playDeselect() {
     playSound(FILE_DESELECT_CHOICE);
+}
+
+
+void SoundManager::playIncorrect() {
+    playSound(FILE_INCORRECT);
 }
 
 

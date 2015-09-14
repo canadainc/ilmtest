@@ -50,6 +50,7 @@ public:
     Q_SLOT void playClock();
     Q_SLOT void playCorrect();
     Q_SLOT void playDeselect();
+    Q_SLOT void playIncorrect();
     Q_SLOT void playLifeLineSelect();
     Q_SLOT void playMainLoop();
     Q_SLOT void playPresentChoice();

@@ -8,6 +8,7 @@ Page
     function cleanUp()
     {
         clock.stop();
+        llp.cleanUp();
         game.currentQuestionChanged.disconnect(onNewQuestion);
         game.reset();
         sound.stopMainLoop();
@@ -32,6 +33,7 @@ Page
         listView.reset();
         sound.playMainLoop();
         reference.translationY = 300;
+        mainContainer.opacity = 1;
         reference.enabled = false;
         
         if (!game.numeric && !game.multipleChoice && !game.booleanQuestion) {
@@ -85,6 +87,24 @@ Page
         }
     }
     
+    function answered(correctly)
+    {
+        if (correctly)
+        {
+            sound.playCorrect();
+            
+            persist.showToast( qsTr("Correct!"), "images/menu/ic_check.png" );
+            user.points = user.points+1;
+            
+            restore.play();
+        } else {
+            sound.playIncorrect();
+            
+            persist.showToast( "You failed!!", "images/bugs/ic_bugs_cancel.png" );
+            reference.enabled = true;
+        }
+    }
+    
     onCreationCompleted: {
         game.currentQuestionChanged.connect(onNewQuestion);
     }
@@ -113,17 +133,6 @@ Page
             ActionBar.placement: ActionBarPlacement.Signature
             enabled: false
             
-            function answered(correctly)
-            {
-                if (correctly) {
-                    user.points = user.points+1;
-                    nextQuestion();
-                } else {
-                    persist.showToast( "You failed!!", "images/bugs/ic_bugs_cancel.png" );
-                    reference.enabled = true;
-                }
-            }
-            
             onTriggered: {
                 console.log("UserEvent: FinalAnswer");
                 
@@ -141,15 +150,7 @@ Page
                 sound.stopMainLoop();
                 sound.playUserInput();
                 
-                if (numericInput.visible)
-                {
-                    var input = numericInput.text.trim();
-                    answered( input.length > 0 && parseInt(input) == game.currentQuestion.answer );
-                } else if (listView.rearrangeHandler.active) {
-                    answered( offloader.verifyOrdered(adm) );
-                } else {
-                    answered( offloader.verifyMultipleChoice( adm, listView.selectionList() ) );
-                }
+                suspense.play();
             }
         }
     ]
@@ -163,9 +164,46 @@ Page
         
         Container
         {
+            id: mainContainer
             horizontalAlignment: HorizontalAlignment.Fill
             verticalAlignment: VerticalAlignment.Fill
             topPadding: 10
+            
+            animations: [
+                FadeTransition
+                {
+                    id: suspense
+                    fromOpacity: 1
+                    toOpacity: 0.5
+                    duration: global.suspenseDuration
+                    easingCurve: StockCurve.ExponentialOut
+                    
+                    onEnded: {
+                        if (numericInput.visible)
+                        {
+                            var input = numericInput.text.trim();
+                            answered( input.length > 0 && parseInt(input) == game.currentQuestion.answer );
+                        } else if (listView.rearrangeHandler.active) {
+                            answered( offloader.verifyOrdered(adm) );
+                        } else {
+                            answered( offloader.verifyMultipleChoice( adm, listView.selectionList() ) );
+                        }
+                    }
+                },
+                
+                FadeTransition
+                {
+                    id: restore
+                    fromOpacity: 0.5
+                    toOpacity: 1
+                    duration: global.suspenseDuration
+                    easingCurve: StockCurve.QuarticOut
+                    
+                    onEnded: {
+                        nextQuestion();
+                    }
+                }
+            ]
             
             Label
             {

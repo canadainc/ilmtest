@@ -16,6 +16,8 @@ Container
     
     function apply(refData)
     {
+        labelField.opacity = 0;
+
         var titleValue = refData.pageTitle ? "%1: %2".arg(refData.title).arg(refData.pageTitle) : refData.title;
         plainText = "“%1” - %2".arg(titleValue).arg(refData.author);
         htmlText = "<html><i><a href=\"%1\">“%2”</a></i> - %3</html>".arg( refData.id.toString() ).arg( titleValue.replace(/&/g,"&amp;") ).arg( refData.author.replace(/&/g,"&amp;") );
