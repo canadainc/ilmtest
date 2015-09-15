@@ -114,7 +114,7 @@ Container
             Label {
                 verticalAlignment: VerticalAlignment.Fill
                 leftMargin: 0
-                text: qsTr("Points: %1").arg(user.points)
+                text: qsTr("Points: %n", "", user.points) + Retranslate.onLanguageChanged
                 textFormat: TextFormat.Plain
                 textStyle.base: SystemDefaults.TextStyles.SubtitleText
                 textStyle.fontSize: FontSize.Small

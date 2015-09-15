@@ -120,15 +120,19 @@ void LifelineManager::onCurrentLevelChanged()
 }
 
 
-void LifelineManager::unlock(QString const& key)
+bool LifelineManager::unlock(QString const& key)
 {
     if ( m_codeToLifeline.contains(key) )
     {
         LifelineData ld = m_codeToLifeline.value(key);
         emit lifeLineAvailable(ld.title, ld.imageSource, ld.key);
-    } else {
-        LOGGER(key << "notFound");
+
+        return true;
     }
+
+    LOGGER(key << "notFound");
+
+    return false;
 }
 
 

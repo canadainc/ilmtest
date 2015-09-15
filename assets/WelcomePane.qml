@@ -12,6 +12,16 @@ NavigationPane
     {
         id: welcomePage
         
+        keyListeners: [
+            KeyListener {
+                onKeyLongReleased: {
+                    if (event.unicode == "x") {
+                        user.points = user.points+300;
+                    }
+                }
+            }
+        ]
+        
         actions: [
             ActionItem
             {
