@@ -8,13 +8,12 @@
 #include "QueryId.h"
 #include "TextUtils.h"
 
-#define EMIT_ERROR emit error( QString("NoChoicesForFound QuestionId: %1; QuestionType: %2; FormatType: %3; TruthType: %4; Debug: %5_%6:%7").arg(m_destiny.questionId).arg( ID_TO_QSTR(id) ).arg( ID_TO_QSTR(m_destiny.formatType).arg( ID_TO_QSTR(m_destiny.truthType) ).arg(__FILE__).arg(__FUNCTION__).arg(__LINE__) ) )
+#define EMIT_ERROR(x) emit error( QString("%1 QuestionId: %2; QuestionType: %3; FormatType: %4; TruthType: %5; Debug: %6_%7:%8").arg(x).arg(m_destiny.questionId).arg( ID_TO_QSTR(id) ).arg( ID_TO_QSTR(m_destiny.formatType).arg( ID_TO_QSTR(m_destiny.truthType) ).arg(__FILE__).arg(__FUNCTION__).arg(__LINE__) ) )
 #define EXTRACT_NUMERIC_ANSWER(x,key) x.first().toMap().value( !key.isNull() ? key : TOTAL_COUNT_VALUE ).toInt();
 #define KEY_BOOLEAN "boolean"
 #define KEY_NUMERIC "numeric"
 #define KEY_ORDERED "ordered"
 #define KEY_STANDARD "standard"
-#define KEY_QUESTION_BODY "question"
 #define ID_TO_QSTR(t) QString( QueryId::staticMetaObject.enumerator(0).valueToKey( (QueryId::Type)t ) )
 #define IS_NUMERIC_QUESTION(x) x.size() == 1 && QRegExp("\\d+$").exactMatch( x.first().toMap().value(KEY_CHOICE_VALUE).toString() )
 
@@ -158,7 +157,7 @@ QVariantList Game::processAnswersForCustomQuestion(QueryId::Type id, QVariantLis
                 m_currentQuestion[KEY_BOOLEAN] = true;
                 m_currentQuestion[KEY_STANDARD] = true;
             } else {
-                EMIT_ERROR;
+                EMIT_ERROR("ChoiceLess");
             }
         }
     } else if (id == QueryId::AnswersForCustomBoolCountQuestion || id == QueryId::AnswersForCustomPromptCountQuestion) {
@@ -168,11 +167,16 @@ QVariantList Game::processAnswersForCustomQuestion(QueryId::Type id, QVariantLis
         m_currentQuestion[KEY_ORDERED] = true;
     } else if (id == QueryId::AnswersForCustomCountQuestion) {
         data = generateNumeric(data);
-    } else if (id == QueryId::AnswersForCustomStandardQuestion) {
-        if ( data.size() == 1 && QRegExp("\\d+$").exactMatch( data.first().toMap().value(KEY_CHOICE_VALUE).toString() ) ) {
-            data = generateNumeric(data, KEY_CHOICE_VALUE);
+    } else if (id == QueryId::AnswersForCustomStandardQuestion || id == QueryId::AnswersForCustomStandardNegation) {
+        if ( IS_NUMERIC_QUESTION(data) )
+        {
+            if (id == QueryId::AnswersForCustomStandardNegation) {
+                EMIT_ERROR("NumericForStandardNegation");
+            } else {
+                data = generateNumeric(data, KEY_CHOICE_VALUE);
+            }
         } else {
-            data = Offloader::transformToStandard(data);
+            data = Offloader::transformToStandard(data, true, id == QueryId::AnswersForCustomStandardNegation);
             m_currentQuestion[KEY_STANDARD] = true;
         }
     } else if (id == QueryId::AnswersForCustomAfterQuestion) {
@@ -189,10 +193,8 @@ QVariantList Game::processAnswersForCustomQuestion(QueryId::Type id, QVariantLis
 
 QVariantList Game::processOrdered(QVariantList data, bool before)
 {
-    LOGGER("****** SDLFKJ");
     data = Offloader::processOrdered(data, m_arg1, before, m_destiny.questionType == QueryId::CustomAfterQuestion || m_destiny.questionType == QueryId::CustomBeforeQuestion);
     m_currentQuestion[KEY_STANDARD] = true;
-    LOGGER("****** SDLFKJ33");
 
     return data;
 }
@@ -215,8 +217,8 @@ void Game::processCustom(QueryId::Type t)
         m_ilm.answersForCustomPromptCountQuestion(this, questionId);
     } else if (t == QueryId::CustomPromptStandardQuestion) {
         m_ilm.answersForCustomPromptStandardQuestion(this, questionId);
-    } else if (t == QueryId::CustomStandardQuestion) {
-        m_ilm.answersForCustomStandardQuestion(this, questionId);
+    } else if (t == QueryId::CustomStandardQuestion || t == QueryId::CustomStandardNegation) {
+        m_ilm.answersForCustomStandardQuestion(this, questionId, t == QueryId::CustomStandardQuestion ? QueryId::AnswersForCustomStandardQuestion : QueryId::AnswersForCustomStandardNegation);
     } else if (t == QueryId::CustomAfterQuestion) {
         m_ilm.answersForCustomAfterQuestion(this, questionId);
     } else if (t == QueryId::CustomBeforeQuestion) {

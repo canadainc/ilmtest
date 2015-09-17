@@ -21,8 +21,8 @@ public:
     Offloader();
     virtual ~Offloader();
 
-    Q_INVOKABLE static QVariantList generateChoices(int correctAnswer);
-    Q_INVOKABLE static QVariantList mergeAndShuffle(QVariantList i1, QVariantList const& i2);
+    static QVariantList generateChoices(int correctAnswer);
+    static QVariantList mergeAndShuffle(QVariantList i1, QVariantList const& i2);
 
     /**
      * Possibilities:
@@ -46,8 +46,8 @@ public:
     Q_INVOKABLE static bool verifyOrdered(bb::cascades::ArrayDataModel* adm);
 
     static QVariantList setChoices(QString const& trueString=QObject::tr("Yes"), QString const& falseString=QObject::tr("No"), bool yesCorrect=true);
-    static QVariantList transformToStandard(QVariantList data, bool trim=true);
-    static QVariantList useRandomSources(QVariantList data);
+    static QVariantList transformToStandard(QVariantList data, bool trim=true, bool flipped=false);
+    static QVariantList useRandomSources(QVariantList data, bool flipped=false);
     static QVariantMap fetchRandomElement(QVariantList data, bool correctOnly);
     static QVariantList generateBoolStrings(bool trueIsCorrect);
     static QVariantList processOrdered(QVariantList data, QString& arg1, bool before, bool hasSourceId=true);

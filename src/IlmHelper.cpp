@@ -121,6 +121,9 @@ void IlmHelper::standardTabiTabiee(QObject* caller) {
     lookupByField(caller, 3, QueryId::StandardTabiTabiee);
 }
 
+void IlmHelper::customStandardNegation(QObject* caller) {
+    fetchCustomColumn(caller, "standard_negation_body", QueryId::CustomStandardNegation);
+}
 
 void IlmHelper::customStandardQuestion(QObject* caller) {
     fetchCustomColumn(caller, "standard_body", QueryId::CustomStandardQuestion);
@@ -161,7 +164,7 @@ void IlmHelper::customPromptStandardQuestion(QObject* caller) {
 void IlmHelper::fetchCustomColumn(QObject* caller, QString const& column, QueryId::Type t, int questionId)
 {
     QString constraint = questionId > 0 ? QString(" AND q.id=%1").arg(questionId) : QString(" AND q.id NOT IN (SELECT id FROM visited_questions)");
-    m_sql->executeQuery(caller, QString("SELECT * FROM (SELECT q.id,q.%1 AS %2,q.suite_page_id AS spi1,p.suite_page_id AS spi2,s1.title AS title1,s2.title AS title2,sp1.heading AS heading1,sp2.heading AS heading2,q.source_id,%4,%5 FROM questions q LEFT JOIN questions p ON q.source_id=p.id LEFT JOIN suite_pages sp1 ON q.suite_page_id=sp1.id LEFT JOIN suite_pages sp2 ON p.suite_page_id=sp2.id LEFT JOIN suites s1 ON s1.id=sp1.suite_id LEFT JOIN suites s2 ON s2.id=sp2.suite_id LEFT JOIN individuals i1 ON s1.author=i1.id LEFT JOIN individuals i2 ON s2.author=i2.id WHERE q.ordered_body NOT NULL%3) ORDER BY RANDOM() LIMIT 1").arg(column).arg(KEY_ARG_1).arg(constraint).arg( NAME_FIELD("i1", "author1") ).arg( NAME_FIELD("i2", "author2") ), t);
+    m_sql->executeQuery(caller, QString("SELECT * FROM (SELECT q.id,q.%1 AS %2,q.suite_page_id AS spi1,p.suite_page_id AS spi2,s1.title AS title1,s2.title AS title2,sp1.heading AS heading1,sp2.heading AS heading2,q.source_id,%4,%5 FROM questions q LEFT JOIN questions p ON q.source_id=p.id LEFT JOIN suite_pages sp1 ON q.suite_page_id=sp1.id LEFT JOIN suite_pages sp2 ON p.suite_page_id=sp2.id LEFT JOIN suites s1 ON s1.id=sp1.suite_id LEFT JOIN suites s2 ON s2.id=sp2.suite_id LEFT JOIN individuals i1 ON s1.author=i1.id LEFT JOIN individuals i2 ON s2.author=i2.id WHERE q.%1 NOT NULL%3) ORDER BY RANDOM() LIMIT 1").arg(column).arg(KEY_ARG_1).arg(constraint).arg( NAME_FIELD("i1", "author1") ).arg( NAME_FIELD("i2", "author2") ), t);
 }
 
 void IlmHelper::answersForCustomBoolCountQuestion(QObject* caller, int questionId) {
@@ -192,8 +195,8 @@ void IlmHelper::answersForCustomPromptStandardQuestion(QObject* caller, int ques
     fetchRightOrWrong(caller, questionId, QueryId::AnswersForCustomPromptStandardQuestion);
 }
 
-void IlmHelper::answersForCustomStandardQuestion(QObject* caller, int questionId) {
-    m_sql->executeQuery(caller, QString("SELECT choices.id AS %2,value_text AS %3,correct AS %4,%5 FROM answers INNER JOIN choices ON answers.choice_id=choices.id WHERE question_id=%1 UNION SELECT choices.id,choices.value_text,NULL,source_id FROM choices WHERE source_id IN (SELECT choice_id FROM answers WHERE question_id=%1) ORDER BY source_id").arg(questionId).arg(KEY_ID_FIELD).arg(KEY_CHOICE_VALUE).arg(KEY_FLAG_CORRECT).arg(KEY_SOURCE_ID), QueryId::AnswersForCustomStandardQuestion);
+void IlmHelper::answersForCustomStandardQuestion(QObject* caller, int questionId, QueryId::Type t) {
+    m_sql->executeQuery(caller, QString("SELECT choices.id AS %2,value_text AS %3,correct AS %4,%5 FROM answers INNER JOIN choices ON answers.choice_id=choices.id WHERE question_id=%1 UNION SELECT choices.id,choices.value_text,NULL,source_id FROM choices WHERE source_id IN (SELECT choice_id FROM answers WHERE question_id=%1) ORDER BY source_id").arg(questionId).arg(KEY_ID_FIELD).arg(KEY_CHOICE_VALUE).arg(KEY_FLAG_CORRECT).arg(KEY_SOURCE_ID), t);
 }
 
 void IlmHelper::fetchOrderedChoices(QObject* caller, int questionId, QueryId::Type t) {

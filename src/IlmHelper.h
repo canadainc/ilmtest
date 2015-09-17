@@ -46,6 +46,7 @@ public:
     Q_INVOKABLE void customOrderedQuestion(QObject* caller);
     Q_INVOKABLE void customPromptCountQuestion(QObject* caller);
     Q_INVOKABLE void customPromptStandardQuestion(QObject* caller);
+    Q_INVOKABLE void customStandardNegation(QObject* caller);
     Q_INVOKABLE void customStandardQuestion(QObject* caller);
     Q_INVOKABLE void answersForCustomAfterQuestion(QObject* caller, int questionId);
     Q_INVOKABLE void answersForCustomBeforeQuestion(QObject* caller, int questionId);
@@ -55,7 +56,7 @@ public:
     Q_INVOKABLE void answersForCustomOrderedQuestion(QObject* caller, int questionId);
     Q_INVOKABLE void answersForCustomPromptCountQuestion(QObject* caller, int questionId);
     Q_INVOKABLE void answersForCustomPromptStandardQuestion(QObject* caller, int questionId);
-    Q_INVOKABLE void answersForCustomStandardQuestion(QObject* caller, int questionId);
+    Q_INVOKABLE void answersForCustomStandardQuestion(QObject* caller, int questionId, QueryId::Type t=QueryId::AnswersForCustomStandardQuestion);
     Q_INVOKABLE void numericBirthYearForIndividual(QObject* caller);
     Q_INVOKABLE void numericDeathYearForIndividual(QObject* caller);
     Q_INVOKABLE void numericMaxVerseCount(QObject* caller);

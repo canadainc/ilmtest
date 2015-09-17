@@ -27,6 +27,8 @@ Page
         game.nextQuestion(result, formatFlag, truthFlag);
     }
     
+    property int errorCount: 0
+    
     function onNewQuestion()
     {
         numericInput.reset();
@@ -37,7 +39,11 @@ Page
         reference.enabled = false;
         
         if (!game.numeric && !game.multipleChoice && !game.booleanQuestion) {
-            nextQuestion();
+            ++errorCount;
+            
+            if (errorCount < 5) {
+                nextQuestion();
+            }
         } else {
             var current = game.currentQuestion;
             var bodies = qb.getBodies(current.id);

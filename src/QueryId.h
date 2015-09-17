@@ -28,6 +28,7 @@ public:
         CustomOrderedQuestion, // Rearrange the pillars of eemaan in order
         CustomPromptCountQuestion, // Are there [5,7] obligatory prayers daily?
         CustomPromptStandardQuestion, // Is ["Belief in the Big Bang","Belief in Angels"] one of the pillars of faith?
+        CustomStandardNegation, // Which of the following are NOT pillars of faith?
         CustomStandardQuestion, // Which of the following are pillars of faith?
         NumericBirthYearForIndividual,
         NumericDeathYearForIndividual,
@@ -61,6 +62,7 @@ public:
         AnswersForCustomOrderedQuestion,
         AnswersForCustomPromptCountQuestion,
         AnswersForCustomPromptStandardQuestion,
+        AnswersForCustomStandardNegation,
         AnswersForCustomStandardQuestion,
         MarkVisited,
         Setup,

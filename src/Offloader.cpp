@@ -232,7 +232,7 @@ QVariantMap Offloader::fetchRandomElement(QVariantList data, bool correctOnly)
 }
 
 
-QVariantList Offloader::useRandomSources(QVariantList data)
+QVariantList Offloader::useRandomSources(QVariantList data, bool flipped)
 {
     QMap<int,QVariantList> map;
 
@@ -261,18 +261,25 @@ QVariantList Offloader::useRandomSources(QVariantList data)
     QList<int> ids = map.keys();
     data.clear();
 
-    foreach (int id, ids) {
+    foreach (int id, ids)
+    {
         QVariantList x = map[id];
-        data << x[ TextUtils::randInt( 0, x.size()-1 ) ];
+        QVariantMap qvm = x[ TextUtils::randInt( 0, x.size()-1 ) ].toMap();
+
+        if (flipped) {
+            qvm[KEY_FLAG_CORRECT] = qvm.value(KEY_FLAG_CORRECT).toInt() == 1 ? 0 : 1;
+        }
+
+        data << qvm;
     }
 
     return data;
 }
 
 
-QVariantList Offloader::transformToStandard(QVariantList data, bool trim)
+QVariantList Offloader::transformToStandard(QVariantList data, bool trim, bool flipped)
 {
-    data = useRandomSources(data);
+    data = useRandomSources(data, flipped);
 
     std::random_shuffle( data.begin(), data.end() );
 
