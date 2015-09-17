@@ -89,6 +89,8 @@ void ApplicationUI::lazyInit()
     //m_sql.setVerboseLogging();
     m_sql.createDatabaseIfNotExists();
 
+    std::srand ( unsigned ( std::time(0) ) );
+
     m_sound.lazyInit();
     m_game.lazyInit();
     m_life.lazyInit();

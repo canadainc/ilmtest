@@ -278,9 +278,9 @@ QVariantList Offloader::transformToStandard(QVariantList data, bool trim)
 
     if ( data.size() > 2 && trim )
     {
-        int x = TextUtils::randInt( 0, data.size()-2 );
+        int x = RESULT_SET_LIMIT;
 
-        for (int i = 0; i < x; i++) {
+        while ( data.size() > x ) {
             data.removeLast();
         }
     }

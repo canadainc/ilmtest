@@ -11,7 +11,7 @@ namespace ilmtest {
 
 using namespace canadainc;
 
-class ShopManager
+class ShopManager : public QObject
 {
     Q_OBJECT
 

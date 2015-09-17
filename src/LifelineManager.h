@@ -12,15 +12,9 @@ namespace bb {
     }
 }
 
-namespace canadainc {
-    class Persistance;
-}
-
 namespace ilmtest {
 
 class Game;
-
-using namespace canadainc;
 
 struct LifelineData
 {
@@ -51,7 +45,7 @@ signals:
     void lifeLineUsed(int key);
 
 public:
-    LifelineManager(Game* game, Persistance* persist);
+    LifelineManager(Game* game);
     virtual ~LifelineManager();
 
     Q_INVOKABLE bool unlock(QString const& key);
