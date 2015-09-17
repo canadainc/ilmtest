@@ -46,10 +46,13 @@ public:
         StandardFemale,
         StandardSahabah,
         StandardSajdaSurah,
+        StandardStudent,
         StandardTabiee,
         StandardTabiTabiee,
+        StandardTeacher,
         StandardVersesForSurah,
         TempArgument1,
+        FetchIndividualArgument1,
         MultipleChoice,
         TextInput,
         GenerateTruth,
@@ -66,8 +69,7 @@ public:
         AnswersForCustomStandardQuestion,
         MarkVisited,
         Setup,
-        Debug,
-        TempList,
+        Debug
     };
 };
 

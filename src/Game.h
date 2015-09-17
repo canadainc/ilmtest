@@ -30,7 +30,6 @@ class Game : public QObject
 
     IlmHelper m_ilm;
     QVariantMap m_currentQuestion;
-    QVariantList m_tempList;
     QString m_arg1;
     QVariantMap m_reference;
     Destiny m_destiny;

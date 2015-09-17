@@ -32,8 +32,10 @@ QtObject
             map[QueryId.OrderedSurahsByLength] = {'choiceTexts': [qsTr("Please arrange the following surahs in order from shortest to longest.")]};
             map[QueryId.StandardSahabah] = {'choiceTexts': [qsTr("Who of the following was a Sahabah?"), qsTr("Who of the following was a companion of the Prophet sallalahu alayhi wa'sallam?")]};
             map[QueryId.StandardFemale] = {'choiceTexts': [qsTr("Who of the following is female?")]};
+            map[QueryId.StandardStudent] = {'choiceTexts': [qsTr("Who of the following was a student of %1?")]};
             map[QueryId.StandardTabiee] = {'choiceTexts': [qsTr("Who of the following was a Tabiee?"), qsTr("Who of the following was a student of the companions of the Prophet sallalahu alayhi wa'sallam?")]};
             map[QueryId.StandardTabiTabiee] = {'choiceTexts': [qsTr("Who of the following was a Tabi‘ al-Tabi‘in?")]};
+            map[QueryId.StandardTeacher] = {'choiceTexts': [qsTr("Who of the following was a teacher of %1?")]};
             map[QueryId.StandardSajdaSurah] = {'choiceTexts': [qsTr("Which of the following surahs contain a Sujud al-Tilawah (Prostration of Qu'ran Recitation)?")]};
             map[QueryId.StandardVersesForSurah] = {'choiceTexts': [qsTr("Which of the following are verses found in %1?")]};
             questionDB = map;

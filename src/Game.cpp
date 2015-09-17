@@ -50,76 +50,75 @@ void Game::onDataLoaded(QVariant idV, QVariant dataV)
 {
     int id = idV.toInt();
 
-    m_currentQuestion.clear();
-    QString t = ID_TO_QSTR(id);
-    QVariantList data = dataV.toList();
-    LOGGER( t << ID_TO_QSTR(m_destiny.truthType) << ID_TO_QSTR(m_destiny.formatType) );
-
-    int n = data.size();
-
-    if (n > 0)
+    if (id != QueryId::Unknown) // unknown ones are within transactions and should get ignored
     {
-        QVariantMap first = data.first().toMap();
+        m_currentQuestion.clear();
+        QString t = ID_TO_QSTR(id);
+        QVariantList data = dataV.toList();
+        LOGGER( t << ID_TO_QSTR(m_destiny.truthType) << ID_TO_QSTR(m_destiny.formatType) );
 
-        if (n == 1)
+        int n = data.size();
+
+        if (n > 0)
         {
-            LOGGER(first << first.contains("spi1"));
+            QVariantMap first = data.first().toMap();
 
-            if ( first.contains(KEY_ARG_1) ) {
-                m_arg1 = first.value(KEY_ARG_1).toString();
-            }
-
-            if ( first.contains("spi1") )
+            if (n == 1)
             {
-                if ( first.value("ref_page_id").toLongLong() > 0 ) {
-                    setReference(first, "spi2", "author2", "title2", "heading2");
-                } else {
-                    setReference(first, "spi1", "author1", "title1", "heading1");
+                LOGGER(first << first.contains("spi1"));
+
+                if ( first.contains(KEY_ARG_1) ) {
+                    m_arg1 = first.value(KEY_ARG_1).toString();
+                }
+
+                if ( first.contains("spi1") )
+                {
+                    if ( first.value("ref_page_id").toLongLong() > 0 ) {
+                        setReference(first, "spi2", "author2", "title2", "heading2");
+                    } else {
+                        setReference(first, "spi1", "author1", "title1", "heading1");
+                    }
                 }
             }
         }
-    }
 
-    if ( t.startsWith("Numeric") && n > 0 ) {
-        data = generateNumeric(data);
-    } else if ( t.startsWith("Ordered") && n > 0 ) {
-        m_currentQuestion[KEY_ORDERED] = true;
-    } else if ( t.startsWith("Standard") ) {
-        m_currentQuestion[KEY_STANDARD] = true;
-        data = Offloader::mergeAndShuffle(data, m_tempList);
-    } else if ( t.startsWith("Bool") ) {
-        m_currentQuestion[KEY_BOOLEAN] = true;
-    } else if ( t.startsWith("Custom") ) {
-        if (n > 0) {
-            m_currentQuestion = data.first().toMap();
-            processCustom( (QueryId::Type)id );
-        } else {
-            LOGGER("NoResults!");
+        if ( t.startsWith("Numeric") && n > 0 ) {
+            data = generateNumeric(data);
+        } else if ( t.startsWith("Ordered") && n > 0 ) {
+            m_currentQuestion[KEY_ORDERED] = true;
+        } else if ( t.startsWith("Standard") ) {
+            m_currentQuestion[KEY_STANDARD] = true;
+            data = Offloader::mergeAndShuffle(data, QVariantList());
+        } else if ( t.startsWith("Bool") ) {
+            m_currentQuestion[KEY_BOOLEAN] = true;
+        } else if ( t.startsWith("Custom") ) {
+            if (n > 0) {
+                m_currentQuestion = data.first().toMap();
+                processCustom( (QueryId::Type)id );
+            } else {
+                LOGGER("NoResults!");
+                emit currentQuestionChanged();
+            }
+        } else if ( t.startsWith("After") ) {
+            data = processOrdered(data, false);
+        } else if ( t.startsWith("Before") ) {
+            data = processOrdered(data, true);
+        } else if ( t.startsWith("AnswersForCustom") ) {
+            data = processAnswersForCustomQuestion( (QueryId::Type)id, data );
+        }
+
+        if ( multipleChoice() || numeric() )
+        {
+            m_currentQuestion["id"] = idV;
+            m_currentQuestion["choices"] = data;
+
+            if ( !m_reference.isEmpty() ) {
+                m_currentQuestion["reference"] = m_reference;
+            }
+
+            LOGGER(m_currentQuestion);
             emit currentQuestionChanged();
         }
-    } else if ( t.startsWith("After") ) {
-        data = processOrdered(data, false);
-    } else if ( t.startsWith("Before") ) {
-        data = processOrdered(data, true);
-    } else if ( t.startsWith("AnswersForCustom") ) {
-        data = processAnswersForCustomQuestion( (QueryId::Type)id, data );
-    }
-
-    if (id == QueryId::TempList) {
-        m_tempList = data;
-    }
-
-    if ( multipleChoice() || numeric() )
-    {
-        m_currentQuestion["id"] = idV;
-        m_currentQuestion["choices"] = data;
-
-        if ( !m_reference.isEmpty() ) {
-            m_currentQuestion["reference"] = m_reference;
-        }
-
-        LOGGER(m_currentQuestion);
-        emit currentQuestionChanged();
     }
 }
 
@@ -251,7 +250,6 @@ void Game::nextQuestion(int q, int requestedFormat, int requestedBool)
     emit levelChanged();
 
     m_destiny = Destiny(requestedFormat, q, requestedBool);
-    m_tempList.clear();
     m_arg1.clear();
     m_reference.clear();
 

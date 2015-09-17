@@ -26,6 +26,7 @@ class IlmHelper : public QObject
     void fetchRightOrWrong(QObject* caller, int questionId, QueryId::Type t);
     void fetchSurahHeader(QObject* caller, int chapterNumber);
     void lookupByField(QObject* caller, int fieldValue, QueryId::Type t, QString const& field="is_companion");
+    void lookupByRelation(QObject* caller, QString const& table, QString const& fieldName, QString const& joinField, QueryId::Type t);
 
 public:
     IlmHelper(DatabaseHelper* sql);
@@ -73,8 +74,10 @@ public:
     Q_INVOKABLE void standardFemale(QObject* caller);
     Q_INVOKABLE void standardSahabah(QObject* caller);
     Q_INVOKABLE void standardSajdaSurah(QObject* caller);
+    Q_INVOKABLE void standardStudent(QObject* caller);
     Q_INVOKABLE void standardTabiee(QObject* caller);
     Q_INVOKABLE void standardTabiTabiee(QObject* caller);
+    Q_INVOKABLE void standardTeacher(QObject* caller);
     Q_INVOKABLE void standardVersesForSurah(QObject* caller);
 
     void lazyInit();

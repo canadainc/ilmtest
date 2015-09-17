@@ -4,12 +4,12 @@
 #include "CommonConstants.h"
 #include "DatabaseHelper.h"
 #include "Logger.h"
+#include "SharedConstants.h"
 #include "TextUtils.h"
 
 #define DB_ARABIC "quran_arabic"
 #define DB_ENGLISH "quran_english"
 #define FETCH_TABLE_COUNT(table) QString("SELECT COUNT() AS %1 FROM %2").arg(TOTAL_COUNT_VALUE).arg(table)
-#define NAME_FIELD(var,fieldName) QString("replace( replace( replace( replace( coalesce(%1.displayName, TRIM((coalesce(%1.prefix,'') || ' ' || coalesce(%1.kunya,'') || ' ' || %1.name))),\"'\",''), '%2', ''), '%3', ''), '  ', ' ' ) AS %4").arg(var).arg( QChar(8217) ).arg( QChar(8216) ).arg(fieldName)
 #define NUMERIC_FIELD_QUERY(field) QString("SELECT %1,%3 AS %2 FROM individuals i WHERE %3 > 0 AND hidden ISNULL ORDER BY RANDOM() LIMIT 1").arg( NAME_FIELD("i", KEY_ARG_1) ).arg(TOTAL_COUNT_VALUE).arg(field)
 #define ORDERED_FIELD_QUERY(field) QString("SELECT %1,%3 AS %2 FROM individuals i WHERE %3 > 0 AND hidden ISNULL ORDER BY RANDOM() LIMIT 4").arg( NAME_FIELD("i", KEY_CHOICE_VALUE) ).arg(KEY_SORT_ORDER).arg(field)
 #define MERGE_COLUMNS(col1, col2, alias) QString("%1 || ' (' || %2 || ')' AS %3").arg(col1).arg(col2).arg(alias)
@@ -219,6 +219,7 @@ void IlmHelper::fetchSurahHeader(QObject* caller, int chapterNumber)
     m_sql->executeQuery( caller, QString("SELECT %2 FROM surahs s INNER JOIN chapters c ON s.id=c.id WHERE s.id=%1").arg(chapterNumber).arg(MERGE_SURAH_NAME), QueryId::TempArgument1 );
 }
 
+
 void IlmHelper::numericMaxVerseCount(QObject* caller) {
     m_sql->executeQuery(caller, QString("SELECT MAX(verse_count) AS %1 FROM surahs").arg(TOTAL_COUNT_VALUE), QueryId::NumericMaxVerseCount);
 }
@@ -304,6 +305,32 @@ void IlmHelper::standardVersesForSurah(QObject* caller)
     fetchSurahHeader(caller, chapter);
     QPair<int,int> limits = generateCorrectIncorrect();
     m_sql->executeQuery(caller, QString("SELECT * FROM (SELECT %1,%2,1 AS correct FROM ayahs INNER JOIN verses ON ayahs.surah_id=verses.chapter_id WHERE surah_id=%3 ORDER BY RANDOM() LIMIT %5) UNION SELECT * FROM (SELECT %1,%2,0 FROM ayahs INNER JOIN verses ON ayahs.surah_id=verses.chapter_id WHERE surah_id=%4 ORDER BY RANDOM() LIMIT %6)").arg(AYAT_AS_VALUE).arg(TRANSLATION_AS_DESCRIPTION).arg(chapter).arg(wrongChapter).arg(limits.first).arg(limits.second), QueryId::StandardVersesForSurah);
+}
+
+
+void IlmHelper::standardTeacher(QObject* caller) {
+    lookupByRelation(caller, "teachers", "individual", "teacher", QueryId::StandardTeacher);
+}
+
+
+void IlmHelper::standardStudent(QObject* caller) {
+    lookupByRelation(caller, "teachers", "teacher", "individual", QueryId::StandardStudent);
+}
+
+
+void IlmHelper::lookupByRelation(QObject* caller, QString const& table, QString const& fieldName, QString const& joinField, QueryId::Type t)
+{
+    QPair<int,int> limits = generateCorrectIncorrect();
+
+    m_sql->startTransaction(caller, QueryId::Unknown);
+    m_sql->executeQuery(caller, "CREATE TEMPORARY TABLE individuals_temp (id INTEGER PRIMARY KEY)", QueryId::Unknown);
+    m_sql->executeQuery(caller, QString("INSERT INTO individuals_temp(id) SELECT %1 FROM %2 ORDER BY RANDOM() LIMIT 1").arg(fieldName).arg(table), QueryId::Unknown);
+
+    QString tempLookup = "SELECT id FROM individuals_temp LIMIT 1";
+    m_sql->executeQuery(caller, QString("SELECT %1 FROM individuals i WHERE i.id=(%2)").arg( NAME_FIELD("i", KEY_ARG_1) ).arg(tempLookup), QueryId::TempArgument1);
+    m_sql->executeQuery(caller, QString("SELECT * FROM (SELECT %1,1 AS %2 FROM %3 INNER JOIN individuals i ON %3.%4=i.id WHERE %3.%5=(%8) ORDER BY RANDOM() LIMIT %6) UNION SELECT * FROM (SELECT %1,0 AS %2 FROM individuals i WHERE id NOT IN (SELECT %4 FROM %3 WHERE %5=(%8)) ORDER BY RANDOM() LIMIT %7)").arg( NAME_FIELD("i", KEY_CHOICE_VALUE) ).arg(KEY_FLAG_CORRECT).arg(table).arg(joinField).arg(fieldName).arg(limits.first).arg(limits.second).arg(tempLookup), t);
+    m_sql->executeQuery(caller, "DROP TABLE individuals_temp", QueryId::Unknown);
+    m_sql->endTransaction(caller, QueryId::Unknown);
 }
 
 
