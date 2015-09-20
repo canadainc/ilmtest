@@ -36,12 +36,15 @@ class Game : public QObject
     int m_level;
     QQueue<Destiny> m_questionPath;
 
+    void finalize();
     QVariantList generateNumericBoolean(int id, QVariantList data, QString const& key=QString());
     QVariantList generateNumeric(QVariantList data, QString const& key=QString());
+    QVariantList processResultSet(int id, QVariantList data);
     void processCustom(QueryId::Type t);
     QVariantList processAnswersForCustomQuestion(QueryId::Type t, QVariantList data);
     QVariantList processOrdered(QVariantList data, bool before);
     void setReference(QVariantMap const& qvm, QString const& idKey, QString const& authorKey, QString const& titleKey, QString const& headingKey, QString const& targetId="com.canadainc.Quran10.tafsir.previewer", QString const& uriPrefix="quran://tafsir/");
+    void setupQuestions(QVariantList const& data);
 
 private slots:
     void onDataLoaded(QVariant id, QVariant data);

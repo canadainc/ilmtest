@@ -11,7 +11,10 @@ Container
     function show()
     {
         labelField.opacity = 0;
-        ft.play();
+        
+        if ( !ft.isPlaying() ) {
+            ft.play();
+        }
     }
     
     function apply(refData)

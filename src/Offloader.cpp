@@ -5,7 +5,9 @@
 #include "Logger.h"
 #include "TextUtils.h"
 
+#define IS_CORRECT(x) x.value(KEY_FLAG_CORRECT).toInt() == 1
 #define KEY_BOOLEAN_RAND_TEXT(x) x[ TextUtils::randInt( 0, x.size()-1 ) ].toString().arg(arg)
+#define MARK_CORRECT(x) x[KEY_FLAG_CORRECT] = 1
 
 namespace {
 
@@ -111,7 +113,7 @@ QVariantList Offloader::generateChoices(int correctAnswer)
     }
 
     current[KEY_CHOICE_VALUE] = correctAnswer;
-    current[KEY_FLAG_CORRECT] = 1;
+    MARK_CORRECT(current);
     qvl << current;
 
     qSort( qvl.begin(), qvl.end(), compareInts );
@@ -177,7 +179,7 @@ bool Offloader::verifyMultipleChoice(bb::cascades::ArrayDataModel* adm, QVariant
     {
         QVariantMap qvm = adm->value(i).toMap();
 
-        if ( qvm.value(KEY_FLAG_CORRECT).toInt() == 1 ) {
+        if ( IS_CORRECT(qvm) ) {
             correctIndices << i;
             LOGGER(qvm);
         }
@@ -217,7 +219,7 @@ QVariantMap Offloader::fetchRandomElement(QVariantList data, bool correctOnly)
     foreach (QVariant const& q, data)
     {
         QVariantMap qvm = q.toMap();
-        bool isCorrect = qvm.value(KEY_FLAG_CORRECT) == 1;
+        bool isCorrect = IS_CORRECT(qvm);
 
         if (correctOnly == isCorrect) {
             result << qvm;
@@ -267,7 +269,7 @@ QVariantList Offloader::useRandomSources(QVariantList data, bool flipped)
         QVariantMap qvm = x[ TextUtils::randInt( 0, x.size()-1 ) ].toMap();
 
         if (flipped) {
-            qvm[KEY_FLAG_CORRECT] = qvm.value(KEY_FLAG_CORRECT).toInt() == 1 ? 0 : 1;
+            qvm[KEY_FLAG_CORRECT] = IS_CORRECT(qvm) ? 0 : 1;
         }
 
         data << qvm;
@@ -304,7 +306,7 @@ QVariantList Offloader::setChoices(QString const& trueString, QString const& fal
     qvm[KEY_CHOICE_VALUE] = trueString;
 
     if (yesCorrect) {
-        qvm[KEY_FLAG_CORRECT] = 1;
+        MARK_CORRECT(qvm);
     }
 
     result << qvm;
@@ -313,7 +315,7 @@ QVariantList Offloader::setChoices(QString const& trueString, QString const& fal
     qvm[KEY_CHOICE_VALUE] = falseString;
 
     if (!yesCorrect) {
-        qvm[KEY_FLAG_CORRECT] = 1;
+        MARK_CORRECT(qvm);
     }
 
     result << qvm;
@@ -332,7 +334,7 @@ QVariantList Offloader::processOrdered(QVariantList data, QString& arg1, bool be
     int correctIndex = before ? targetIndex-1 : targetIndex+1;
 
     QVariantMap qvm = data.takeAt(correctIndex).toMap();
-    qvm[KEY_FLAG_CORRECT] = 1;
+    MARK_CORRECT(qvm);
     QString target = data.takeAt(targetIndex).toMap().value(KEY_CHOICE_VALUE).toString();
 
     if ( arg1.isEmpty() ) {
@@ -428,6 +430,31 @@ QMap<qint64,QueryId::Type> Offloader::generateQuestions(QMap< QueryId::Type, QSe
                 }
             }
         }
+    }
+
+    return result;
+}
+
+
+QVariantMap Offloader::generateNoneOfTheAbove(QVariantList const& data)
+{
+    QVariantMap result;
+    result[KEY_CHOICE_VALUE] = tr("None of the Above");
+    result["none"] = 1;
+
+    bool noneCorrect = true;
+
+    foreach (QVariant const& q, data)
+    {
+        if ( IS_CORRECT( q.toMap() ) )
+        {
+            noneCorrect = false;
+            break;
+        }
+    }
+
+    if (noneCorrect) {
+        MARK_CORRECT(result);
     }
 
     return result;

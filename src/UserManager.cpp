@@ -1,5 +1,6 @@
 #include "UserManager.h"
 #include "Persistance.h"
+#include "ReportGenerator.h"
 
 #define KEY_SETTING_USER_PROFILE "userProfile"
 #define KEY_USER_NAME "name"
@@ -35,7 +36,7 @@ void UserManager::onSettingChanged(QVariant newValue, QVariant key)
 
 
 QString UserManager::name() const {
-    return m_profile.name;
+    return QString("%1 :%2").arg(m_profile.name).arg(m_persist->getFlag(KEY_USER_ID).toString());
 }
 
 

@@ -125,8 +125,7 @@ void IlmHelper::fetchCustomColumn(QObject* caller, QueryId::Type t, qint64 quest
 {
     QString column = m_typeToTable.value(t);
 
-    QString constraint = questionId > 0 ? QString(" AND q.id=%1").arg(questionId) : QString(" AND q.id NOT IN (SELECT id FROM visited_questions)");
-    m_sql->executeQuery(caller, QString("SELECT * FROM (SELECT q.id,q.%1 AS %2,q.suite_page_id AS spi1,p.suite_page_id AS spi2,s1.title AS title1,s2.title AS title2,sp1.heading AS heading1,sp2.heading AS heading2,q.source_id,%4,%5 FROM questions q LEFT JOIN questions p ON q.source_id=p.id LEFT JOIN suite_pages sp1 ON q.suite_page_id=sp1.id LEFT JOIN suite_pages sp2 ON p.suite_page_id=sp2.id LEFT JOIN suites s1 ON s1.id=sp1.suite_id LEFT JOIN suites s2 ON s2.id=sp2.suite_id LEFT JOIN individuals i1 ON s1.author=i1.id LEFT JOIN individuals i2 ON s2.author=i2.id WHERE q.%1 NOT NULL%3) ORDER BY RANDOM() LIMIT 1").arg(column).arg(KEY_ARG_1).arg(constraint).arg( NAME_FIELD("i1", "author1") ).arg( NAME_FIELD("i2", "author2") ), t);
+    m_sql->executeQuery(caller, QString("SELECT * FROM (SELECT q.id,q.%1 AS %2,q.suite_page_id AS spi1,p.suite_page_id AS spi2,s1.title AS title1,s2.title AS title2,sp1.heading AS heading1,sp2.heading AS heading2,q.source_id,%4,%5 FROM questions q LEFT JOIN questions p ON q.source_id=p.id LEFT JOIN suite_pages sp1 ON q.suite_page_id=sp1.id LEFT JOIN suite_pages sp2 ON p.suite_page_id=sp2.id LEFT JOIN suites s1 ON s1.id=sp1.suite_id LEFT JOIN suites s2 ON s2.id=sp2.suite_id LEFT JOIN individuals i1 ON s1.author=i1.id LEFT JOIN individuals i2 ON s2.author=i2.id WHERE q.%1 NOT NULL AND q.id=%3) ORDER BY RANDOM() LIMIT 1").arg(column).arg(KEY_ARG_1).arg(questionId).arg( NAME_FIELD("i1", "author1") ).arg( NAME_FIELD("i2", "author2") ), t);
 }
 
 void IlmHelper::answersForCustomBoolCountQuestion(QObject* caller, int questionId) {
@@ -309,18 +308,7 @@ void IlmHelper::lazyInit()
     m_typeToTable[QueryId::CustomStandardNegation] = "standard_negation_body";
     m_typeToTable[QueryId::CustomStandardQuestion] = "standard_body";
 
-    m_sql->executeInternal("CREATE TEMPORARY TABLE visited_questions (id INTEGER PRIMARY KEY)", QueryId::Setup);
     reloadQuestionBank();
-}
-
-
-void IlmHelper::resetVisited() {
-    m_sql->executeInternal("DELETE FROM visited_questions", QueryId::MarkVisited);
-}
-
-
-void IlmHelper::markVisited(qint64 questionId) {
-    m_sql->executeInternal( "INSERT INTO visited_questions (id) VALUES (?)", QueryId::MarkVisited, QVariantList() << questionId );
 }
 
 

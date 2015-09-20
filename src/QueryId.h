@@ -68,7 +68,6 @@ public:
         AnswersForCustomStandardNegation,
         AnswersForCustomStandardQuestion,
         FetchDictionary,
-        MarkVisited,
         Setup,
         Debug
     };

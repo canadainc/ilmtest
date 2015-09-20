@@ -56,93 +56,11 @@ void Game::onDataLoaded(QVariant idV, QVariant dataV)
     if (id == QueryId::FetchDictionary)
     {
         QVariantList data = dataV.toList();
-        QMap< QueryId::Type, QSet<qint64> > typeToQuestions;
-        QMap< qint64, QList<QueryId::Type> > questionToTypes;
-
-        foreach (QVariant const& q, data)
-        {
-            QVariantMap qvm = q.toMap();
-            QueryId::Type t = (QueryId::Type)qvm.value(FIELD_COLUMN_TYPE).toInt();
-            qint64 questionId = qvm.value(KEY_ID_FIELD).toLongLong();
-
-            QSet<qint64> questions = typeToQuestions.value(t);
-            questions << questionId;
-            typeToQuestions[t] = questions;
-
-            QList<QueryId::Type> types = questionToTypes.value(questionId);
-            types << t;
-            questionToTypes[questionId] = types;
-        }
-
-        while ( !questionToTypes.isEmpty() )
-        {
-            QMap<qint64, QueryId::Type> questions = Offloader::generateQuestions(typeToQuestions, questionToTypes);
-
-            foreach ( qint64 questionId, questions.keys() )
-            {
-                Destiny d;
-                d.questionId = questionId;
-                d.questionType = questions.value(questionId);
-                m_questionPath.enqueue(d);
-            }
-        }
-
-        std::random_shuffle( m_questionPath.begin(), m_questionPath.end() );
+        setupQuestions(data);
     } else if (id != QueryId::Unknown) { // unknown ones are within transactions and should get ignored
         m_currentQuestion.clear();
-        QString t = ID_TO_QSTR(id);
         QVariantList data = dataV.toList();
-        LOGGER( t << ID_TO_QSTR(m_destiny.truthType) << ID_TO_QSTR(m_destiny.formatType) );
-
-        int n = data.size();
-
-        if (n > 0)
-        {
-            QVariantMap first = data.first().toMap();
-
-            if (n == 1)
-            {
-                LOGGER(first << first.contains("spi1"));
-
-                if ( first.contains(KEY_ARG_1) ) {
-                    m_arg1 = first.value(KEY_ARG_1).toString();
-                }
-
-                if ( first.contains("spi1") )
-                {
-                    if ( first.value("ref_page_id").toLongLong() > 0 ) {
-                        setReference(first, "spi2", "author2", "title2", "heading2");
-                    } else {
-                        setReference(first, "spi1", "author1", "title1", "heading1");
-                    }
-                }
-            }
-        }
-
-        if ( t.startsWith("Numeric") && n > 0 ) {
-            data = generateNumeric(data);
-        } else if ( t.startsWith("Ordered") && n > 0 ) {
-            m_currentQuestion[KEY_ORDERED] = true;
-        } else if ( t.startsWith("Standard") ) {
-            m_currentQuestion[KEY_STANDARD] = true;
-            data = Offloader::mergeAndShuffle(data, QVariantList());
-        } else if ( t.startsWith("Bool") ) {
-            m_currentQuestion[KEY_BOOLEAN] = true;
-        } else if ( t.startsWith(CUSTOM_QUESTION_PREFIX) ) {
-            if (n > 0) {
-                m_currentQuestion = data.first().toMap();
-                processCustom( (QueryId::Type)id );
-            } else {
-                LOGGER("NoResults!");
-                emit currentQuestionChanged();
-            }
-        } else if ( t.startsWith("After") ) {
-            data = processOrdered(data, false);
-        } else if ( t.startsWith("Before") ) {
-            data = processOrdered(data, true);
-        } else if ( t.startsWith("AnswersForCustom") ) {
-            data = processAnswersForCustomQuestion( (QueryId::Type)id, data );
-        }
+        data = processResultSet(id, data);
 
         if ( multipleChoice() || numeric() )
         {
@@ -157,6 +75,106 @@ void Game::onDataLoaded(QVariant idV, QVariant dataV)
             emit currentQuestionChanged();
         }
     }
+}
+
+
+void Game::setupQuestions(QVariantList const& data)
+{
+    QMap< QueryId::Type, QSet<qint64> > typeToQuestions;
+    QMap< qint64, QList<QueryId::Type> > questionToTypes;
+
+    foreach (QVariant const& q, data)
+    {
+        QVariantMap qvm = q.toMap();
+        QueryId::Type t = (QueryId::Type)qvm.value(FIELD_COLUMN_TYPE).toInt();
+        qint64 questionId = qvm.value(KEY_ID_FIELD).toLongLong();
+
+        QSet<qint64> questions = typeToQuestions.value(t);
+        questions << questionId;
+        typeToQuestions[t] = questions;
+
+        QList<QueryId::Type> types = questionToTypes.value(questionId);
+        types << t;
+        questionToTypes[questionId] = types;
+    }
+
+    while ( !questionToTypes.isEmpty() )
+    {
+        QMap<qint64, QueryId::Type> questions = Offloader::generateQuestions(typeToQuestions, questionToTypes);
+
+        foreach ( qint64 questionId, questions.keys() )
+        {
+            Destiny d;
+            d.questionId = questionId;
+            d.questionType = questions.value(questionId);
+            m_questionPath.enqueue(d);
+        }
+    }
+
+    std::random_shuffle( m_questionPath.begin(), m_questionPath.end() );
+}
+
+
+QVariantList Game::processResultSet(int id, QVariantList data)
+{
+    QString t = ID_TO_QSTR(id);
+    LOGGER( t << ID_TO_QSTR(m_destiny.truthType) << ID_TO_QSTR(m_destiny.formatType) );
+
+    int n = data.size();
+
+    if (n > 0)
+    {
+        QVariantMap first = data.first().toMap();
+
+        if (n == 1)
+        {
+            LOGGER(first << first.contains("spi1"));
+
+            if ( first.contains(KEY_ARG_1) ) {
+                m_arg1 = first.value(KEY_ARG_1).toString();
+            }
+
+            if ( first.contains("spi1") )
+            {
+                if ( first.value("ref_page_id").toLongLong() > 0 ) {
+                    setReference(first, "spi2", "author2", "title2", "heading2");
+                } else {
+                    setReference(first, "spi1", "author1", "title1", "heading1");
+                }
+            }
+        }
+    }
+
+    if ( t.startsWith("Numeric") && n > 0 ) {
+        data = generateNumeric(data);
+    } else if ( t.startsWith("Ordered") && n > 0 ) {
+        m_currentQuestion[KEY_ORDERED] = true;
+    } else if ( t.startsWith("Standard") ) {
+        m_currentQuestion[KEY_STANDARD] = true;
+        data = Offloader::mergeAndShuffle(data, QVariantList());
+    } else if ( t.startsWith("Bool") ) {
+        m_currentQuestion[KEY_BOOLEAN] = true;
+    } else if ( t.startsWith(CUSTOM_QUESTION_PREFIX) ) {
+        if (n > 0) {
+            m_currentQuestion = data.first().toMap();
+            processCustom( (QueryId::Type)id );
+        } else {
+            LOGGER("NoResults!");
+            emit currentQuestionChanged();
+        }
+    } else if ( t.startsWith("After") ) {
+        data = processOrdered(data, false);
+    } else if ( t.startsWith("Before") ) {
+        data = processOrdered(data, true);
+    } else if ( t.startsWith("AnswersForCustom") ) {
+        data = processAnswersForCustomQuestion( (QueryId::Type)id, data );
+    }
+
+    if ( !data.isEmpty() ) {
+        data << Offloader::generateNoneOfTheAbove(data);
+    }
+
+    return data;
 }
 
 
@@ -260,8 +278,6 @@ void Game::processCustom(QueryId::Type t)
     } else if (t == QueryId::CustomBeforeQuestion) {
         m_ilm.answersForCustomBeforeQuestion(this, questionId);
     }
-
-    m_ilm.markVisited(questionId);
 }
 
 
@@ -342,7 +358,7 @@ QString Game::formatQuestion(QString const& input)
 
 
 void Game::reset() {
-    m_ilm.resetVisited();
+    m_level = 0;
 }
 
 

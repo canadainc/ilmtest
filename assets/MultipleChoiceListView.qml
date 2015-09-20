@@ -54,7 +54,7 @@ ListView
                 enabled: ListItemData.disabled != 1
                 title: ListItemData.value.toString()
                 description: ListItemData.description ? ListItemData.description : ""
-                imageSource: "images/list/choices/%1.png".arg(ListItem.indexPath[0])
+                imageSource: ListItemData.none ? "images/list/choices/none.png" : "images/list/choices/%1.png".arg(ListItem.indexPath[0])
                 opacity: 0
                 
                 ListItem.onInitializedChanged: {

@@ -94,14 +94,17 @@ void LifelineManager::lazyInit()
     connect( m_game, SIGNAL( levelChanged() ), this, SLOT( onCurrentLevelChanged() ) );
 
     m_levelToLifeline.insertMulti( 1, LifelineData( Lifeline::FiftyFifty, tr("Fifty Fifty"), "images/list/lifelines/ic_lifeline_50.png" ) );
-    m_levelToLifeline.insertMulti( 1, LifelineData( Lifeline::PopularOpinion, tr("Popular Opinion"), "images/list/lifelines/ic_lifeline_audience.png" ) );
-    m_levelToLifeline.insertMulti( 1, LifelineData( Lifeline::PhoneFriend, tr("Phone a Friend"), "images/list/lifelines/ic_lifeline_friend.png" ) );
-    m_levelToLifeline.insertMulti( 5, LifelineData( Lifeline::FreezeTime, tr("Freeze Clock"), "images/list/lifelines/ic_lifeline_clock.png" ) );
-    m_levelToLifeline.insertMulti( 10, LifelineData( Lifeline::ChangeQuestion, tr("Change the Question"), "images/list/lifelines/ic_lifeline_change.png" ) );
+    //m_levelToLifeline.insertMulti( 1, LifelineData( Lifeline::PopularOpinion, tr("Popular Opinion"), "images/list/lifelines/ic_lifeline_audience.png" ) );
+    //m_levelToLifeline.insertMulti( 1, LifelineData( Lifeline::PhoneFriend, tr("Phone a Friend"), "images/list/lifelines/ic_lifeline_friend.png" ) );
+    m_levelToLifeline.insertMulti( 1, LifelineData( Lifeline::FreezeTime, tr("Freeze Clock"), "images/list/lifelines/ic_lifeline_clock.png" ) );
+    m_levelToLifeline.insertMulti( 1, LifelineData( Lifeline::ChangeQuestion, tr("Change the Question"), "images/list/lifelines/ic_lifeline_change.png" ) );
 
-    m_codeToLifeline[ LID_TO_QSTR(Lifeline::AskAnExpert) ] = LifelineData( Lifeline::AskAnExpert, tr("Ask an Expert"), "images/list/lifelines/ic_lifeline_expert.png" );
+    m_levelToLifeline.insertMulti( 1, LifelineData( Lifeline::AskAnExpert, tr("Ask an Expert"), "images/list/lifelines/ic_lifeline_expert.png" ) );
+    m_levelToLifeline.insertMulti( 1, LifelineData( Lifeline::TakeOne, tr("Take One"), "images/list/lifelines/ic_lifelines_take_one.png" ) );
+
+    /*m_codeToLifeline[ LID_TO_QSTR(Lifeline::AskAnExpert) ] = LifelineData( Lifeline::AskAnExpert, tr("Ask an Expert"), "images/list/lifelines/ic_lifeline_expert.png" );
     m_codeToLifeline[ LID_TO_QSTR(Lifeline::SecondChance) ] = LifelineData( Lifeline::SecondChance, tr("Second Chance"), "images/list/lifelines/ic_lifeline_second.png" );
-    m_codeToLifeline[ LID_TO_QSTR(Lifeline::TakeOne) ] = LifelineData( Lifeline::TakeOne, tr("Take One"), "images/list/lifelines/ic_lifelines_take_one.png" );
+    m_codeToLifeline[ LID_TO_QSTR(Lifeline::TakeOne) ] = LifelineData( Lifeline::TakeOne, tr("Take One"), "images/list/lifelines/ic_lifelines_take_one.png" ); */
 }
 
 

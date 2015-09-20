@@ -73,8 +73,6 @@ public:
     void fetchCustomColumn(QObject* caller, QueryId::Type t, qint64 questionId=0);
     void fetchDictionary(QObject* caller);
     void lazyInit();
-    void markVisited(qint64 questionId);
-    void resetVisited();
     void reloadQuestionBank();
 };
 
