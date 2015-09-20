@@ -12,7 +12,7 @@ struct Destiny
     QueryId::Type formatType;
     QueryId::Type questionType;
     QueryId::Type truthType;
-    int questionId;
+    qint64 questionId;
 
     Destiny(int format=QueryId::MultipleChoice, int q=QueryId::Unknown, int tt=QueryId::GenerateTruth) :
         formatType( (QueryId::Type)format ), questionType( (QueryId::Type)q ), truthType( (QueryId::Type)tt ), questionId(0) {}
@@ -34,6 +34,7 @@ class Game : public QObject
     QVariantMap m_reference;
     Destiny m_destiny;
     int m_level;
+    QQueue<Destiny> m_questionPath;
 
     QVariantList generateNumericBoolean(int id, QVariantList data, QString const& key=QString());
     QVariantList generateNumeric(QVariantList data, QString const& key=QString());

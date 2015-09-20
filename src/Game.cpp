@@ -8,6 +8,7 @@
 #include "QueryId.h"
 #include "TextUtils.h"
 
+#define CUSTOM_QUESTION_PREFIX "Custom"
 #define EMIT_ERROR(x) emit error( QString("%1 QuestionId: %2; QuestionType: %3; FormatType: %4; TruthType: %5; Debug: %6_%7:%8").arg(x).arg(m_destiny.questionId).arg( ID_TO_QSTR(id) ).arg( ID_TO_QSTR(m_destiny.formatType).arg( ID_TO_QSTR(m_destiny.truthType) ).arg(__FILE__).arg(__FUNCTION__).arg(__LINE__) ) )
 #define EXTRACT_NUMERIC_ANSWER(x,key) x.first().toMap().value( !key.isNull() ? key : TOTAL_COUNT_VALUE ).toInt();
 #define KEY_BOOLEAN "boolean"
@@ -27,8 +28,10 @@ Game::Game(DatabaseHelper* db) :
 }
 
 
-void Game::lazyInit() {
+void Game::lazyInit()
+{
     m_ilm.lazyInit();
+    m_ilm.fetchDictionary(this);
 }
 
 
@@ -50,8 +53,42 @@ void Game::onDataLoaded(QVariant idV, QVariant dataV)
 {
     int id = idV.toInt();
 
-    if (id != QueryId::Unknown) // unknown ones are within transactions and should get ignored
+    if (id == QueryId::FetchDictionary)
     {
+        QVariantList data = dataV.toList();
+        QMap< QueryId::Type, QSet<qint64> > typeToQuestions;
+        QMap< qint64, QList<QueryId::Type> > questionToTypes;
+
+        foreach (QVariant const& q, data)
+        {
+            QVariantMap qvm = q.toMap();
+            QueryId::Type t = (QueryId::Type)qvm.value(FIELD_COLUMN_TYPE).toInt();
+            qint64 questionId = qvm.value(KEY_ID_FIELD).toLongLong();
+
+            QSet<qint64> questions = typeToQuestions.value(t);
+            questions << questionId;
+            typeToQuestions[t] = questions;
+
+            QList<QueryId::Type> types = questionToTypes.value(questionId);
+            types << t;
+            questionToTypes[questionId] = types;
+        }
+
+        while ( !questionToTypes.isEmpty() )
+        {
+            QMap<qint64, QueryId::Type> questions = Offloader::generateQuestions(typeToQuestions, questionToTypes);
+
+            foreach ( qint64 questionId, questions.keys() )
+            {
+                Destiny d;
+                d.questionId = questionId;
+                d.questionType = questions.value(questionId);
+                m_questionPath.enqueue(d);
+            }
+        }
+
+        std::random_shuffle( m_questionPath.begin(), m_questionPath.end() );
+    } else if (id != QueryId::Unknown) { // unknown ones are within transactions and should get ignored
         m_currentQuestion.clear();
         QString t = ID_TO_QSTR(id);
         QVariantList data = dataV.toList();
@@ -91,7 +128,7 @@ void Game::onDataLoaded(QVariant idV, QVariant dataV)
             data = Offloader::mergeAndShuffle(data, QVariantList());
         } else if ( t.startsWith("Bool") ) {
             m_currentQuestion[KEY_BOOLEAN] = true;
-        } else if ( t.startsWith("Custom") ) {
+        } else if ( t.startsWith(CUSTOM_QUESTION_PREFIX) ) {
             if (n > 0) {
                 m_currentQuestion = data.first().toMap();
                 processCustom( (QueryId::Type)id );
@@ -254,10 +291,18 @@ void Game::nextQuestion(int q, int requestedFormat, int requestedBool)
     m_reference.clear();
 
     QString f = ID_TO_QSTR(q);
-    f = f.at(0).toLower() + f.mid(1);
-    QByteArray qba = f.toUtf8();
 
-    QMetaObject::invokeMethod( &m_ilm, qba.constData(), Qt::QueuedConnection, Q_ARG(QObject*, this) );
+    if ( f.startsWith(CUSTOM_QUESTION_PREFIX) ) {
+        Destiny d = m_questionPath.dequeue();
+        m_destiny.questionType = d.questionType;
+        m_destiny.questionId = d.questionId;
+
+        m_ilm.fetchCustomColumn(this, m_destiny.questionType, m_destiny.questionId);
+    } else {
+        f = f.at(0).toLower() + f.mid(1);
+        QByteArray qba = f.toUtf8();
+        QMetaObject::invokeMethod( &m_ilm, qba.constData(), Qt::QueuedConnection, Q_ARG(QObject*, this) );
+    }
 }
 
 

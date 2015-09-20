@@ -4,6 +4,8 @@
 #include <QObject>
 #include <QVariant>
 
+#include "QueryId.h"
+
 namespace bb {
     namespace cascades {
         class AbstractTextControl;
@@ -51,6 +53,7 @@ public:
     static QVariantMap fetchRandomElement(QVariantList data, bool correctOnly);
     static QVariantList generateBoolStrings(bool trueIsCorrect);
     static QVariantList processOrdered(QVariantList data, QString& arg1, bool before, bool hasSourceId=true);
+    static QMap<qint64,QueryId::Type> generateQuestions(QMap< QueryId::Type, QSet<qint64> > typeToQuestions, QMap< qint64, QList<QueryId::Type> >& questionToTypes);
 };
 
 } /* namespace quran */

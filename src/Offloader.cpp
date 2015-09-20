@@ -357,6 +357,83 @@ QVariantList Offloader::processOrdered(QVariantList data, QString& arg1, bool be
 }
 
 
+QMap<qint64,QueryId::Type> Offloader::generateQuestions(QMap< QueryId::Type, QSet<qint64> > typeToQuestions, QMap< qint64, QList<QueryId::Type> >& questionToTypes)
+{
+    QMap<qint64, QueryId::Type> result;
+    const int total = questionToTypes.size();
+
+    QList< QPair<QueryId::Type, qreal> > priorities;
+    priorities << qMakePair<QueryId::Type, qreal>(QueryId::CustomOrderedQuestion, 0.35);
+    priorities << qMakePair<QueryId::Type, qreal>(QueryId::CustomAfterQuestion, 0.1);
+    priorities << qMakePair<QueryId::Type, qreal>(QueryId::CustomBeforeQuestion, 0.1);
+    priorities << qMakePair<QueryId::Type, qreal>(QueryId::CustomStandardQuestion, 0.35);
+    priorities << qMakePair<QueryId::Type, qreal>(QueryId::CustomBoolCountQuestion, 0.02);
+    priorities << qMakePair<QueryId::Type, qreal>(QueryId::CustomBoolStandardQuestion, 0.02);
+    priorities << qMakePair<QueryId::Type, qreal>(QueryId::CustomCountQuestion, 0.02);
+    priorities << qMakePair<QueryId::Type, qreal>(QueryId::CustomPromptCountQuestion, 0.02);
+    priorities << qMakePair<QueryId::Type, qreal>(QueryId::CustomPromptStandardQuestion, 0.02);
+    priorities << qMakePair<QueryId::Type, qreal>(QueryId::CustomStandardNegation, 0.02);
+    const int totalPriorities = priorities.size();
+
+    for (int i = 0; i < totalPriorities; i++)
+    {
+        QPair<QueryId::Type, qreal> current = priorities[i];
+        QSet<qint64> questions = typeToQuestions.value(current.first);
+        typeToQuestions.remove(current.first);
+
+        int minimum = ceil(total*current.second); // 100*0.35 = 35 questions minimum
+        int available = questions.size(); // 5 questions available
+        int diff = available-minimum; // -30
+
+        if (diff < 0) // means there are less questions available, than desired for this, so we need to distribute the rest of the percentage evenly to the other types
+        {
+            qreal actualPercentage = questions.isEmpty() ? 0 : available/((qreal)total); // 0.05
+            qreal remaining = current.second-actualPercentage; // 0.30 to be distributed
+            current.second = actualPercentage; // update the current percentage for the sake of clarity
+            priorities[i] = current;
+
+            for (int j = i+1; j < totalPriorities; j++)
+            {
+                QPair<QueryId::Type, qreal> p = priorities[j];
+                p.second += p.second*remaining;
+                priorities[j] = p;
+            }
+        }
+
+        minimum = qMin(available, minimum);
+
+        foreach (qint64 questionId, questions)
+        {
+            --minimum;
+
+            if ( questionToTypes.contains(questionId) )
+            {
+                QList<QueryId::Type> types = questionToTypes.value(questionId);
+                questionToTypes.remove(questionId);
+
+                foreach (QueryId::Type t, types) // this question must be removed from all other question types that can possily use this
+                {
+                    if ( typeToQuestions.contains(t) )
+                    {
+                        QSet<qint64> questions = typeToQuestions.value(t);
+                        questions.remove(questionId);
+                        typeToQuestions[t] = questions;
+                    }
+                }
+
+                result[questionId] = current.first;
+
+                if (minimum <= 0) {
+                    break;
+                }
+            }
+        }
+    }
+
+    return result;
+}
+
+
 Offloader::~Offloader()
 {
 }

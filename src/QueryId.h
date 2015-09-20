@@ -67,6 +67,7 @@ public:
         AnswersForCustomPromptStandardQuestion,
         AnswersForCustomStandardNegation,
         AnswersForCustomStandardQuestion,
+        FetchDictionary,
         MarkVisited,
         Setup,
         Debug

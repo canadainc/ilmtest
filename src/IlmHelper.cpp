@@ -121,48 +121,10 @@ void IlmHelper::standardTabiTabiee(QObject* caller) {
     lookupByField(caller, 3, QueryId::StandardTabiTabiee);
 }
 
-void IlmHelper::customStandardNegation(QObject* caller) {
-    fetchCustomColumn(caller, "standard_negation_body", QueryId::CustomStandardNegation);
-}
-
-void IlmHelper::customStandardQuestion(QObject* caller) {
-    fetchCustomColumn(caller, "standard_body", QueryId::CustomStandardQuestion);
-}
-
-void IlmHelper::customAfterQuestion(QObject* caller) {
-    fetchCustomColumn(caller, "after_body", QueryId::CustomAfterQuestion);
-}
-
-void IlmHelper::customBeforeQuestion(QObject* caller) {
-    fetchCustomColumn(caller, "before_body", QueryId::CustomBeforeQuestion);
-}
-
-void IlmHelper::customBoolCountQuestion(QObject* caller) {
-    fetchCustomColumn(caller, "bool_count_body", QueryId::CustomBoolCountQuestion);
-}
-
-void IlmHelper::customBoolStandardQuestion(QObject* caller) {
-    fetchCustomColumn(caller, "bool_standard_body", QueryId::CustomBoolStandardQuestion);
-}
-
-void IlmHelper::customCountQuestion(QObject* caller) {
-    fetchCustomColumn(caller, "count_body", QueryId::CustomCountQuestion);
-}
-
-void IlmHelper::customOrderedQuestion(QObject* caller) {
-    fetchCustomColumn(caller, "ordered_body", QueryId::CustomOrderedQuestion);
-}
-
-void IlmHelper::customPromptCountQuestion(QObject* caller) {
-    fetchCustomColumn(caller, "prompt_count_body", QueryId::CustomPromptCountQuestion);
-}
-
-void IlmHelper::customPromptStandardQuestion(QObject* caller) {
-    fetchCustomColumn(caller, "prompt_standard_body", QueryId::CustomPromptStandardQuestion);
-}
-
-void IlmHelper::fetchCustomColumn(QObject* caller, QString const& column, QueryId::Type t, int questionId)
+void IlmHelper::fetchCustomColumn(QObject* caller, QueryId::Type t, qint64 questionId)
 {
+    QString column = m_typeToTable.value(t);
+
     QString constraint = questionId > 0 ? QString(" AND q.id=%1").arg(questionId) : QString(" AND q.id NOT IN (SELECT id FROM visited_questions)");
     m_sql->executeQuery(caller, QString("SELECT * FROM (SELECT q.id,q.%1 AS %2,q.suite_page_id AS spi1,p.suite_page_id AS spi2,s1.title AS title1,s2.title AS title2,sp1.heading AS heading1,sp2.heading AS heading2,q.source_id,%4,%5 FROM questions q LEFT JOIN questions p ON q.source_id=p.id LEFT JOIN suite_pages sp1 ON q.suite_page_id=sp1.id LEFT JOIN suite_pages sp2 ON p.suite_page_id=sp2.id LEFT JOIN suites s1 ON s1.id=sp1.suite_id LEFT JOIN suites s2 ON s2.id=sp2.suite_id LEFT JOIN individuals i1 ON s1.author=i1.id LEFT JOIN individuals i2 ON s2.author=i2.id WHERE q.%1 NOT NULL%3) ORDER BY RANDOM() LIMIT 1").arg(column).arg(KEY_ARG_1).arg(constraint).arg( NAME_FIELD("i1", "author1") ).arg( NAME_FIELD("i2", "author2") ), t);
 }
@@ -336,6 +298,17 @@ void IlmHelper::lookupByRelation(QObject* caller, QString const& table, QString 
 
 void IlmHelper::lazyInit()
 {
+    m_typeToTable[QueryId::CustomAfterQuestion] = "after_body";
+    m_typeToTable[QueryId::CustomBeforeQuestion] = "before_body";
+    m_typeToTable[QueryId::CustomBoolCountQuestion] = "bool_count_body";
+    m_typeToTable[QueryId::CustomBoolStandardQuestion] = "bool_standard_body";
+    m_typeToTable[QueryId::CustomCountQuestion] = "count_body";
+    m_typeToTable[QueryId::CustomOrderedQuestion] = "ordered_body";
+    m_typeToTable[QueryId::CustomPromptCountQuestion] = "prompt_count_body";
+    m_typeToTable[QueryId::CustomPromptStandardQuestion] = "prompt_standard_body";
+    m_typeToTable[QueryId::CustomStandardNegation] = "standard_negation_body";
+    m_typeToTable[QueryId::CustomStandardQuestion] = "standard_body";
+
     m_sql->executeInternal("CREATE TEMPORARY TABLE visited_questions (id INTEGER PRIMARY KEY)", QueryId::Setup);
     reloadQuestionBank();
 }
@@ -355,6 +328,19 @@ void IlmHelper::lookupByField(QObject* caller, int fieldValue, QueryId::Type t, 
 {
     QPair<int,int> limits = generateCorrectIncorrect();
     m_sql->executeQuery(caller, QString("SELECT * FROM (SELECT %1,1 AS correct FROM individuals i WHERE %2=%3 AND hidden ISNULL ORDER BY RANDOM() LIMIT %4) UNION SELECT * FROM (SELECT %1,0 FROM individuals i WHERE %2 <> %3 AND hidden ISNULL AND prefix ISNULL ORDER BY RANDOM() LIMIT %5)").arg( NAME_FIELD("i", KEY_CHOICE_VALUE) ).arg(field).arg(fieldValue).arg(limits.first).arg(limits.second), t);
+}
+
+
+void IlmHelper::fetchDictionary(QObject* caller)
+{
+    QList<QueryId::Type> customTypes = m_typeToTable.keys();
+    QStringList queries;
+
+    foreach (QueryId::Type t, customTypes) {
+        queries << QString("SELECT id,%1 AS %2 FROM questions WHERE %3 NOT NULL").arg(t).arg(FIELD_COLUMN_TYPE).arg( m_typeToTable.value(t) );
+    }
+
+    m_sql->executeQuery(caller, QString("SELECT * FROM (%1) ORDER BY RANDOM()").arg( queries.join(" UNION ") ), QueryId::FetchDictionary);
 }
 
 

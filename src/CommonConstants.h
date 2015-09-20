@@ -3,6 +3,7 @@
 
 #include <QUrl>
 
+#define FIELD_COLUMN_TYPE "type"
 #define KEY_ANSWER "answer"
 #define KEY_ARG_1 "arg1"
 #define KEY_CHOICE_VALUE "value"

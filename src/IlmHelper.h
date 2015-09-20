@@ -20,8 +20,8 @@ class IlmHelper : public QObject
     Q_OBJECT
 
     DatabaseHelper* m_sql;
+    QMap<QueryId::Type, QString> m_typeToTable;
 
-    void fetchCustomColumn(QObject* caller, QString const& column, QueryId::Type t, int questionId=0);
     void fetchOrderedChoices(QObject* caller, int questionId, QueryId::Type t);
     void fetchRightOrWrong(QObject* caller, int questionId, QueryId::Type t);
     void fetchSurahHeader(QObject* caller, int chapterNumber);
@@ -39,16 +39,6 @@ public:
     Q_INVOKABLE void beforeSurah(QObject* caller);
     Q_INVOKABLE void beforeVerse(QObject* caller);
     Q_INVOKABLE void boolSurahLocation(QObject* caller);
-    Q_INVOKABLE void customAfterQuestion(QObject* caller);
-    Q_INVOKABLE void customBeforeQuestion(QObject* caller);
-    Q_INVOKABLE void customBoolCountQuestion(QObject* caller);
-    Q_INVOKABLE void customBoolStandardQuestion(QObject* caller);
-    Q_INVOKABLE void customCountQuestion(QObject* caller);
-    Q_INVOKABLE void customOrderedQuestion(QObject* caller);
-    Q_INVOKABLE void customPromptCountQuestion(QObject* caller);
-    Q_INVOKABLE void customPromptStandardQuestion(QObject* caller);
-    Q_INVOKABLE void customStandardNegation(QObject* caller);
-    Q_INVOKABLE void customStandardQuestion(QObject* caller);
     Q_INVOKABLE void answersForCustomAfterQuestion(QObject* caller, int questionId);
     Q_INVOKABLE void answersForCustomBeforeQuestion(QObject* caller, int questionId);
     Q_INVOKABLE void answersForCustomBoolCountQuestion(QObject* caller, int questionId);
@@ -80,6 +70,8 @@ public:
     Q_INVOKABLE void standardTeacher(QObject* caller);
     Q_INVOKABLE void standardVersesForSurah(QObject* caller);
 
+    void fetchCustomColumn(QObject* caller, QueryId::Type t, qint64 questionId=0);
+    void fetchDictionary(QObject* caller);
     void lazyInit();
     void markVisited(qint64 questionId);
     void resetVisited();
