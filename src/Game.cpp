@@ -64,6 +64,10 @@ void Game::onDataLoaded(QVariant idV, QVariant dataV)
 
         if ( multipleChoice() || numeric() )
         {
+            if ( !data.isEmpty() && !booleanQuestion() ) {
+                data << Offloader::generateNoneOfTheAbove(data);
+            }
+
             m_currentQuestion["id"] = idV;
             m_currentQuestion["choices"] = data;
 
@@ -168,10 +172,6 @@ QVariantList Game::processResultSet(int id, QVariantList data)
         data = processOrdered(data, true);
     } else if ( t.startsWith("AnswersForCustom") ) {
         data = processAnswersForCustomQuestion( (QueryId::Type)id, data );
-    }
-
-    if ( !data.isEmpty() ) {
-        data << Offloader::generateNoneOfTheAbove(data);
     }
 
     return data;

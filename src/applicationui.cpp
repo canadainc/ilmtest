@@ -91,6 +91,8 @@ void ApplicationUI::lazyInit()
 
     std::srand ( unsigned ( std::time(0) ) );
 
+    AppLogFetcher::create( &m_persistance, &ThreadUtils::compressFiles, this, false );
+
     m_sound.lazyInit();
     m_game.lazyInit();
     m_life.lazyInit();
@@ -99,7 +101,6 @@ void ApplicationUI::lazyInit()
 
     m_invoke.process();
 
-    AppLogFetcher::create( &m_persistance, &ThreadUtils::compressFiles, this, false );
     connect( &m_sql, SIGNAL( error(QString const&) ), &m_persistance, SLOT( onError(QString const&) ) );
     connect( &m_sql, SIGNAL( setupError(QString const&) ), &m_persistance, SLOT( onError(QString const&) ) );
     connect( &m_network, SIGNAL( questionBankUpdated() ), &m_game, SLOT( reloadQuestions() ) );

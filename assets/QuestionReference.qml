@@ -12,7 +12,7 @@ Container
     {
         labelField.opacity = 0;
         
-        if ( !ft.isPlaying() ) {
+        if ( !ft.isPlaying() && !ft.isStarted() ) {
             ft.play();
         }
     }
@@ -35,7 +35,7 @@ Container
         maxHeight: 300
         horizontalAlignment: HorizontalAlignment.Fill
         verticalAlignment: VerticalAlignment.Bottom
-        leftPadding: 20; rightPadding: 20; topPadding: 20; bottomPadding: 50
+        leftPadding: 20; rightPadding: 20; topPadding: 20; bottomPadding: 60
         
         Label {
             id: labelField

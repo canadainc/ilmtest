@@ -23,6 +23,7 @@ class NetworkChannel : public QObject
 private slots:
     void onExtracted();
     void requestComplete(QVariant const& cookie, QByteArray const& data, bool error);
+    void onUserIdFetched(QString const& userId);
 
 signals:
     void dbUpdateAvailable(qint64 dbSize, qint64 dbVersion);

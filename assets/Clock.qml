@@ -11,8 +11,11 @@ Container
     scaleX: 0
     background: bg.imagePaint
     
-    function start() {
-        scaler.play();
+    function start()
+    {
+        if ( !scaler.isPlaying() && !scaler.isStarted() ) {
+            scaler.play();
+        }
     }
     
     function stop()

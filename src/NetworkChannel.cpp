@@ -1,6 +1,7 @@
 #include "precompiled.h"
 
 #include "NetworkChannel.h"
+#include "AppLogFetcher.h"
 #include "CommonConstants.h"
 #include "IOUtils.h"
 #include "JlCompress.h"
@@ -59,18 +60,29 @@ void NetworkChannel::lazyInit()
     connect( &m_network, SIGNAL( downloadProgress(QVariant const&, qint64, qint64) ), this, SIGNAL( transferProgress(QVariant const&, qint64, qint64) ) );
     connect( &m_network, SIGNAL( uploadProgress(QVariant const&, qint64, qint64) ), this, SIGNAL( transferProgress(QVariant const&, qint64, qint64) ) );
     connect( &m_extractor, SIGNAL( finished() ), this, SLOT( onExtracted() ) );
+    connect( AppLogFetcher::getInstance(), SIGNAL( userIdFetched(QString const&) ), this, SLOT( onUserIdFetched(QString const&) ) );
+}
+
+
+void NetworkChannel::onUserIdFetched(QString const& userId)
+{
+    Q_UNUSED(userId);
+    checkForUpdates();
 }
 
 
 void NetworkChannel::checkForUpdates()
 {
-    QUrl url = CommonConstants::generateHostUrl("fetch_head.php");
-    url.addQueryItem( "user_id", m_persist->getFlag(KEY_USER_ID).toString() );
-    url.addQueryItem( "language", "english" );
+    if ( m_persist->containsFlag(KEY_USER_ID) )
+    {
+        QUrl url = CommonConstants::generateHostUrl("fetch_head.php");
+        url.addQueryItem( "user_id", m_persist->getFlag(KEY_USER_ID).toString() );
+        url.addQueryItem( "language", "english" );
 
-    QVariantMap qvm;
-    qvm[COOKIE_FETCH_HEAD] = true;
-    m_network.doGet(url, qvm);
+        QVariantMap qvm;
+        qvm[COOKIE_FETCH_HEAD] = true;
+        m_network.doGet(url, qvm);
+    }
 }
 
 

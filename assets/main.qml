@@ -62,7 +62,24 @@ TabbedPane
         }
     }
     
-    function onError(message) {
+    function onTransferring(cookie, current, total)
+    {
+        if (cookie.dload_db)
+        {
+            toaster.body = qsTr("Downloading...");
+            toaster.statusMessage = "%1/%2".arg(current).arg(total);
+            toaster.progress = (current/total)*100;
+            
+            toaster.show();
+        }
+    }
+    
+    function onTransferComplete() {
+        toaster.cancel();
+    }
+    
+    function onError(message)
+    {
         persist.showToast(message);
         console.log(message);
     }
@@ -70,6 +87,8 @@ TabbedPane
     onCreationCompleted: {
         sound.loadProgress.connect(onLoading);
         game.error.connect(onError);
+        network.transferProgress.connect(onTransferring);
+        network.questionBankUpdated.connect(onTransferComplete);
     }
     
     attachedObjects: [

@@ -84,7 +84,7 @@ Page
         finalAnswer.enabled = true;
         clock.start();
         
-        if (game.currentQuestion.reference) {
+        if ( game.currentQuestion.reference && !refAnim.isPlaying() && !refAnim.isStarted() ) {
             refAnim.play();
         }
         
@@ -102,7 +102,9 @@ Page
             persist.showToast( qsTr("Correct!"), "images/menu/ic_check.png" );
             user.points = user.points+1;
             
-            restore.play();
+            if ( !restore.isPlaying() && !restore.isStarted() ) {
+                restore.play();
+            }
         } else {
             sound.playIncorrect();
             
@@ -156,7 +158,9 @@ Page
                 sound.stopMainLoop();
                 sound.playUserInput();
                 
-                suspense.play();
+                if ( !suspense.isPlaying() && !suspense.isStarted() ) {
+                    suspense.play();
+                }
             }
         }
     ]
@@ -221,7 +225,10 @@ Page
                 
                 onTextChanged: {
                     opacity = 0;
-                    questionAnim.play();
+                    
+                    if ( !questionAnim.isStarted() && !questionAnim.isPlaying() ) {
+                        questionAnim.play();
+                    }
                 }
                 
                 animations: [
@@ -291,7 +298,9 @@ Page
                     opacity = 0;
                     
                     if (visible) {
-                        ft.play();
+                        if ( !ft.isPlaying() && !ft.isStarted() ) {
+                            ft.play();
+                        }
                     } else {
                         resetText();
                     }
