@@ -11,7 +11,6 @@ struct ThreadUtils
 {
     static void compressFiles(canadainc::Report& r, QString const& zipPath, const char* password);
     static bool replaceDatabase(QString const& src);
-    static QVariantMap writePluginArchive(QVariantMap const& cookie, QByteArray const& data, QString const& pathKey);
 };
 
 } /* namespace quran */

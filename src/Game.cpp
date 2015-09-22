@@ -15,7 +15,7 @@
 #define KEY_NUMERIC "numeric"
 #define KEY_ORDERED "ordered"
 #define KEY_STANDARD "standard"
-#define ID_TO_QSTR(t) QString( QueryId::staticMetaObject.enumerator(0).valueToKey( (QueryId::Type)t ) )
+#define ID_TO_QSTR(t) TextUtils::e2s<QueryId>(t)
 #define IS_NUMERIC_QUESTION(x) x.size() == 1 && QRegExp("\\d+$").exactMatch( x.first().toMap().value(KEY_CHOICE_VALUE).toString() )
 
 namespace ilmtest {

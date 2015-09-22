@@ -4,12 +4,11 @@
 #include "CommonConstants.h"
 #include "Game.h"
 #include "Logger.h"
+#include "ShopManager.h"
 #include "TextUtils.h"
 
 #define KEY_CHOICE_DISABLED "disabled"
 #define NUMERIC_ANSWER m_game->currentQuestion().value(KEY_ANSWER).toInt()
-
-#define LID_TO_QSTR(t) QString( Lifeline::staticMetaObject.enumerator(0).valueToKey( (Lifeline::Type)t ) )
 
 namespace {
 
@@ -84,7 +83,7 @@ namespace ilmtest {
 using namespace bb::cascades;
 using namespace canadainc;
 
-LifelineManager::LifelineManager(Game* game) : m_game(game)
+LifelineManager::LifelineManager(Game* game, ShopManager* shop) : m_game(game), m_shop(shop)
 {
 }
 
@@ -96,21 +95,32 @@ void LifelineManager::lazyInit()
     m_levelToLifeline.insertMulti( 1, LifelineData( Lifeline::FiftyFifty, tr("Fifty Fifty"), "images/list/lifelines/ic_lifeline_50.png" ) );
     //m_levelToLifeline.insertMulti( 1, LifelineData( Lifeline::PopularOpinion, tr("Popular Opinion"), "images/list/lifelines/ic_lifeline_audience.png" ) );
     //m_levelToLifeline.insertMulti( 1, LifelineData( Lifeline::PhoneFriend, tr("Phone a Friend"), "images/list/lifelines/ic_lifeline_friend.png" ) );
-    m_levelToLifeline.insertMulti( 1, LifelineData( Lifeline::FreezeTime, tr("Freeze Clock"), "images/list/lifelines/ic_lifeline_clock.png" ) );
-    m_levelToLifeline.insertMulti( 1, LifelineData( Lifeline::ChangeQuestion, tr("Change the Question"), "images/list/lifelines/ic_lifeline_change.png" ) );
+    m_levelToLifeline.insertMulti( 5, LifelineData( Lifeline::FreezeTime, tr("Freeze Clock"), "images/list/lifelines/ic_lifeline_clock.png" ) );
+    m_levelToLifeline.insertMulti( 10, LifelineData( Lifeline::ChangeQuestion, tr("Change the Question"), "images/list/lifelines/ic_lifeline_change.png" ) );
 
-    m_levelToLifeline.insertMulti( 1, LifelineData( Lifeline::AskAnExpert, tr("Ask an Expert"), "images/list/lifelines/ic_lifeline_expert.png" ) );
-    m_levelToLifeline.insertMulti( 1, LifelineData( Lifeline::TakeOne, tr("Take One"), "images/list/lifelines/ic_lifelines_take_one.png" ) );
+    //m_levelToLifeline.insertMulti( 1, LifelineData( Lifeline::AskAnExpert, tr("Ask an Expert"), "images/list/lifelines/ic_lifeline_expert.png" ) );
+    //m_levelToLifeline.insertMulti( 1, LifelineData( Lifeline::TakeOne, tr("Take One"), "images/list/lifelines/ic_lifeline_take_one.png" ) );
 
-    /*m_codeToLifeline[ LID_TO_QSTR(Lifeline::AskAnExpert) ] = LifelineData( Lifeline::AskAnExpert, tr("Ask an Expert"), "images/list/lifelines/ic_lifeline_expert.png" );
+    m_codeToLifeline[ LID_TO_QSTR(Lifeline::AskAnExpert) ] = LifelineData( Lifeline::AskAnExpert, tr("Ask an Expert"), "images/list/lifelines/ic_lifeline_expert.png" );
     m_codeToLifeline[ LID_TO_QSTR(Lifeline::SecondChance) ] = LifelineData( Lifeline::SecondChance, tr("Second Chance"), "images/list/lifelines/ic_lifeline_second.png" );
-    m_codeToLifeline[ LID_TO_QSTR(Lifeline::TakeOne) ] = LifelineData( Lifeline::TakeOne, tr("Take One"), "images/list/lifelines/ic_lifelines_take_one.png" ); */
+    m_codeToLifeline[ LID_TO_QSTR(Lifeline::TakeOne) ] = LifelineData( Lifeline::TakeOne, tr("Take One"), "images/list/lifelines/ic_lifelines_take_one.png" );
 }
 
 
 void LifelineManager::onCurrentLevelChanged()
 {
     int level = m_game->level();
+
+    if (level == 1)
+    {
+        QStringList lifelines = m_shop->getLifelines();
+
+        foreach (QString const& purchase, lifelines)
+        {
+            LifelineData ld = m_codeToLifeline.value(purchase);
+            emit lifeLineAvailable(ld.title, ld.imageSource, ld.key);
+        }
+    }
 
     if ( m_levelToLifeline.contains(level) )
     {
@@ -120,22 +130,6 @@ void LifelineManager::onCurrentLevelChanged()
             emit lifeLineAvailable(ld.title, ld.imageSource, ld.key);
         }
     }
-}
-
-
-bool LifelineManager::unlock(QString const& key)
-{
-    if ( m_codeToLifeline.contains(key) )
-    {
-        LifelineData ld = m_codeToLifeline.value(key);
-        emit lifeLineAvailable(ld.title, ld.imageSource, ld.key);
-
-        return true;
-    }
-
-    LOGGER(key << "notFound");
-
-    return false;
 }
 
 
@@ -163,7 +157,11 @@ void LifelineManager::useLifeline(int key, bb::cascades::ArrayDataModel* adm, bb
             break;
     }
 
-    emit lifeLineUsed( (Lifeline::Type)key );
+    if ( m_codeToLifeline.contains( LID_TO_QSTR(key) ) ) {
+        m_shop->refundLifeline(key);
+    }
+
+    emit lifeLineUsed(key);
 }
 
 

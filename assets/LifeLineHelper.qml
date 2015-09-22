@@ -42,7 +42,7 @@ QtObject
             var current = examPage.actionAt(i);
             
             if (current.key == key) {
-                //examPage.removeAction(current);
+                examPage.removeAction(current);
                 break;
             }
         }

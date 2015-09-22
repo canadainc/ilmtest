@@ -27,7 +27,19 @@ NavigationPane
             {
                 ActionBar.placement: ActionBarPlacement.Signature
                 imageSource: "images/menu/ic_start.png"
+                enabled: sound.muted
                 title: qsTr("Start") + Retranslate.onLanguageChanged
+                
+                function onLoading(current, total)
+                {
+                    if (current == total) {
+                        enabled = true;
+                    }
+                }
+                
+                onCreationCompleted: {
+                    sound.loadProgress.connect(onLoading);
+                }
                 
                 onTriggered: {
                     var x = definition.init("ExamPage.qml");

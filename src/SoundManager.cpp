@@ -23,7 +23,7 @@ namespace ilmtest {
 using namespace bb::multimedia;
 
 SoundManager::SoundManager(Persistance* p) :
-        m_persist(p), m_muted(true), m_loaded(0)
+        m_persist(p), m_muted(false), m_loaded(0)
 {
 }
 
@@ -54,6 +54,7 @@ void SoundManager::onSettingChanged(QVariant newValue, QVariant key)
             foreach ( QString const& key, m_map.keys() )
             {
                 MediaPlayer* mp = m_map.value(key);
+                LOGGER(key);
                 mp->prepare();
             }
 
@@ -94,10 +95,13 @@ void SoundManager::playSound(QString const& key)
     {
         MediaPlayer* mp = m_map.value(key);
 
-        if ( mp->mediaState() != MediaState::Started ) {
-            mp->play();
-        } else {
-            mp->seekTime(0);
+        if (mp)
+        {
+            if ( mp->mediaState() != MediaState::Started ) {
+                mp->play();
+            } else {
+                mp->seekTime(0);
+            }
         }
     }
 }

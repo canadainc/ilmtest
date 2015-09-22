@@ -15,6 +15,7 @@ namespace bb {
 namespace ilmtest {
 
 class Game;
+class ShopManager;
 
 struct LifelineData
 {
@@ -30,6 +31,7 @@ class LifelineManager : public QObject
     Q_OBJECT
 
     Game* m_game;
+    ShopManager* m_shop;
     QMap<int, LifelineData> m_levelToLifeline;
     QMap<QString, LifelineData> m_codeToLifeline;
 
@@ -45,10 +47,9 @@ signals:
     void lifeLineUsed(int key);
 
 public:
-    LifelineManager(Game* game);
+    LifelineManager(Game* game, ShopManager* shop);
     virtual ~LifelineManager();
 
-    Q_INVOKABLE bool unlock(QString const& key);
     Q_INVOKABLE void useLifeline(int key, bb::cascades::ArrayDataModel* adm, bb::cascades::TextField* tf, bool sorted);
     Q_INVOKABLE static QString keyToString(int q);
 

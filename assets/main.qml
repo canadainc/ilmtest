@@ -40,7 +40,7 @@ TabbedPane
     Tab
     {
         id: shopTab
-        title: qsTr("Shop") + Retranslate.onLanguageChanged
+        title: qsTr("Market") + Retranslate.onLanguageChanged
         imageSource: "images/tabs/ic_shop.png"
         delegateActivationPolicy: TabDelegateActivationPolicy.ActivateWhenSelected
         

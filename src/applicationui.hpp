@@ -8,6 +8,7 @@
 #include "NetworkChannel.h"
 #include "Offloader.h"
 #include "Persistance.h"
+#include "ShopManager.h"
 #include "SoundManager.h"
 #include "TextUtils.h"
 #include "UserManager.h"
@@ -28,6 +29,7 @@ class ApplicationUI : public QObject
     Offloader m_offloader;
     SoundManager m_sound;
     UserManager m_user;
+    ShopManager m_shop;
     Game m_game;
     LifelineManager m_life;
     NetworkChannel m_network;

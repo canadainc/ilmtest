@@ -61,6 +61,7 @@ public:
     Q_INVOKABLE void orderedSurahs(QObject* caller, QueryId::Type t=QueryId::OrderedSurahs);
     Q_INVOKABLE void orderedSurahsByLength(QObject* caller);
     Q_INVOKABLE void orderedSurahVerses(QObject* caller, QueryId::Type t=QueryId::OrderedSurahVerses);
+    Q_INVOKABLE void standardBook(QObject* caller);
     Q_INVOKABLE void standardFemale(QObject* caller);
     Q_INVOKABLE void standardSahabah(QObject* caller);
     Q_INVOKABLE void standardSajdaSurah(QObject* caller);

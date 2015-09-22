@@ -10,8 +10,8 @@
 #define DB_ARABIC "quran_arabic"
 #define DB_ENGLISH "quran_english"
 #define FETCH_TABLE_COUNT(table) QString("SELECT COUNT() AS %1 FROM %2").arg(TOTAL_COUNT_VALUE).arg(table)
-#define NUMERIC_FIELD_QUERY(field) QString("SELECT %1,%3 AS %2 FROM individuals i WHERE %3 > 0 AND hidden ISNULL ORDER BY RANDOM() LIMIT 1").arg( NAME_FIELD("i", KEY_ARG_1) ).arg(TOTAL_COUNT_VALUE).arg(field)
-#define ORDERED_FIELD_QUERY(field) QString("SELECT %1,%3 AS %2 FROM individuals i WHERE %3 > 0 AND hidden ISNULL ORDER BY RANDOM() LIMIT 4").arg( NAME_FIELD("i", KEY_CHOICE_VALUE) ).arg(KEY_SORT_ORDER).arg(field)
+#define NUMERIC_FIELD_QUERY(field) QString("SELECT %1,%3 AS %2 FROM individuals i WHERE %3 > 0 ORDER BY RANDOM() LIMIT 1").arg( NAME_FIELD("i", KEY_ARG_1) ).arg(TOTAL_COUNT_VALUE).arg(field)
+#define ORDERED_FIELD_QUERY(field) QString("SELECT %1,%3 AS %2 FROM individuals i WHERE %3 > 0 ORDER BY RANDOM() LIMIT 4").arg( NAME_FIELD("i", KEY_CHOICE_VALUE) ).arg(KEY_SORT_ORDER).arg(field)
 #define MERGE_COLUMNS(col1, col2, alias) QString("%1 || ' (' || %2 || ')' AS %3").arg(col1).arg(col2).arg(alias)
 #define MERGE_SURAH_NAME MERGE_COLUMNS("name", "transliteration", KEY_ARG_1)
 #define MERGE_SURAH_VALUE MERGE_COLUMNS("name", "transliteration", KEY_CHOICE_VALUE)
@@ -110,10 +110,15 @@ void IlmHelper::standardTabiee(QObject* caller) {
 }
 
 
+void IlmHelper::standardBook(QObject* caller) {
+    Q_UNUSED(caller);
+}
+
+
 void IlmHelper::standardFemale(QObject* caller)
 {
     QPair<int,int> limits = generateCorrectIncorrect();
-    m_sql->executeQuery(caller, QString("SELECT * FROM (SELECT %1,1 AS correct FROM individuals i WHERE female=1 AND hidden ISNULL AND death > 0 ORDER BY RANDOM() LIMIT %2) UNION SELECT * FROM (SELECT %1,0 FROM individuals i WHERE female ISNULL AND hidden ISNULL AND prefix ISNULL ORDER BY RANDOM() LIMIT %3)").arg( NAME_FIELD("i", KEY_CHOICE_VALUE) ).arg(limits.first).arg(limits.second), QueryId::StandardFemale);
+    m_sql->executeQuery(caller, QString("SELECT * FROM (SELECT %1,1 AS correct FROM individuals i WHERE female=1 AND death > 0 ORDER BY RANDOM() LIMIT %2) UNION SELECT * FROM (SELECT %1,0 FROM individuals i WHERE female ISNULL AND prefix ISNULL ORDER BY RANDOM() LIMIT %3)").arg( NAME_FIELD("i", KEY_CHOICE_VALUE) ).arg(limits.first).arg(limits.second), QueryId::StandardFemale);
 }
 
 
@@ -315,7 +320,7 @@ void IlmHelper::lazyInit()
 void IlmHelper::lookupByField(QObject* caller, int fieldValue, QueryId::Type t, QString const& field)
 {
     QPair<int,int> limits = generateCorrectIncorrect();
-    m_sql->executeQuery(caller, QString("SELECT * FROM (SELECT %1,1 AS correct FROM individuals i WHERE %2=%3 AND hidden ISNULL ORDER BY RANDOM() LIMIT %4) UNION SELECT * FROM (SELECT %1,0 FROM individuals i WHERE %2 <> %3 AND hidden ISNULL AND prefix ISNULL ORDER BY RANDOM() LIMIT %5)").arg( NAME_FIELD("i", KEY_CHOICE_VALUE) ).arg(field).arg(fieldValue).arg(limits.first).arg(limits.second), t);
+    m_sql->executeQuery(caller, QString("SELECT * FROM (SELECT %1,1 AS correct FROM individuals i WHERE %2=%3 ORDER BY RANDOM() LIMIT %4) UNION SELECT * FROM (SELECT %1,0 FROM individuals i WHERE %2 <> %3 AND prefix ISNULL ORDER BY RANDOM() LIMIT %5)").arg( NAME_FIELD("i", KEY_CHOICE_VALUE) ).arg(field).arg(fieldValue).arg(limits.first).arg(limits.second), t);
 }
 
 
@@ -325,7 +330,7 @@ void IlmHelper::fetchDictionary(QObject* caller)
     QStringList queries;
 
     foreach (QueryId::Type t, customTypes) {
-        queries << QString("SELECT id,%1 AS %2 FROM questions WHERE %3 NOT NULL").arg(t).arg(FIELD_COLUMN_TYPE).arg( m_typeToTable.value(t) );
+        queries << QString("SELECT id,%1 AS %2 FROM questions WHERE %3 NOT NULL AND source_id ISNULL").arg(t).arg(FIELD_COLUMN_TYPE).arg( m_typeToTable.value(t) );
     }
 
     m_sql->executeQuery(caller, QString("SELECT * FROM (%1) ORDER BY RANDOM()").arg( queries.join(" UNION ") ), QueryId::FetchDictionary);
