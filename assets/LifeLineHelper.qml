@@ -20,6 +20,7 @@ QtObject
                 
                 clock.stop();
                 sound.playLifeLineSelect();
+                
                 life.useLifeline(key, listView.dataModel, numericInput, listView.rearrangeHandler.active);
             }
         }
@@ -35,7 +36,7 @@ QtObject
         examPage.addAction(x);
     }
     
-    function onUsed(key)
+    function onUsed(key, data)
     {
         for (var i = examPage.actionCount()-1; i >= 0; i--)
         {
@@ -45,6 +46,14 @@ QtObject
                 examPage.removeAction(current);
                 break;
             }
+        }
+        
+        if (key == Lifeline.PopularOpinion)
+        {
+            definition.source = "PopularOpinionDialog.qml";
+            var x = definition.createObject();
+            x.statistics = data;
+            x.open();
         }
     }
     

@@ -5,7 +5,6 @@
 #include "Logger.h"
 #include "TextUtils.h"
 
-#define IS_CORRECT(x) x.value(KEY_FLAG_CORRECT).toInt() == 1
 #define KEY_BOOLEAN_RAND_TEXT(x) x[ TextUtils::randInt( 0, x.size()-1 ) ].toString().arg(arg)
 #define MARK_CORRECT(x) x[KEY_FLAG_CORRECT] = 1
 

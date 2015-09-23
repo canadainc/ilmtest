@@ -1,8 +1,28 @@
-import QtQuick 1.0
 import bb.cascades 1.0
 
 FullScreenDialog
 {
+    property variant statistics
+    
+    onStatisticsChanged: {
+        if (statistics)
+        {
+            barParent.visible = true;
+            for (var i = 0; i < statistics.length; i++)
+            {
+                var bar = barDefinition.createObject();
+                var value = statistics[i].ratio;
+                bar.preferredHeight = value;
+                
+                var stat = statsDefinition.createObject();
+                stat.choice = statistics[i].value;
+                stat.value = value;
+                legend.add(stat);
+                
+                barContainer.add(bar);
+            }
+        }
+    }
     
     dialogContent: Container
     {
@@ -10,6 +30,16 @@ FullScreenDialog
         verticalAlignment: VerticalAlignment.Fill
         bottomPadding: 20; topPadding: 20; rightPadding: 20
         layout: DockLayout {}
+        
+        gestureHandlers: [
+            TapHandler {
+                onTapped: {
+                    if (event.propagationPhase == PropagationPhase.AtTarget) {
+                        dismiss();
+                    }
+                }
+            }
+        ]
         
         Container
         {
@@ -32,8 +62,10 @@ FullScreenDialog
                             orientation: LayoutOrientation.LeftToRight
                         }
                         
-                        ImageView {
+                        ImageView
+                        {
                             id: imageView
+                            imageSource: "images/bars/%1.png".arg( legend.count() )
                             preferredHeight: 20;
                             preferredWidth: 20
                             verticalAlignment: VerticalAlignment.Center
@@ -91,6 +123,7 @@ FullScreenDialog
                             verticalAlignment: VerticalAlignment.Bottom
                             leftMargin: 40; rightMargin: 40
                             preferredWidth: 50
+                            imageSource: "images/bars/%1.png".arg( barContainer.count() )
                             
                             onCreationCompleted: {
                                 scaler.play();
@@ -126,33 +159,4 @@ FullScreenDialog
             }
         }
     }
-    
-    attachedObjects: [
-        Timer
-        {
-            running: true
-            interval: 3000
-            repeat: false
-            
-            onTriggered: {
-                barParent.visible = true;
-                
-                for (var i = 0; i < 4; i++)
-                {
-                    var bar = barDefinition.createObject();
-                    bar.imageSource = "images/bars/%1.png".arg(i);
-                    var value = global.randomInt(0,100);
-                    bar.preferredHeight = value;
-                    
-                    var stat = statsDefinition.createObject();
-                    stat.image.imageSource = "images/bars/%1.png".arg(i);
-                    stat.choice = "LSDKFJL";
-                    stat.value = value;
-                    legend.add(stat);
-                    
-                    barContainer.add(bar);
-                }
-            }
-        }
-    ]
 }

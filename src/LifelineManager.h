@@ -37,6 +37,7 @@ class LifelineManager : public QObject
 
     void useAskExpert(bb::cascades::ArrayDataModel* adm, bb::cascades::TextField* tf, bool sorted=false);
     void useFiftyFifty(bb::cascades::ArrayDataModel* adm, bb::cascades::TextField* tf, bool sorted=false);
+    void usePopularOpinion(bb::cascades::ArrayDataModel* adm, bb::cascades::TextField* tf, bool sorted=false);
     void useTakeOne(bb::cascades::ArrayDataModel* adm, bb::cascades::TextField* tf, bool sorted=false);
 
 private slots:
@@ -44,7 +45,7 @@ private slots:
 
 signals:
     void lifeLineAvailable(QString const& title, QString const& imageSource, int key);
-    void lifeLineUsed(int key);
+    void lifeLineUsed(int key, QVariant const& data);
 
 public:
     LifelineManager(Game* game, ShopManager* shop);

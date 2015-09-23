@@ -93,8 +93,8 @@ void LifelineManager::lazyInit()
     connect( m_game, SIGNAL( levelChanged() ), this, SLOT( onCurrentLevelChanged() ) );
 
     m_levelToLifeline.insertMulti( 1, LifelineData( Lifeline::FiftyFifty, tr("Fifty Fifty"), "images/list/lifelines/ic_lifeline_50.png" ) );
-    //m_levelToLifeline.insertMulti( 1, LifelineData( Lifeline::PopularOpinion, tr("Popular Opinion"), "images/list/lifelines/ic_lifeline_audience.png" ) );
-    //m_levelToLifeline.insertMulti( 1, LifelineData( Lifeline::PhoneFriend, tr("Phone a Friend"), "images/list/lifelines/ic_lifeline_friend.png" ) );
+    m_levelToLifeline.insertMulti( 1, LifelineData( Lifeline::PopularOpinion, tr("Popular Opinion"), "images/list/lifelines/ic_lifeline_audience.png" ) );
+    m_levelToLifeline.insertMulti( 1, LifelineData( Lifeline::PhoneFriend, tr("Phone a Friend"), "images/list/lifelines/ic_lifeline_friend.png" ) );
     m_levelToLifeline.insertMulti( 5, LifelineData( Lifeline::FreezeTime, tr("Freeze Clock"), "images/list/lifelines/ic_lifeline_clock.png" ) );
     m_levelToLifeline.insertMulti( 10, LifelineData( Lifeline::ChangeQuestion, tr("Change the Question"), "images/list/lifelines/ic_lifeline_change.png" ) );
 
@@ -142,26 +142,31 @@ void LifelineManager::useLifeline(int key, bb::cascades::ArrayDataModel* adm, bb
 {
     LOGGER(key);
 
-    switch (key)
-    {
-        case Lifeline::AskAnExpert:
-            useAskExpert(adm, tf, sorted);
-            break;
-        case Lifeline::FiftyFifty:
-            useFiftyFifty(adm, tf, sorted);
-            break;
-        case Lifeline::TakeOne:
-            useTakeOne(adm, tf, sorted);
-            break;
-        default:
-            break;
-    }
-
     if ( m_codeToLifeline.contains( LID_TO_QSTR(key) ) ) {
         m_shop->refundLifeline(key);
     }
 
-    emit lifeLineUsed(key);
+    switch (key)
+    {
+        case Lifeline::AskAnExpert:
+            useAskExpert(adm, tf, sorted);
+            emit lifeLineUsed(key, QVariant());
+            break;
+        case Lifeline::FiftyFifty:
+            useFiftyFifty(adm, tf, sorted);
+            emit lifeLineUsed(key, QVariant());
+            break;
+        case Lifeline::TakeOne:
+            useTakeOne(adm, tf, sorted);
+            emit lifeLineUsed(key, QVariant());
+            break;
+        case Lifeline::PopularOpinion:
+            usePopularOpinion(adm, tf, sorted);
+            break;
+        default:
+            emit lifeLineUsed(key, QVariant());
+            break;
+    }
 }
 
 
@@ -216,6 +221,38 @@ void LifelineManager::useFiftyFifty(bb::cascades::ArrayDataModel* adm, bb::casca
 }
 
 
+void LifelineManager::usePopularOpinion(bb::cascades::ArrayDataModel* adm, bb::cascades::TextField* tf, bool sorted)
+{
+    LOGGER(sorted);
+
+    QVariantList data;
+
+    if ( m_game->numeric() )
+    {
+
+    } else if ( m_game->multipleChoice() ) {
+        int correctPercentage = TextUtils::randInt(40,100);
+        int remaining = 100-correctPercentage;
+
+        for (int i = 0; i < adm->size(); i++)
+        {
+            QVariantMap current = adm->value(i).toMap();
+
+            int currentRatio = TextUtils::randInt(0, remaining);
+
+            if ( !IS_CORRECT(current) ) {
+                remaining -= qMax(0, currentRatio);
+            }
+
+            current["ratio"] = IS_CORRECT(current) ? correctPercentage : currentRatio;
+            data << current;
+        }
+    }
+
+    emit lifeLineUsed(Lifeline::PopularOpinion, data);
+}
+
+
 void LifelineManager::useTakeOne(bb::cascades::ArrayDataModel* adm, bb::cascades::TextField* tf, bool sorted)
 {
     LOGGER(sorted);
@@ -235,7 +272,6 @@ void LifelineManager::useTakeOne(bb::cascades::ArrayDataModel* adm, bb::cascades
             eliminateIncorrect(adm, 1);
         }
     }
-
 }
 
 
