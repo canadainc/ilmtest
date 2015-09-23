@@ -215,36 +215,43 @@ Page
                 }
             ]
             
-            Label
+            Container
             {
-                id: question
-                multiline: true
                 horizontalAlignment: HorizontalAlignment.Fill
-                textStyle.textAlign: TextAlign.Center
-                opacity: 0
+                leftPadding: 10; rightPadding: 10
                 
-                onTextChanged: {
-                    opacity = 0;
+                Label
+                {
+                    id: question
+                    multiline: true
+                    horizontalAlignment: HorizontalAlignment.Fill
+                    textStyle.textAlign: TextAlign.Center
+                    textStyle.fontSize: FontSize.Large
+                    opacity: 0
                     
-                    if ( !questionAnim.isStarted() && !questionAnim.isPlaying() ) {
-                        questionAnim.play();
-                    }
-                }
-                
-                animations: [
-                    FadeTransition
-                    {
-                        id: questionAnim
-                        fromOpacity: 0
-                        toOpacity: 1
-                        easingCurve: StockCurve.CircularOut
-                        duration: 500
+                    onTextChanged: {
+                        opacity = 0;
                         
-                        onStarted: {
-                            sound.playPresentQuestion();
+                        if ( !questionAnim.isStarted() && !questionAnim.isPlaying() ) {
+                            questionAnim.play();
                         }
                     }
-                ]
+                    
+                    animations: [
+                        FadeTransition
+                        {
+                            id: questionAnim
+                            fromOpacity: 0
+                            toOpacity: 1
+                            easingCurve: StockCurve.CircularOut
+                            duration: 500
+                            
+                            onStarted: {
+                                sound.playPresentQuestion();
+                            }
+                        }
+                    ]
+                }
             }
             
             Divider {
