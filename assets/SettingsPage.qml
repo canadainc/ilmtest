@@ -9,30 +9,6 @@ Page
         title: qsTr("Settings") + Retranslate.onLanguageChanged
     }
     
-    actions: [
-        ActionItem
-        {
-            id: updateCheck
-            imageSource: "images/menu/ic_check_for_updates.png"
-            ActionBar.placement: ActionBarPlacement.Signature
-            title: qsTr("Check for Updates") + Retranslate.onLanguageChanged
-            
-            onTriggered: {
-                console.log("UserEvent: CheckForUpdate");
-                enabled = false;
-                network.checkForUpdates();
-            }
-            
-            function onUpdateCheckComplete() {
-                enabled = true;
-            }
-            
-            onCreationCompleted: {
-                network.updateCheckComplete.connect(onUpdateCheckComplete);
-            }
-        }
-    ]
-    
     function cleanUp() {}
     
     Container

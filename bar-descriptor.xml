@@ -70,7 +70,7 @@
 
     <!--  Name of author which is used for signing. Must match the developer name of your development certificate. -->
     <category>core.games</category>
-    <author>Canda Inc</author>
+    <author>Canada Inc</author>
 
     <!--  Unique author ID assigned by signing authority. Required if using debug tokens. -->
     <!-- <authorId>ABC1234YjsnUk235h</authorId> -->
@@ -122,7 +122,6 @@
 
     <!-- Request permission to execute native code.  Required for native applications. -->
     <permission system="true">run_native</permission>
-    <permission>access_pimdomain_contacts</permission>
     <permission>run_when_backgrounded</permission>
     <env var="LD_LIBRARY_PATH" value="app/native/lib:/usr/lib/qt4/lib"/>
     <env var="CASCADES_THEME" value="dark"/>

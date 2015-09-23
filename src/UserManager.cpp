@@ -36,7 +36,7 @@ void UserManager::onSettingChanged(QVariant newValue, QVariant key)
 
 
 QString UserManager::name() const {
-    return QString("%1 :%2").arg(m_profile.name).arg(m_persist->getFlag(KEY_USER_ID).toString());
+    return m_profile.name;
 }
 
 

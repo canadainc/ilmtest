@@ -31,7 +31,10 @@ Game::Game(DatabaseHelper* db) :
 void Game::lazyInit()
 {
     m_ilm.lazyInit();
-    m_ilm.fetchDictionary(this);
+
+    if ( IlmHelper::dbExists() ) {
+        m_ilm.fetchDictionary(this);
+    }
 }
 
 
@@ -362,13 +365,10 @@ void Game::reset() {
 }
 
 
-QString Game::queryToString(int q) {
-    return ID_TO_QSTR(q);
-}
-
-
-void Game::reloadQuestions() {
+void Game::reloadQuestions()
+{
     m_ilm.reloadQuestionBank();
+    m_ilm.fetchDictionary(this);
 }
 
 

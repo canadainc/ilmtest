@@ -75,6 +75,8 @@ public:
     void fetchDictionary(QObject* caller);
     void lazyInit();
     void reloadQuestionBank();
+
+    static bool dbExists();
 };
 
 } /* namespace ilm */

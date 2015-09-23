@@ -72,7 +72,6 @@ public:
     Q_SLOT void nextQuestion(int q, int requestedFormat=QueryId::MultipleChoice, int requestedBool=QueryId::GenerateTruth);
     Q_INVOKABLE QString formatQuestion(QString const& input);
     Q_INVOKABLE void reset();
-    Q_INVOKABLE static QString queryToString(int q);
     Q_SLOT void reloadQuestions();
 };
 

@@ -59,6 +59,7 @@ public:
     Q_SLOT void playUserInput();
     Q_SLOT void stopClock();
     Q_SLOT void stopMainLoop();
+    Q_SLOT void tempMute();
 
     bool muted() const;
     void setMuted(bool mute);

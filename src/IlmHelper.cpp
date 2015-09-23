@@ -313,7 +313,16 @@ void IlmHelper::lazyInit()
     m_typeToTable[QueryId::CustomStandardNegation] = "standard_negation_body";
     m_typeToTable[QueryId::CustomStandardQuestion] = "standard_body";
 
-    reloadQuestionBank();
+    if ( dbExists() ) {
+        reloadQuestionBank();
+    }
+}
+
+
+bool IlmHelper::dbExists()
+{
+    QFile f( QString("%1/%2.db").arg( QDir::homePath() ).arg( QUESTION_BANK("english") ) );
+    return f.exists() && f.size() > 0;
 }
 
 

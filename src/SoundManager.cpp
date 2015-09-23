@@ -55,7 +55,7 @@ void SoundManager::onSettingChanged(QVariant newValue, QVariant key)
             {
                 MediaPlayer* mp = m_map.value(key);
                 LOGGER(key);
-                mp->prepare();
+                LOGGER( "***Z" << mp->prepare() );
             }
 
             LOGGER( "Preparing" << keys.size() );
@@ -169,6 +169,16 @@ void SoundManager::stopMainLoop()
 {
     if ( m_map.contains(FILE_MAIN_LOOP) ) {
         m_map.value(FILE_MAIN_LOOP)->stop();
+    }
+}
+
+
+void SoundManager::tempMute()
+{
+    if (!m_muted)
+    {
+        m_muted = true;
+        emit mutedChanged();
     }
 }
 

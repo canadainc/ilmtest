@@ -25,15 +25,16 @@ NavigationPane
         actions: [
             ActionItem
             {
+                property bool soundsLoaded: false
                 ActionBar.placement: ActionBarPlacement.Signature
                 imageSource: "images/menu/ic_start.png"
-                enabled: sound.muted
+                enabled: (sound.muted || soundsLoaded) && user.profileSet
                 title: qsTr("Start") + Retranslate.onLanguageChanged
                 
                 function onLoading(current, total)
                 {
                     if (current == total) {
-                        enabled = true;
+                        soundsLoaded = true;
                     }
                 }
                 
