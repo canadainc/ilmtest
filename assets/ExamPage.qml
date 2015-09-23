@@ -24,7 +24,7 @@ Page
         
         var formatFlag = global.randomInt(QueryId.MultipleChoice, QueryId.TextInput);
         var truthFlag = global.randomInt(QueryId.GenerateTruth, QueryId.GenerateFalsehood);
-        game.nextQuestion(result, formatFlag, truthFlag);
+        game.nextQuestion(QueryId.NumericBirthYearForIndividual, QueryId.TextInput, truthFlag);
     }
     
     property int errorCount: 0

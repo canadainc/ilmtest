@@ -221,6 +221,14 @@ void LifelineManager::useFiftyFifty(bb::cascades::ArrayDataModel* adm, bb::casca
 }
 
 
+void LifelineManager::useFriend(bb::cascades::ArrayDataModel* adm, bb::cascades::TextField* tf, bool sorted)
+{
+    LOGGER(sorted);
+
+
+}
+
+
 void LifelineManager::usePopularOpinion(bb::cascades::ArrayDataModel* adm, bb::cascades::TextField* tf, bool sorted)
 {
     LOGGER(sorted);
@@ -229,6 +237,49 @@ void LifelineManager::usePopularOpinion(bb::cascades::ArrayDataModel* adm, bb::c
 
     if ( m_game->numeric() )
     {
+        int answer = NUMERIC_ANSWER;
+        int total = adm->size();
+
+        for (int i = answer+1; i < answer+total; i++)
+        {
+            QVariantMap qvm;
+            qvm[KEY_CHOICE_VALUE] = i;
+            data << qvm;
+        }
+
+        for (int i = qMax(0, answer-total); i < answer; i++)
+        {
+            QVariantMap qvm;
+            qvm[KEY_CHOICE_VALUE] = i;
+            data << qvm;
+        }
+
+        std::random_shuffle( data.begin(), data.end() );
+
+        while ( data.size() > total-1 ) {
+            data.takeLast();
+        }
+
+        int correctPercentage = TextUtils::randInt(40,100);
+        int remaining = 100-correctPercentage;
+
+        QVariantMap qvm;
+        qvm[KEY_CHOICE_VALUE] = answer;
+        qvm["ratio"] = correctPercentage;
+
+        for (int i = 0; i < data.size(); i++)
+        {
+            int currentRatio = TextUtils::randInt(0, remaining);
+            remaining -= qMax(0, currentRatio);
+
+            QVariantMap q = data[i].toMap();
+            q["ratio"] = currentRatio;
+            data << q;
+        }
+
+        data << qvm;
+
+        std::random_shuffle( data.begin(), data.end() );
 
     } else if ( m_game->multipleChoice() ) {
         int correctPercentage = TextUtils::randInt(40,100);

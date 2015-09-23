@@ -37,6 +37,7 @@ class LifelineManager : public QObject
 
     void useAskExpert(bb::cascades::ArrayDataModel* adm, bb::cascades::TextField* tf, bool sorted=false);
     void useFiftyFifty(bb::cascades::ArrayDataModel* adm, bb::cascades::TextField* tf, bool sorted=false);
+    void useFriend(bb::cascades::ArrayDataModel* adm, bb::cascades::TextField* tf, bool sorted=false);
     void usePopularOpinion(bb::cascades::ArrayDataModel* adm, bb::cascades::TextField* tf, bool sorted=false);
     void useTakeOne(bb::cascades::ArrayDataModel* adm, bb::cascades::TextField* tf, bool sorted=false);
 
