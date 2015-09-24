@@ -135,8 +135,6 @@ QVariantList Game::processResultSet(int id, QVariantList data)
 
         if (n == 1)
         {
-            LOGGER(first << first.contains("spi1"));
-
             if ( first.contains(KEY_ARG_1) ) {
                 m_arg1 = first.value(KEY_ARG_1).toString();
             }

@@ -8,6 +8,7 @@
 #include "TextUtils.h"
 
 #define KEY_CHOICE_DISABLED "disabled"
+#define KEY_STAT_RATIO "ratio"
 #define NUMERIC_ANSWER m_game->currentQuestion().value(KEY_ANSWER).toInt()
 
 namespace {
@@ -160,6 +161,9 @@ void LifelineManager::useLifeline(int key, bb::cascades::ArrayDataModel* adm, bb
             useTakeOne(adm, tf, sorted);
             emit lifeLineUsed(key, QVariant());
             break;
+        case Lifeline::PhoneFriend:
+            useFriend(adm, tf, sorted);
+            break;
         case Lifeline::PopularOpinion:
             usePopularOpinion(adm, tf, sorted);
             break;
@@ -225,7 +229,31 @@ void LifelineManager::useFriend(bb::cascades::ArrayDataModel* adm, bb::cascades:
 {
     LOGGER(sorted);
 
+    QVariantList result;
 
+    int ratio = TextUtils::randInt(40,100);
+    ratio = ratio % 10 > 5 ? 10*((ratio + 9)/10) : 10*(ratio/10);
+
+    if ( m_game->numeric() )
+    {
+        QVariantMap qvm;
+        qvm[KEY_CHOICE_VALUE] = NUMERIC_ANSWER;
+        qvm[KEY_STAT_RATIO] = ratio;
+        result << qvm;
+    } else if ( m_game->multipleChoice() ) {
+        for (int i = 0; i < adm->size(); i++)
+        {
+            QVariantMap current = adm->value(i).toMap();
+
+            if ( IS_CORRECT(current) )
+            {
+                current[KEY_STAT_RATIO] = ratio;
+                result << current;
+            }
+        }
+    }
+
+    emit lifeLineUsed(Lifeline::PhoneFriend, result);
 }
 
 
@@ -238,7 +266,7 @@ void LifelineManager::usePopularOpinion(bb::cascades::ArrayDataModel* adm, bb::c
     if ( m_game->numeric() )
     {
         int answer = NUMERIC_ANSWER;
-        int total = adm->size();
+        int total = RESULT_SET_LIMIT;
 
         for (int i = answer+1; i < answer+total; i++)
         {
@@ -256,49 +284,63 @@ void LifelineManager::usePopularOpinion(bb::cascades::ArrayDataModel* adm, bb::c
 
         std::random_shuffle( data.begin(), data.end() );
 
-        while ( data.size() > total-1 ) {
-            data.takeLast();
+        while ( data.size() >= total ) {
+            data.removeLast();
         }
 
         int correctPercentage = TextUtils::randInt(40,100);
         int remaining = 100-correctPercentage;
+        LOGGER(correctPercentage);
+        LOGGER(remaining);
 
         QVariantMap qvm;
         qvm[KEY_CHOICE_VALUE] = answer;
-        qvm["ratio"] = correctPercentage;
+        qvm[KEY_STAT_RATIO] = correctPercentage;
 
         for (int i = 0; i < data.size(); i++)
         {
-            int currentRatio = TextUtils::randInt(0, remaining);
+            int currentRatio = i == data.size()-1 ? remaining : TextUtils::randInt(0, remaining);
             remaining -= qMax(0, currentRatio);
 
             QVariantMap q = data[i].toMap();
-            q["ratio"] = currentRatio;
-            data << q;
+            q[KEY_STAT_RATIO] = currentRatio;
+            data[i] = q;
         }
 
-        data << qvm;
+        QVariantList finalList = QVariantList() << qvm;
 
-        std::random_shuffle( data.begin(), data.end() );
+        for (int i = 0; i < data.size(); i++)
+        {
+            if ( data[i].toMap().value(KEY_STAT_RATIO).toReal() > 0 ) {
+                finalList << data[i];
+            }
+        }
 
+        std::random_shuffle( finalList.begin(), finalList.end() );
+        data = finalList;
     } else if ( m_game->multipleChoice() ) {
         int correctPercentage = TextUtils::randInt(40,100);
         int remaining = 100-correctPercentage;
+
+        LOGGER(correctPercentage);
+        LOGGER(remaining);
 
         for (int i = 0; i < adm->size(); i++)
         {
             QVariantMap current = adm->value(i).toMap();
 
-            int currentRatio = TextUtils::randInt(0, remaining);
+            int currentRatio = i == adm->size()-1 ? remaining : TextUtils::randInt(0, remaining);
 
             if ( !IS_CORRECT(current) ) {
                 remaining -= qMax(0, currentRatio);
             }
 
-            current["ratio"] = IS_CORRECT(current) ? correctPercentage : currentRatio;
+            current[KEY_STAT_RATIO] = IS_CORRECT(current) ? correctPercentage : currentRatio;
             data << current;
         }
     }
+
+    LOGGER("**** DATA" << data);
 
     emit lifeLineUsed(Lifeline::PopularOpinion, data);
 }

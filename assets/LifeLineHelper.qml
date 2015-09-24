@@ -14,6 +14,7 @@ QtObject
         ActionItem
         {
             property int key
+            enabled: finalAnswer.enabled
             
             onTriggered: {
                 console.log( "UserEvent: "+life.keyToString(key) );
@@ -54,6 +55,21 @@ QtObject
             var x = definition.createObject();
             x.statistics = data;
             x.open();
+        } else if (key == Lifeline.PhoneFriend) {
+            var choices = [];
+            deviceUtils.log(data);
+            
+            for (var i = 0; i < data.length; i++) {
+                choices.push(data[i].value);
+            }
+            
+            var message = qsTr("%1 are the correct ones I think. I'm %2% sure...").arg( choices.join(", ") ).arg(data[0].ratio);
+            
+            if (choices.length == 1) {
+                message = qsTr("%1 is the correct one I believe. I'm %2% sure...").arg( choices.join(", ") ).arg(data[0].ratio);
+            }
+            
+            persist.showDialog( qsTr("Phone a Friend"), message );
         }
     }
     

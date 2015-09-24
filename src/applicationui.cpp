@@ -88,7 +88,7 @@ void ApplicationUI::lazyInit()
 {
     disconnect( this, SIGNAL( initialize() ), this, SLOT( lazyInit() ) ); // in case we get invoked again
 
-    m_sql.setVerboseLogging();
+    //m_sql.setVerboseLogging();
     m_sql.createDatabaseIfNotExists();
 
     std::srand ( unsigned ( std::time(0) ) );

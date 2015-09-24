@@ -12,14 +12,13 @@ FullScreenDialog
             {
                 var bar = barDefinition.createObject();
                 var value = statistics[i].ratio;
-                bar.preferredHeight = value;
+                bar.preferredHeight = value*3;
+                barContainer.add(bar);
                 
                 var stat = statsDefinition.createObject();
                 stat.choice = statistics[i].value;
                 stat.value = value;
                 legend.add(stat);
-                
-                barContainer.add(bar);
             }
         }
     }
