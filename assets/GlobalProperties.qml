@@ -6,6 +6,13 @@ QtObject
     property int presentAnimSpeed: 1000
     property int suspenseDuration: 2000
     property int lifeSuspenseDuration: 5000
+    property alias bgPaint: welcomeBack.imagePaint
+    
+    property variant mainBackground: ImagePaintDefinition {
+        id: welcomeBack
+        imageSource: "images/backgrounds/welcome_bg.png"
+        repeatPattern: RepeatPattern.XY
+    }
     
     function randomInt(min,max) {
         return Math.floor(Math.random()*(max-min+1)+min);

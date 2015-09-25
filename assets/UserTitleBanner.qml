@@ -129,7 +129,6 @@ Container
     gestureHandlers: [
         TapHandler {
             onTapped: {
-                console.log("UserEvent: CustomTitleBannerControlTapped");
                 bannerTapped();
             }
         }

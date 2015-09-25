@@ -122,11 +122,28 @@ Page
         kind: TitleBarKind.FreeForm
         kindProperties: FreeFormTitleBarKindProperties
         {
-            Clock {
-                id: clock
+            Container
+            {
+                horizontalAlignment: HorizontalAlignment.Fill
+                verticalAlignment: VerticalAlignment.Fill
+                layout: DockLayout {}
                 
-                onExpired: {
-                    navigationPane.pop();
+                Clock {
+                    id: clock
+                    
+                    onExpired: {
+                        navigationPane.pop();
+                    }
+                }
+                
+                Label
+                {
+                    horizontalAlignment: HorizontalAlignment.Fill
+                    verticalAlignment: VerticalAlignment.Center
+                    textStyle.textAlign: TextAlign.Center
+                    textStyle.fontWeight: FontWeight.Bold
+                    text: qsTr("Level: %1").arg(game.level) + Retranslate.onLanguageChanged
+                    visible: clock.scaleX == 0
                 }
             }
         }

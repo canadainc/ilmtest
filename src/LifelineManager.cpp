@@ -325,11 +325,22 @@ void LifelineManager::usePopularOpinion(bb::cascades::ArrayDataModel* adm, bb::c
         LOGGER(correctPercentage);
         LOGGER(remaining);
 
+        QList<QVariantMap> enabled;
+
         for (int i = 0; i < adm->size(); i++)
         {
             QVariantMap current = adm->value(i).toMap();
 
-            int currentRatio = i == adm->size()-1 ? remaining : TextUtils::randInt(0, remaining);
+            if ( current.value(KEY_CHOICE_DISABLED) != 1 ) {
+                enabled << current;
+            }
+        }
+
+        for (int i = 0; i < enabled.size(); i++)
+        {
+            QVariantMap current = enabled[i];
+
+            int currentRatio = i == enabled.size()-1 ? remaining : TextUtils::randInt(0, remaining);
 
             if ( !IS_CORRECT(current) ) {
                 remaining -= qMax(0, currentRatio);

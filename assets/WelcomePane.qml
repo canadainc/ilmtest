@@ -70,7 +70,7 @@ NavigationPane
         {
             horizontalAlignment: HorizontalAlignment.Fill
             verticalAlignment: VerticalAlignment.Fill
-            background: welcomeBack.imagePaint
+            background: global.bgPaint
             
             PermissionToast
             {
@@ -103,12 +103,6 @@ NavigationPane
                 source = qml;
                 return createObject();
             }
-        },
-        
-        ImagePaintDefinition {
-            id: welcomeBack
-            imageSource: "images/backgrounds/welcome_bg.png"
-            repeatPattern: RepeatPattern.XY
         }
     ]
 }

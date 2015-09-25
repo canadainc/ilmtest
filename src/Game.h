@@ -26,7 +26,7 @@ class Game : public QObject
     Q_PROPERTY(bool numeric READ numeric NOTIFY currentQuestionChanged)
     Q_PROPERTY(bool multipleChoice READ multipleChoice NOTIFY currentQuestionChanged)
     Q_PROPERTY(bool booleanQuestion READ booleanQuestion NOTIFY currentQuestionChanged)
-    Q_PROPERTY(bool level READ level NOTIFY levelChanged)
+    Q_PROPERTY(int level READ level NOTIFY levelChanged)
 
     IlmHelper m_ilm;
     QVariantMap m_currentQuestion;

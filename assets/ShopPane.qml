@@ -22,7 +22,7 @@ NavigationPane
         {
             horizontalAlignment: HorizontalAlignment.Fill
             verticalAlignment: VerticalAlignment.Fill
-            background: shopBack.imagePaint
+            background: global.bgPaint
             
             ListView
             {
@@ -58,12 +58,4 @@ NavigationPane
             }
         }
     }
-    
-    attachedObjects: [
-        ImagePaintDefinition {
-            id: shopBack
-            imageSource: "images/backgrounds/welcome_bg.png"
-            repeatPattern: RepeatPattern.XY
-        }
-    ]
 }

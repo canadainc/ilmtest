@@ -1,5 +1,7 @@
 #include "UserManager.h"
+#include "DatabaseHelper.h"
 #include "Persistance.h"
+#include "QueryId.h"
 #include "ReportGenerator.h"
 
 #define KEY_SETTING_USER_PROFILE "userProfile"
@@ -16,8 +18,17 @@ UserProfile::UserProfile() :
 {
 }
 
-UserManager::UserManager(Persistance* persist) : m_persist(persist) {
+UserManager::UserManager(Persistance* persist, DatabaseHelper* db) :
+        m_persist(persist), m_db(db)
+{
     persist->registerForSetting(this, KEY_SETTING_USER_PROFILE);
+}
+
+
+void UserManager::onDataLoaded(QVariant id, QVariant data)
+{
+    Q_UNUSED(id);
+    Q_UNUSED(data);
 }
 
 
@@ -81,8 +92,14 @@ void UserManager::saveProfile(QString const& name, QString const& kunya, bool fe
 }
 
 
-void UserManager::lazyInit() {
+void UserManager::lazyInit()
+{
     setPoints( m_persist->getValueFor("points").toInt() );
+
+    m_db->startTransaction(this, QueryId::Setup);
+    m_db->executeInternal( QString("CREATE TABLE IF NOT EXISTS scores (id INTEGER PRIMARY KEY, name TEXT NOT NULL, kunya TEXT, female INTEGER, points INTEGER, level INTEGER, UNIQUE(name,kunya,female) ON CONFLICT IGNORE)"), QueryId::Setup);
+    m_db->executeInternal( QString("CREATE TABLE IF NOT EXISTS chosen_answers (id INTEGER PRIMARY KEY, presented INTEGER NOT NULL DEFAULT 0, chosen INTEGER NOT NULL DEFAULT 0)"), QueryId::Setup);
+    m_db->endTransaction(this, QueryId::Setup);
 }
 
 

@@ -4,6 +4,7 @@
 #include <QObject>
 
 namespace canadainc {
+    class DatabaseHelper;
     class Persistance;
 }
 
@@ -31,9 +32,11 @@ class UserManager : public QObject
     Q_PROPERTY(bool profileSet READ profileSet NOTIFY profileChanged)
 
     Persistance* m_persist;
+    DatabaseHelper* m_db;
     UserProfile m_profile;
 
 private slots:
+    void onDataLoaded(QVariant id, QVariant data);
     void onSettingChanged(QVariant newValue, QVariant key);
 
 signals:
@@ -41,7 +44,7 @@ signals:
     void pointsChanged();
 
 public:
-    UserManager(Persistance* persist);
+    UserManager(Persistance* persist, DatabaseHelper* db);
     virtual ~UserManager();
 
     QString name() const;

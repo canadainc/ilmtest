@@ -53,8 +53,8 @@ FullScreenDialog
         Container
         {
             id: legend
-            horizontalAlignment: HorizontalAlignment.Right
-            verticalAlignment: VerticalAlignment.Top
+            horizontalAlignment: HorizontalAlignment.Left
+            verticalAlignment: VerticalAlignment.Bottom
             visible: false
             
             attachedObjects: [

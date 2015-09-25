@@ -36,6 +36,7 @@ Page
                 inputMode: TextFieldInputMode.Text
                 input.submitKey: SubmitKey.Next
                 input.submitKeyFocusBehavior: SubmitKeyFocusBehavior.Next
+                backgroundVisible: false
                 
                 validator: Validator
                 {
@@ -55,6 +56,7 @@ Page
     {
         horizontalAlignment: HorizontalAlignment.Fill
         verticalAlignment: VerticalAlignment.Fill
+        background: global.bgPaint
         
         ScrollView
         {
@@ -69,7 +71,7 @@ Page
                 
                 Container
                 {
-                    topMargin: 10
+                    topMargin: 10; rightPadding: 10; leftPadding: 20
                     
                     layout: StackLayout {
                         orientation: LayoutOrientation.LeftToRight
@@ -103,6 +105,7 @@ Page
                     {
                         id: female
                         text: qsTr("Female") + Retranslate.onLanguageChanged
+                        verticalAlignment: VerticalAlignment.Center
                     }
                 }
             }
