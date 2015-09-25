@@ -47,11 +47,13 @@ public:
     virtual ~SoundManager();
 
     void lazyInit();
+    Q_SLOT void playAudienceResults();
     Q_SLOT void playClock();
     Q_SLOT void playCorrect();
     Q_SLOT void playDeselect();
     Q_SLOT void playIncorrect();
     Q_SLOT void playLifeLineSelect();
+    Q_SLOT void playLifeSuspense();
     Q_SLOT void playMainLoop();
     Q_SLOT void playPresentChoice();
     Q_SLOT void playPresentQuestion();
@@ -59,6 +61,7 @@ public:
     Q_SLOT void playUserInput();
     Q_SLOT void stopClock();
     Q_SLOT void stopMainLoop();
+    Q_SLOT void stopLifeSuspense();
     Q_SLOT void tempMute();
 
     bool muted() const;

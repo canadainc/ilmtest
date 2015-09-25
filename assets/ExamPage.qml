@@ -100,7 +100,7 @@ Page
             sound.playCorrect();
             
             persist.showToast( qsTr("Correct!"), "images/menu/ic_check.png" );
-            user.points = user.points+1;
+            user.points = user.points+game.level;
             
             if ( !restore.isPlaying() && !restore.isStarted() ) {
                 restore.play();

@@ -4,9 +4,14 @@ FullScreenDialog
 {
     property variant statistics
     
-    onStatisticsChanged: {
+    function process()
+    {
         if (statistics)
         {
+            sound.playAudienceResults();
+            sound.stopLifeSuspense();
+            spinner.visible = false;
+            legend.visible = true;
             barParent.visible = true;
             for (var i = 0; i < statistics.length; i++)
             {
@@ -23,6 +28,11 @@ FullScreenDialog
         }
     }
     
+    onOpened: {
+        sound.playLifeSuspense();
+        rt.play();
+    }
+    
     dialogContent: Container
     {
         horizontalAlignment: HorizontalAlignment.Fill
@@ -33,7 +43,7 @@ FullScreenDialog
         gestureHandlers: [
             TapHandler {
                 onTapped: {
-                    if (event.propagationPhase == PropagationPhase.AtTarget) {
+                    if ( event.propagationPhase == PropagationPhase.AtTarget && !rt.isPlaying() && !rt.isStarted() ) {
                         dismiss();
                     }
                 }
@@ -45,6 +55,7 @@ FullScreenDialog
             id: legend
             horizontalAlignment: HorizontalAlignment.Right
             verticalAlignment: VerticalAlignment.Top
+            visible: false
             
             attachedObjects: [
                 ComponentDefinition
@@ -156,6 +167,31 @@ FullScreenDialog
                 topMargin: 0; bottomMargin: 0
                 verticalAlignment: VerticalAlignment.Bottom
             }
+        }
+        
+        ImageView
+        {
+            id: spinner
+            horizontalAlignment: HorizontalAlignment.Center
+            verticalAlignment: VerticalAlignment.Center
+            imageSource: "images/progress/spinner_suspense.png"
+            loadEffect: ImageViewLoadEffect.FadeZoom
+            scalingMethod: ScalingMethod.AspectFit
+            
+            animations: [
+                RotateTransition {
+                    id: rt
+                    delay: 0
+                    easingCurve: StockCurve.ElasticOut
+                    fromAngleZ: 0
+                    toAngleZ: 360
+                    duration: global.lifeSuspenseDuration
+                    
+                    onEnded: {
+                        process();
+                    }
+                }
+            ]
         }
     }
 }

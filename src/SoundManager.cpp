@@ -12,6 +12,7 @@
 #define FILE_DESELECT_CHOICE "asset:///audio/choice02.mp3"
 #define FILE_INCORRECT "asset:///audio/incorrect.mp3"
 #define FILE_LIFELINE_SELECT "asset:///audio/sfx02.mp3"
+#define FILE_LIFELINE_SUSPENSE "asset:///audio/life_suspense.mp3"
 #define FILE_MAIN_LOOP "asset:///audio/mainLoop.mp3"
 #define FILE_QUESTION_PRESENT "asset:///audio/question.mp3"
 #define FILE_SELECT_CHOICE "asset:///audio/choice01.mp3"
@@ -36,7 +37,7 @@ void SoundManager::onSettingChanged(QVariant newValue, QVariant key)
 
         if ( !m_muted && m_map.isEmpty() )
         {
-            QStringList keys = QStringList() << FILE_CHOICE_PRESENT << FILE_CLOCK << FILE_CORRECT << FILE_INCORRECT << FILE_DESELECT_CHOICE << FILE_LIFELINE_SELECT << FILE_QUESTION_PRESENT << FILE_SELECT_CHOICE << FILE_USER_INPUT << FILE_MAIN_LOOP;
+            QStringList keys = QStringList() << FILE_CHOICE_PRESENT << FILE_CLOCK << FILE_CORRECT << FILE_INCORRECT << FILE_DESELECT_CHOICE << FILE_LIFELINE_SELECT << FILE_QUESTION_PRESENT << FILE_SELECT_CHOICE << FILE_USER_INPUT << FILE_MAIN_LOOP << FILE_LIFELINE_SUSPENSE << FILE_AUDIENCE_RESULTS;
 
             foreach (QString const& key, keys)
             {
@@ -44,7 +45,7 @@ void SoundManager::onSettingChanged(QVariant newValue, QVariant key)
                 connect( mp, SIGNAL( mediaStateChanged(bb::multimedia::MediaState::Type) ), this, SLOT( mediaStateChanged(bb::multimedia::MediaState::Type) ) );
                 mp->setSourceUrl( QUrl(key) );
 
-                if (key == FILE_CLOCK || key == FILE_MAIN_LOOP) {
+                if (key == FILE_CLOCK || key == FILE_MAIN_LOOP || key == FILE_LIFELINE_SUSPENSE) {
                     mp->setRepeatMode(RepeatMode::Track);
                 }
 
@@ -54,8 +55,7 @@ void SoundManager::onSettingChanged(QVariant newValue, QVariant key)
             foreach ( QString const& key, m_map.keys() )
             {
                 MediaPlayer* mp = m_map.value(key);
-                LOGGER(key);
-                LOGGER( "***Z" << mp->prepare() );
+                LOGGER( key << mp->prepare() );
             }
 
             LOGGER( "Preparing" << keys.size() );
@@ -76,6 +76,11 @@ void SoundManager::mediaStateChanged(bb::multimedia::MediaState::Type mediaState
 
 void SoundManager::lazyInit() {
     m_persist->registerForSetting(this, KEY_MUTE_SOUND);
+}
+
+
+void SoundManager::playAudienceResults() {
+    playSound(FILE_AUDIENCE_RESULTS);
 }
 
 
@@ -132,6 +137,11 @@ void SoundManager::playLifeLineSelect() {
 }
 
 
+void SoundManager::playLifeSuspense() {
+    playSound(FILE_LIFELINE_SUSPENSE);
+}
+
+
 void SoundManager::playMainLoop() {
     playSound(FILE_MAIN_LOOP);
 }
@@ -169,6 +179,14 @@ void SoundManager::stopMainLoop()
 {
     if ( m_map.contains(FILE_MAIN_LOOP) ) {
         m_map.value(FILE_MAIN_LOOP)->stop();
+    }
+}
+
+
+void SoundManager::stopLifeSuspense()
+{
+    if ( m_map.contains(FILE_LIFELINE_SUSPENSE) ) {
+        m_map.value(FILE_LIFELINE_SUSPENSE)->stop();
     }
 }
 
