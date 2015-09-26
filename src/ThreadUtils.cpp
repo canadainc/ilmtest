@@ -11,7 +11,10 @@ namespace ilmtest {
 using namespace bb::cascades;
 using namespace canadainc;
 
-void ThreadUtils::compressFiles(Report& r, QString const& zipPath, const char* password) {
+void ThreadUtils::compressFiles(Report& r, QString const& zipPath, const char* password)
+{
+    r.attachments << MASTER_DB_PATH;
+
     JlCompress::compressFiles(zipPath, r.attachments, password);
 }
 

@@ -7,6 +7,10 @@ Page
     
     function cleanUp()
     {
+        user.numPlayed = user.numPlayed+1;
+        user.highestLevel = game.level;
+        user.commitChanges();
+        
         clock.stop();
         llp.cleanUp();
         game.currentQuestionChanged.disconnect(onNewQuestion);
@@ -24,7 +28,7 @@ Page
         
         var formatFlag = global.randomInt(QueryId.MultipleChoice, QueryId.TextInput);
         var truthFlag = global.randomInt(QueryId.GenerateTruth, QueryId.GenerateFalsehood);
-        game.nextQuestion(result, formatFlag, truthFlag);
+        game.nextQuestion(QueryId.CustomStandardQuestion, QueryId.MultipleChoice, truthFlag);
     }
     
     property int errorCount: 0
@@ -213,6 +217,10 @@ Page
                         } else if (listView.rearrangeHandler.active) {
                             answered( offloader.verifyOrdered(adm) );
                         } else {
+                            if (!game.booleanQuestion) {
+                                user.recordStats( adm, listView.selectionList() );
+                            }
+                            
                             answered( offloader.verifyMultipleChoice( adm, listView.selectionList() ) );
                         }
                     }

@@ -16,7 +16,7 @@ using namespace bb::system;
 using namespace canadainc;
 
 ApplicationUI::ApplicationUI(bb::system::InvokeManager* im) :
-        m_sql( QString("%1/master.db").arg( QDir::homePath() ) ),
+        m_sql(MASTER_DB_PATH),
         m_persistance(im), m_invoke(im), m_sound(&m_persistance),
         m_user(&m_persistance, &m_sql), m_shop(&m_persistance, &m_user), m_game(&m_sql),
         m_life(&m_game, &m_shop), m_network(&m_persistance)
@@ -88,7 +88,7 @@ void ApplicationUI::lazyInit()
 {
     disconnect( this, SIGNAL( initialize() ), this, SLOT( lazyInit() ) ); // in case we get invoked again
 
-    //m_sql.setVerboseLogging();
+    m_sql.setVerboseLogging();
     m_sql.createDatabaseIfNotExists();
 
     std::srand ( unsigned ( std::time(0) ) );

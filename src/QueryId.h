@@ -71,6 +71,7 @@ public:
         FetchAllProfiles,
         FetchDictionary,
         FetchProfile,
+        RecordStats,
         Setup,
         Debug
     };

@@ -20,6 +20,7 @@ Container
     
     function stop()
     {
+        scaler.stop();
         timer.stop();
         sound.stopClock();
         progress.state = ProgressIndicatorState.Complete;

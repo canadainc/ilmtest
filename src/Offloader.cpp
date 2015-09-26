@@ -248,6 +248,10 @@ QVariantList Offloader::useRandomSources(QVariantList data, bool flipped)
             QVariantMap first = list.first().toMap();
             qvm[KEY_FLAG_CORRECT] = first.value(KEY_FLAG_CORRECT);
 
+            if ( first.contains(KEY_ANSWER_ID) ) {
+                qvm[KEY_ANSWER_ID] = first.value(KEY_ANSWER_ID);
+            }
+
             if ( first.contains(KEY_SORT_ORDER) ) {
                 qvm[KEY_SORT_ORDER] = first.value(KEY_SORT_ORDER);
             }

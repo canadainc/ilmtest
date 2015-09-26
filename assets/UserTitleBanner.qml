@@ -7,14 +7,6 @@ Container
     verticalAlignment: VerticalAlignment.Fill
     background: bgStrip.imagePaint
     
-    function onAboutToQuit() {
-        persist.saveValueFor("points", user.points, false);
-    }
-    
-    onCreationCompleted: {
-        Application.aboutToQuit.connect(onAboutToQuit);
-    }
-    
     layout: StackLayout {
         orientation: LayoutOrientation.LeftToRight
     }

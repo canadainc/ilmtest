@@ -1,4 +1,7 @@
+#include "precompiled.h"
+
 #include "UserManager.h"
+#include "AnalyticHelper.h"
 #include "CommonConstants.h"
 #include "DatabaseHelper.h"
 #include "Logger.h"
@@ -6,6 +9,7 @@
 #include "QueryId.h"
 
 #define KEY_MAX_LEVEL "highest_level"
+#define KEY_NUM_PLAYED "played"
 #define KEY_POINTS "points"
 #define KEY_SETTING_USER_PROFILE "userProfile"
 #define KEY_USER_NAME "name"
@@ -34,7 +38,7 @@ namespace ilmtest {
 using namespace canadainc;
 
 UserProfile::UserProfile() :
-        id(0), female(false), points(0), maxLevel(0)
+        id(0), female(false), points(0), maxLevel(0), played(0)
 {
 }
 
@@ -59,6 +63,7 @@ void UserManager::onDataLoaded(QVariant id, QVariant data)
             m_profile.female = profile.value(KEY_USER_FEMALE).toInt() == 1;
             m_profile.points = profile.value(KEY_POINTS).toInt();
             m_profile.maxLevel = profile.value(KEY_MAX_LEVEL).toInt();
+            m_profile.played = profile.value(KEY_NUM_PLAYED).toInt();
 
             emit profileChanged();
             emit pointsChanged();
@@ -135,6 +140,16 @@ void UserManager::setHighestLevel(int highestLevel)
 }
 
 
+int UserManager::numPlayed() const {
+    return m_profile.played;
+}
+
+
+void UserManager::setNumPlayed(int played) {
+    m_profile.played = played;
+}
+
+
 QVariantMap UserManager::createProfile(QString const& name, QString const& kunya, bool female)
 {
     LOGGER(name << kunya << female);
@@ -157,6 +172,7 @@ void UserManager::commitChanges()
     QVariantMap keyValues;
     keyValues[KEY_POINTS] = m_profile.points;
     keyValues[KEY_MAX_LEVEL] = m_profile.maxLevel;
+    keyValues[KEY_NUM_PLAYED] = m_profile.played;
 
     m_db->executeUpdate(this, TABLE_NAME, keyValues, QueryId::EditProfile, m_profile.id);
 }
@@ -185,13 +201,45 @@ qint64 UserManager::id() const {
 
 void UserManager::lazyInit()
 {
+    m_db->attachIfNecessary(ANALYTIC_DB_NAME, true);
+
     m_db->startTransaction(this, QueryId::Setup);
     m_db->executeInternal( QString("CREATE TABLE IF NOT EXISTS user_profiles (id INTEGER PRIMARY KEY, name TEXT NOT NULL, kunya TEXT, female INTEGER, points INTEGER DEFAULT 0, highest_level INTEGER DEFAULT 0, played INTEGER DEFAULT 0, UNIQUE(name,kunya,female) ON CONFLICT IGNORE)"), QueryId::Setup);
-    m_db->executeInternal( QString("CREATE TABLE IF NOT EXISTS chosen_answers (id INTEGER PRIMARY KEY, presented INTEGER NOT NULL DEFAULT 0, chosen INTEGER NOT NULL DEFAULT 0)"), QueryId::Setup);
+    m_db->executeInternal( QString("CREATE TABLE IF NOT EXISTS %1.chosen_answers (id INTEGER PRIMARY KEY, presented INTEGER NOT NULL DEFAULT 0, chosen INTEGER NOT NULL DEFAULT 0)").arg(ANALYTIC_DB_NAME), QueryId::Setup);
     m_db->endTransaction(this, QueryId::Setup);
 
     connect( QCoreApplication::instance(), SIGNAL( aboutToQuit() ), this, SLOT( commitChanges() ) );
     m_persist->registerForSetting(this, KEY_SETTING_USER_PROFILE, true);
+}
+
+
+void UserManager::recordStats(bb::cascades::ArrayDataModel* adm, QVariantList const& selected)
+{
+    const QString summer = "COALESCE((SELECT %2 FROM chosen_answers WHERE id=?)+%1,%1)";
+
+    QSet<int> selectedIndices;
+    foreach (QVariant const& q, selected) {
+        selectedIndices << q.toList().first().toInt();
+    }
+
+    m_db->startTransaction(this, QueryId::RecordStats);
+
+    for (int i = adm->size()-1; i >= 0; i--)
+    {
+        QVariantMap qvm = adm->value(i).toMap();
+
+        if ( qvm.contains(KEY_ANSWER_ID) )
+        {
+            QVariantList args;
+            args << qvm.value(KEY_ANSWER_ID);
+            args << qvm.value(KEY_ANSWER_ID);
+            args << qvm.value(KEY_ANSWER_ID);
+
+            m_db->executeInternal( QString("INSERT OR REPLACE INTO %3.chosen_answers (id,presented,chosen) VALUES (?,%1,%2)").arg( summer.arg(1).arg("presented") ).arg( summer.arg( selectedIndices.contains(i) ? 1 : 0 ).arg("chosen") ).arg(ANALYTIC_DB_NAME), QueryId::FetchAllProfiles, args );
+        }
+    }
+
+    m_db->endTransaction(this, QueryId::RecordStats);
 }
 
 

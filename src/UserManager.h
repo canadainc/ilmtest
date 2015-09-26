@@ -8,6 +8,12 @@ namespace canadainc {
     class Persistance;
 }
 
+namespace bb {
+    namespace cascades {
+        class ArrayDataModel;
+    }
+}
+
 namespace ilmtest {
 
 using namespace canadainc;
@@ -20,6 +26,7 @@ struct UserProfile
     bool female;
     int points;
     int maxLevel;
+    int played;
 
     UserProfile();
 };
@@ -33,6 +40,7 @@ class UserManager : public QObject
     Q_PROPERTY(bool female READ female NOTIFY profileChanged)
     Q_PROPERTY(int points READ points WRITE setPoints NOTIFY pointsChanged)
     Q_PROPERTY(int highestLevel READ highestLevel WRITE setHighestLevel NOTIFY pointsChanged)
+    Q_PROPERTY(int numPlayed READ numPlayed WRITE setNumPlayed NOTIFY pointsChanged)
     Q_PROPERTY(bool profileSet READ profileSet NOTIFY profileChanged)
 
     Persistance* m_persist;
@@ -40,7 +48,6 @@ class UserManager : public QObject
     UserProfile m_profile;
 
 private slots:
-    void commitChanges();
     void onDataLoaded(QVariant id, QVariant data);
     void onSettingChanged(QVariant newValue, QVariant key);
 
@@ -60,8 +67,11 @@ public:
     void setPoints(int points);
     int highestLevel() const;
     void setHighestLevel(int highestLevel);
+    int numPlayed() const;
+    void setNumPlayed(int played);
     bool profileSet() const;
 
+    Q_SLOT void commitChanges();
     void lazyInit();
 
     Q_INVOKABLE QVariantMap createProfile(QString const& name, QString const& kunya, bool female);
@@ -69,6 +79,7 @@ public:
     Q_INVOKABLE void changeProfile(qint64 id);
     Q_INVOKABLE void fetchAllProfiles(QObject* caller);
     Q_INVOKABLE void fetchProfile(QObject* caller, qint64 userId);
+    Q_INVOKABLE void recordStats(bb::cascades::ArrayDataModel* adm, QVariantList const& selected);
 };
 
 } /* namespace canadainc */
