@@ -1,28 +1,59 @@
 import QtQuick 1.0
 import bb.cascades 1.3
-import bb.system 1.2
 import com.canadainc.data 1.0
 
 Page
 {
-    id: createRijaal
+    id: createUser
     actionBarAutoHideBehavior: ActionBarAutoHideBehavior.HideOnScroll
     actionBarFollowKeyboardPolicy: ActionBarFollowKeyboardPolicy.Never
+    property variant userId
     property alias name: tftk.textField
+    signal saveProfile(variant id, string name, string kunya, bool female)
     
-    function cleanUp()
+    function cleanUp() {}
+    
+    onUserIdChanged: {
+        if (userId) {
+            user.fetchProfile(createUser, userId);
+        } else {
+            timer.running = true;
+        }
+    }
+    
+    function onDataLoaded(id, data)
     {
-        nameValidator.validate();
-        kunyaValidator.validate();
-        
-        if (nameValidator.valid && kunyaValidator.valid) {
-            user.saveProfile( name.text.trim(), kunya.text.trim(), female.checked );
+        if (id == QueryId.FetchProfile && data.length > 0)
+        {
+            var profile = data[0];
+            
+            name.text = profile.name;
+            kunya.text = profile.kunya;
+            female.checked = profile.female;
         }
     }
     
     titleBar: TitleBar
     {
         kind: TitleBarKind.TextField
+        
+        dismissAction: ActionItem
+        {
+            imageSource: "images/title/ic_save_profile.png"
+            title: qsTr("Save") + Retranslate.onLanguageChanged
+            
+            onTriggered: {
+                console.log("UserEvent: SaveProfile");
+
+                nameValidator.validate();
+                kunyaValidator.validate();
+                
+                if (nameValidator.valid && kunyaValidator.valid) {
+                    saveProfile( userId, name.text.trim(), kunya.text.trim(), female.checked );
+                }
+            }
+        }
+        
         kindProperties: TextFieldTitleBarKindProperties
         {
             id: tftk
@@ -36,7 +67,6 @@ Page
                 inputMode: TextFieldInputMode.Text
                 input.submitKey: SubmitKey.Next
                 input.submitKeyFocusBehavior: SubmitKeyFocusBehavior.Next
-                backgroundVisible: false
                 
                 validator: Validator
                 {
@@ -114,18 +144,13 @@ Page
     
     attachedObjects: [
         Timer {
+            id: timer
             interval: 250
-            running: true
+            running: false
             repeat: false
             
             onTriggered: {
-                name.text = user.name;
-                kunya.text = user.kunya;
-                female.checked = user.female;
-                
-                if ( !user.profileSet ) {
-                    name.requestFocus();
-                }
+                name.requestFocus();
             }
         }        
     ]

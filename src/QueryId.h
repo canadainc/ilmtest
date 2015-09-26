@@ -67,7 +67,10 @@ public:
         AnswersForCustomPromptStandardQuestion,
         AnswersForCustomStandardNegation,
         AnswersForCustomStandardQuestion,
+        EditProfile,
+        FetchAllProfiles,
         FetchDictionary,
+        FetchProfile,
         Setup,
         Debug
     };

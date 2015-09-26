@@ -8,6 +8,13 @@ NavigationPane
         deviceUtils.cleanUpAndDestroy(page);
     }
     
+    function popToRoot()
+    {
+        while (navigationPane.top != welcomePage) {
+            navigationPane.pop();
+        }
+    }
+    
     Page
     {
         id: welcomePage
@@ -58,10 +65,70 @@ NavigationPane
             {
                 UserTitleBanner
                 {
+                    id: utb
+                    
+                    function onCreate(id, name, kunya, female)
+                    {
+                        var result;
+                        
+                        if (id) {
+                            result = user.editProfile(id, name, kunya, female);
+                        } else {
+                            result = user.createProfile(name, kunya, female);
+                        }
+                        
+                        if (result.id)
+                        {
+                            user.changeProfile(result.id);
+                            persist.showToast( qsTr("Successfully saved profile"), "images/menu/ic_add_user.png" );
+                            popToRoot();
+                        }
+                    }
+                    
                     onBannerTapped: {
-                        var p = definition.init("UserProfilePage.qml");
+                        var p = definition.init("CreateProfilePage.qml");
+                        p.saveProfile.connect(onCreate);
+                        
+                        if (user.profileSet) {
+                            p.userId = user.id;
+                        }
+                        
                         navigationPane.push(p);
                     }
+                    
+                    contextActions: [
+                        ActionSet
+                        {
+                            title: user.name
+                            subtitle: user.kunya
+                            
+                            actions: [
+                                ActionItem
+                                {
+                                    enabled: user.profileSet
+                                    imageSource: "images/menu/ic_profiles.png"
+                                    title: qsTr("Change Profile") + Retranslate.onLanguageChanged
+                                    ActionBar.placement: ActionBarPlacement.Signature
+                                    
+                                    function onPicked(userId)
+                                    {
+                                        user.changeProfile(userId);
+                                        popToRoot();
+                                        
+                                        persist.showToast( qsTr("Profile switched!"), imageSource.toString() );
+                                    }
+                                    
+                                    onTriggered: {
+                                        console.log("UserEvent: ChangeProfile");
+                                        definition.source = "UserProfilePickerPage.qml";
+                                        var d = definition.createObject();
+                                        d.picked.connect(onPicked);
+                                        navigationPane.push(d);
+                                    }
+                                }
+                            ]
+                        }
+                    ]
                 }
             }
         }
