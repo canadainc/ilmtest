@@ -397,10 +397,18 @@ QMap<qint64,QueryId::Type> Offloader::generateQuestions(QMap< QueryId::Type, QSe
             current.second = actualPercentage; // update the current percentage for the sake of clarity
             priorities[i] = current;
 
+            qreal totalRemaining = 0;
+
             for (int j = i+1; j < totalPriorities; j++)
             {
                 QPair<QueryId::Type, qreal> p = priorities[j];
-                p.second += p.second*remaining;
+                totalRemaining += p.second;
+            }
+
+            for (int j = i+1; j < totalPriorities; j++)
+            {
+                QPair<QueryId::Type, qreal> p = priorities[j];
+                p.second += (p.second/totalRemaining)*remaining;
                 priorities[j] = p;
             }
         }
