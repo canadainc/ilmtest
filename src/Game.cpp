@@ -66,7 +66,7 @@ void Game::onDataLoaded(QVariant idV, QVariant dataV)
 
         if ( multipleChoice() || numeric() )
         {
-            if ( !data.isEmpty() && !booleanQuestion() ) {
+            if ( !data.isEmpty() && !booleanQuestion() && !m_currentQuestion.contains(KEY_ORDERED) ) {
                 data << Offloader::generateNoneOfTheAbove(data);
             }
 

@@ -5,6 +5,7 @@ Container
 {
     id: clock
     property int currentValue
+    property int savedElapsed
     signal ready();
     signal expired();
     horizontalAlignment: HorizontalAlignment.Fill

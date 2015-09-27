@@ -28,7 +28,7 @@ Page
         
         var formatFlag = global.randomInt(QueryId.MultipleChoice, QueryId.TextInput);
         var truthFlag = global.randomInt(QueryId.GenerateTruth, QueryId.GenerateFalsehood);
-        game.nextQuestion(QueryId.CustomStandardQuestion, QueryId.MultipleChoice, truthFlag);
+        game.nextQuestion(result, formatFlag, truthFlag);
     }
     
     property int errorCount: 0
@@ -115,7 +115,7 @@ Page
             reference.enabled = true;
         }
         
-        user.recordTestResult(correctly);
+        user.recordStats( adm, listView.selectionList(), numericInput, clock.savedElapsed, correctly );
     }
     
     onCreationCompleted: {
@@ -190,11 +190,8 @@ Page
             
             onTriggered: {
                 console.log("UserEvent: FinalAnswer");
+                clock.savedElapsed = clock.elapsed();
                 reporter.record("FinalAnswer");
-                
-                if (!game.booleanQuestion && game.multipleChoice && game.customQuestion) {
-                    user.recordStats( adm, listView.selectionList(), numericInput, clock.elapsed() );
-                }
                 
                 if (numericInput.visible)
                 {
@@ -204,6 +201,8 @@ Page
                         reporter.record( "InvalidNumericInput", numericInput.text.trim() );
                         return;
                     }
+                    
+                    numericInput.loseFocus();
                 }
 
                 enabled = false;

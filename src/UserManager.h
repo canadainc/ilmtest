@@ -83,9 +83,8 @@ public:
     Q_INVOKABLE void changeProfile(qint64 id);
     Q_INVOKABLE void fetchAllProfiles(QObject* caller);
     Q_INVOKABLE void fetchProfile(QObject* caller, qint64 userId);
-    Q_INVOKABLE void recordStats(bb::cascades::ArrayDataModel* adm, QVariantList const& selected, bb::cascades::TextField* tf, int elapsed);
+    Q_INVOKABLE void recordStats(bb::cascades::ArrayDataModel* adm, QVariantList const& selected, bb::cascades::TextField* tf, int elapsed, bool passed);
     Q_INVOKABLE void recordLifeLine(int lifeKey);
-    Q_INVOKABLE void recordTestResult(bool passed);
 };
 
 } /* namespace canadainc */
