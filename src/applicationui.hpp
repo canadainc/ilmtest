@@ -28,9 +28,9 @@ class ApplicationUI : public QObject
     InvokeHelper m_invoke;
     Offloader m_offloader;
     SoundManager m_sound;
+    Game m_game;
     UserManager m_user;
     ShopManager m_shop;
-    Game m_game;
     LifelineManager m_life;
     NetworkChannel m_network;
 

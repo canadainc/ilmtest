@@ -15,7 +15,6 @@
 #define KEY_NUMERIC "numeric"
 #define KEY_ORDERED "ordered"
 #define KEY_STANDARD "standard"
-#define ID_TO_QSTR(t) TextUtils::e2s<QueryId>(t)
 #define IS_NUMERIC_QUESTION(x) x.size() == 1 && QRegExp("\\d+$").exactMatch( x.first().toMap().value(KEY_CHOICE_VALUE).toString() )
 
 namespace ilmtest {
@@ -71,7 +70,8 @@ void Game::onDataLoaded(QVariant idV, QVariant dataV)
                 data << Offloader::generateNoneOfTheAbove(data);
             }
 
-            m_currentQuestion["id"] = idV;
+            m_currentQuestion["id"] = m_destiny.questionId;
+            m_currentQuestion["type"] = idV;
             m_currentQuestion["choices"] = data;
 
             if ( !m_reference.isEmpty() ) {
@@ -82,6 +82,11 @@ void Game::onDataLoaded(QVariant idV, QVariant dataV)
             emit currentQuestionChanged();
         }
     }
+}
+
+
+bool Game::customQuestion() const {
+    return m_destiny.questionType >= QueryId::CustomAfterQuestion && m_destiny.questionType <= QueryId::CustomStandardQuestion;
 }
 
 
@@ -367,6 +372,11 @@ void Game::reloadQuestions()
 {
     m_ilm.reloadQuestionBank();
     m_ilm.fetchDictionary(this);
+}
+
+
+Destiny Game::currentFate() const {
+    return m_destiny;
 }
 
 

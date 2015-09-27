@@ -33,6 +33,7 @@ ListView
         }
         
         onMoveEnded: {
+            reporter.record("ChoiceMoved");
             sound.playPresentChoice();
         }
         

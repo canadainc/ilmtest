@@ -46,6 +46,10 @@ Page
                 {
                     key: "customOnly"
                     text: qsTr("Show Custom Questions Only") + Retranslate.onLanguageChanged
+                    
+                    onValueChanged: {
+                        reporter.record( "ShowCustomQuestions", checked.toString() );
+                    }
                 }
             }
         }

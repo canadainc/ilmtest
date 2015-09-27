@@ -50,7 +50,7 @@ Page
             }
         } else {
             var current = game.currentQuestion;
-            var bodies = qb.getBodies(current.id);
+            var bodies = qb.getBodies(current.type);
             
             if (current.reference) {
                 reference.apply(current.reference);
@@ -103,7 +103,7 @@ Page
         {
             sound.playCorrect();
             
-            persist.showToast( qsTr("Correct!"), "images/menu/ic_check.png" );
+            persist.showToast( qsTr("Correct!"), "images/toast/ic_correct.png" );
             user.points = user.points+game.level;
             
             if ( !restore.isPlaying() && !restore.isStarted() ) {
@@ -111,10 +111,11 @@ Page
             }
         } else {
             sound.playIncorrect();
-            
-            persist.showToast( "You failed!!", "images/bugs/ic_bugs_cancel.png" );
+            persist.showToast( qsTr("You failed!"), "images/toast/ic_incorrect.png" );
             reference.enabled = true;
         }
+        
+        user.recordTestResult(correctly);
     }
     
     onCreationCompleted: {
@@ -136,6 +137,9 @@ Page
                     id: clock
                     
                     onExpired: {
+                        reporter.record("ClockExpired", game.currentQuestion.id);
+                        
+                        persist.showToast( qsTr("Time expired! You failed!"), "images/toast/ic_expired.png" );
                         navigationPane.pop();
                     }
                 }
@@ -148,6 +152,28 @@ Page
                     textStyle.fontWeight: FontWeight.Bold
                     text: qsTr("Level: %1").arg(game.level) + Retranslate.onLanguageChanged
                     visible: clock.scaleX == 0
+                    scaleX: 1.2
+                    scaleY: 1.2
+                    
+                    onVisibleChanged: {
+                        if (visible) {
+                            scaler.play();
+                        } else {
+                            scaleX = scaleY = 1.2;
+                        }
+                    }
+                    
+                    animations: [
+                        ScaleTransition {
+                            id: scaler
+                            fromX: 1.2
+                            fromY: 1.2
+                            toX: 1
+                            toY: 1
+                            easingCurve: StockCurve.DoubleElasticIn
+                            duration: 1000
+                        }
+                    ]
                 }
             }
         }
@@ -158,18 +184,24 @@ Page
         {
             id: finalAnswer
             imageSource: "images/menu/ic_check.png"
-            title: qsTr("Accept")
+            title: qsTr("Accept") + Retranslate.onLanguageChanged
             ActionBar.placement: ActionBarPlacement.Signature
             enabled: false
             
             onTriggered: {
                 console.log("UserEvent: FinalAnswer");
+                reporter.record("FinalAnswer");
+                
+                if (!game.booleanQuestion && game.multipleChoice && game.customQuestion) {
+                    user.recordStats( adm, listView.selectionList(), numericInput, clock.elapsed() );
+                }
                 
                 if (numericInput.visible)
                 {
                     numericInput.validator.validate();
                     
                     if (!numericInput.validator.valid) {
+                        reporter.record( "InvalidNumericInput", numericInput.text.trim() );
                         return;
                     }
                 }
@@ -217,10 +249,6 @@ Page
                         } else if (listView.rearrangeHandler.active) {
                             answered( offloader.verifyOrdered(adm) );
                         } else {
-                            if (!game.booleanQuestion) {
-                                user.recordStats( adm, listView.selectionList() );
-                            }
-                            
                             answered( offloader.verifyMultipleChoice( adm, listView.selectionList() ) );
                         }
                     }
@@ -304,6 +332,7 @@ Page
                 inputMode: TextFieldInputMode.NumbersAndPunctuation
                 input.submitKey: SubmitKey.Submit
                 input.onSubmitted: {
+                    reporter.record("NumericInputReturn");
                     finalAnswer.triggered();
                 }
                 

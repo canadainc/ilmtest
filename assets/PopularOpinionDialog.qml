@@ -43,7 +43,9 @@ FullScreenDialog
         gestureHandlers: [
             TapHandler {
                 onTapped: {
-                    if ( event.propagationPhase == PropagationPhase.AtTarget && !rt.isPlaying() && !rt.isStarted() ) {
+                    if ( event.propagationPhase == PropagationPhase.AtTarget && !rt.isPlaying() && !rt.isStarted() )
+                    {
+                        console.log("UserEvent: DismissPopular");
                         dismiss();
                     }
                 }

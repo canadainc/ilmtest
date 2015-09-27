@@ -19,7 +19,7 @@ TabbedPane
         settings.title: qsTr("Settings") + Retranslate.onLanguageChanged
         
         onFinished: {
-            if ( clean && !persist.containsFlag("dbVersion") ) {
+            if ( clean && ( !persist.containsFlag("dbVersion") || (analyticResult == 0) ) ) {
                 network.checkForUpdates();
             }
         }
@@ -35,6 +35,11 @@ TabbedPane
         delegate: Delegate {
             source: "WelcomePane.qml"
         }
+        
+        onTriggered: {
+            console.log("UserEvent: HomeTab");
+            reporter.record("HomeTab");
+        }
     }
     
     Tab
@@ -46,6 +51,11 @@ TabbedPane
         
         delegate: Delegate {
             source: "ShopPane.qml"
+        }
+        
+        onTriggered: {
+            console.log("UserEvent: MarketTab");
+            reporter.record("MarketTab");
         }
     }
     

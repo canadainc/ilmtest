@@ -5,6 +5,8 @@
 
 #include "IlmHelper.h"
 
+#define ID_TO_QSTR(t) TextUtils::e2s<QueryId>(t)
+
 namespace ilmtest {
 
 struct Destiny
@@ -26,6 +28,7 @@ class Game : public QObject
     Q_PROPERTY(bool numeric READ numeric NOTIFY currentQuestionChanged)
     Q_PROPERTY(bool multipleChoice READ multipleChoice NOTIFY currentQuestionChanged)
     Q_PROPERTY(bool booleanQuestion READ booleanQuestion NOTIFY currentQuestionChanged)
+    Q_PROPERTY(bool customQuestion READ customQuestion NOTIFY currentQuestionChanged)
     Q_PROPERTY(int level READ level NOTIFY levelChanged)
 
     IlmHelper m_ilm;
@@ -64,6 +67,8 @@ public:
     bool multipleChoice() const;
     bool numeric() const;
     bool booleanQuestion() const;
+    bool customQuestion() const;
+    Destiny currentFate() const;
     int level() const;
 
     /**

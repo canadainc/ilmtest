@@ -44,6 +44,7 @@ Page
             
             onTriggered: {
                 console.log("UserEvent: SaveProfile");
+                reporter.record("SaveProfile");
 
                 nameValidator.validate();
                 kunyaValidator.validate();

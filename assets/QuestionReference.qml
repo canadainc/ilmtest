@@ -56,7 +56,9 @@ Container
                 onTriggered: {
                     var link = event.href.toString();
                     
-                    if ( link.match("\\d+") ) {
+                    if ( link.match("\\d+") )
+                    {
+                        reporter.record("OpenReference", uri+link);
                         persist.invoke( target, "", "", uri+link, "", global );
                     }
                     

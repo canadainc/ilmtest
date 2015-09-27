@@ -99,9 +99,6 @@ void LifelineManager::lazyInit()
     m_levelToLifeline.insertMulti( 5, LifelineData( Lifeline::FreezeTime, tr("Freeze Clock"), "images/list/lifelines/ic_lifeline_clock.png" ) );
     m_levelToLifeline.insertMulti( 10, LifelineData( Lifeline::ChangeQuestion, tr("Change the Question"), "images/list/lifelines/ic_lifeline_change.png" ) );
 
-    //m_levelToLifeline.insertMulti( 1, LifelineData( Lifeline::AskAnExpert, tr("Ask an Expert"), "images/list/lifelines/ic_lifeline_expert.png" ) );
-    //m_levelToLifeline.insertMulti( 1, LifelineData( Lifeline::TakeOne, tr("Take One"), "images/list/lifelines/ic_lifeline_take_one.png" ) );
-
     m_codeToLifeline[ LID_TO_QSTR(Lifeline::AskAnExpert) ] = LifelineData( Lifeline::AskAnExpert, tr("Ask an Expert"), "images/list/lifelines/ic_lifeline_expert.png" );
     m_codeToLifeline[ LID_TO_QSTR(Lifeline::SecondChance) ] = LifelineData( Lifeline::SecondChance, tr("Second Chance"), "images/list/lifelines/ic_lifeline_second.png" );
     m_codeToLifeline[ LID_TO_QSTR(Lifeline::TakeOne) ] = LifelineData( Lifeline::TakeOne, tr("Take One"), "images/list/lifelines/ic_lifelines_take_one.png" );
@@ -143,7 +140,7 @@ void LifelineManager::useLifeline(int key, bb::cascades::ArrayDataModel* adm, bb
 {
     LOGGER(key);
 
-    if ( m_codeToLifeline.contains( LID_TO_QSTR(key) ) ) {
+    if ( m_codeToLifeline.contains( keyToString(key) ) ) {
         m_shop->refundLifeline(key);
     }
 

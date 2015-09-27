@@ -50,6 +50,9 @@ NavigationPane
                 }
                 
                 onTriggered: {
+                    console.log("UserEvent: StartExam");
+                    reporter.record("StartExam");
+                    
                     var x = definition.init("ExamPage.qml");
                     x.nextQuestion();
                     
@@ -86,6 +89,9 @@ NavigationPane
                     }
                     
                     onBannerTapped: {
+                        console.log("UserEvent: BannedTapped");
+                        reporter.record("ProfileBannerTapped");
+                        
                         var p = definition.init("CreateProfilePage.qml");
                         p.saveProfile.connect(onCreate);
                         
@@ -112,6 +118,8 @@ NavigationPane
                                     
                                     function onPicked(userId)
                                     {
+                                        reporter.record("ProfileSwitched");
+                                        
                                         user.changeProfile(userId);
                                         popToRoot();
                                         
@@ -120,6 +128,8 @@ NavigationPane
                                     
                                     onTriggered: {
                                         console.log("UserEvent: ChangeProfile");
+                                        reporter.record("ChangeProfile");
+                                        
                                         definition.source = "UserProfilePickerPage.qml";
                                         var d = definition.createObject();
                                         d.picked.connect(onPicked);

@@ -14,6 +14,7 @@ Page
             
             onTriggered: {
                 console.log("UserEvent: CheckForUpdate");
+                reporter.record("CheckForUpdate");
                 enabled = false;
                 network.checkForUpdates();
             }
@@ -50,9 +51,10 @@ Page
         }
     }
     
-    function cleanUp() {
+    function cleanUp()
+    {
         network.updateCheckComplete.disconnect(updateCheck.onUpdateCheckComplete);
-        network.updateCheckComplete.connect(versionInfo.recompute);
+        network.updateCheckComplete.disconnect(versionInfo.recompute);
     }
     
     onCreationCompleted: {

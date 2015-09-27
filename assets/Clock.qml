@@ -11,6 +11,10 @@ Container
     scaleX: 0
     background: bg.imagePaint
     
+    function elapsed() {
+        return progress.toValue-currentValue;
+    }
+    
     function start()
     {
         if ( !scaler.isPlaying() && !scaler.isStarted() ) {

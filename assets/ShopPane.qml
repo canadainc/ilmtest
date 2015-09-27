@@ -46,12 +46,15 @@ NavigationPane
                 
                 onTriggered: {
                     var data = dataModel.data(indexPath);
+                    var diff = user.points-data.price;
                     
-                    if (data.price <= user.points)
+                    if (diff >= 0)
                     {
                         shop.purchase(data.value);
+                        reporter.record("PurchaseGood", data.value);
                         persist.showToast( qsTr("Purchased %1 for %2 points!").arg(data.title).arg(data.price), data.imageSource );
                     } else {
+                        reporter.record("InsufficientFunds", diff.toString());
                         persist.showToast( qsTr("Insufficient funds!"), "images/toast/insufficient_funds.png" );
                     }
                 }

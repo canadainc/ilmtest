@@ -21,7 +21,8 @@ QtObject
                 
                 clock.stop();
                 sound.playLifeLineSelect();
-                
+                user.recordLifeLine(key);
+
                 life.useLifeline(key, listView.dataModel, numericInput, listView.rearrangeHandler.active);
             }
         }

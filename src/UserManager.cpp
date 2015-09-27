@@ -4,9 +4,12 @@
 #include "AnalyticHelper.h"
 #include "CommonConstants.h"
 #include "DatabaseHelper.h"
+#include "Game.h"
+#include "Lifeline.h"
 #include "Logger.h"
 #include "Persistance.h"
 #include "QueryId.h"
+#include "TextUtils.h"
 
 #define KEY_MAX_LEVEL "highest_level"
 #define KEY_NUM_PLAYED "played"
@@ -42,8 +45,8 @@ UserProfile::UserProfile() :
 {
 }
 
-UserManager::UserManager(Persistance* persist, DatabaseHelper* db) :
-        m_persist(persist), m_db(db)
+UserManager::UserManager(Persistance* persist, DatabaseHelper* db, Game* game) :
+        m_persist(persist), m_db(db), m_game(game)
 {
 }
 
@@ -206,6 +209,10 @@ void UserManager::lazyInit()
     m_db->startTransaction(this, QueryId::Setup);
     m_db->executeInternal( QString("CREATE TABLE IF NOT EXISTS user_profiles (id INTEGER PRIMARY KEY, name TEXT NOT NULL, kunya TEXT, female INTEGER, points INTEGER DEFAULT 0, highest_level INTEGER DEFAULT 0, played INTEGER DEFAULT 0, UNIQUE(name,kunya,female) ON CONFLICT IGNORE)"), QueryId::Setup);
     m_db->executeInternal( QString("CREATE TABLE IF NOT EXISTS %1.chosen_answers (id INTEGER PRIMARY KEY, presented INTEGER NOT NULL DEFAULT 0, chosen INTEGER NOT NULL DEFAULT 0)").arg(ANALYTIC_DB_NAME), QueryId::Setup);
+    m_db->executeInternal( QString("CREATE TABLE IF NOT EXISTS %1.numeric_answers (id INTEGER PRIMARY KEY, question_type TEXT NOT NULL, question_id INTEGER, entry INTEGER NOT NULL)").arg(ANALYTIC_DB_NAME), QueryId::Setup);
+    m_db->executeInternal( QString("CREATE TABLE IF NOT EXISTS %1.question_answered (id INTEGER PRIMARY KEY, question_type TEXT NOT NULL, question_format TEXT NOT NULL, question_id INTEGER, elapsed INTEGER NOT NULL)").arg(ANALYTIC_DB_NAME), QueryId::Setup);
+    m_db->executeInternal( QString("CREATE TABLE IF NOT EXISTS %1.lifelines (id INTEGER PRIMARY KEY, question_type TEXT NOT NULL, question_format TEXT NOT NULL, question_id INTEGER, lifeline INTEGER NOT NULL)").arg(ANALYTIC_DB_NAME), QueryId::Setup);
+    m_db->executeInternal( QString("CREATE TABLE IF NOT EXISTS %1.test_results (id INTEGER PRIMARY KEY, question_type TEXT NOT NULL, question_id INTEGER, result INTEGER)").arg(ANALYTIC_DB_NAME), QueryId::Setup);
     m_db->endTransaction(this, QueryId::Setup);
 
     connect( QCoreApplication::instance(), SIGNAL( aboutToQuit() ), this, SLOT( commitChanges() ) );
@@ -213,33 +220,77 @@ void UserManager::lazyInit()
 }
 
 
-void UserManager::recordStats(bb::cascades::ArrayDataModel* adm, QVariantList const& selected)
+void UserManager::recordTestResult(bool passed)
 {
-    const QString summer = "COALESCE((SELECT %2 FROM chosen_answers WHERE id=?)+%1,%1)";
+    QVariantList args;
+    args << ID_TO_QSTR( m_game->currentFate().questionType );
+    args << m_game->currentFate().questionId;
+    args << passed;
 
-    QSet<int> selectedIndices;
-    foreach (QVariant const& q, selected) {
-        selectedIndices << q.toList().first().toInt();
-    }
+    m_db->executeInternal( QString("INSERT INTO %1.test_results (question_type,question_id,result) VALUES (?,?,?)").arg(ANALYTIC_DB_NAME), QueryId::RecordStats, args );
+}
 
+
+void UserManager::recordStats(bb::cascades::ArrayDataModel* adm, QVariantList const& selected, bb::cascades::TextField* tf, int elapsed)
+{
     m_db->startTransaction(this, QueryId::RecordStats);
 
-    for (int i = adm->size()-1; i >= 0; i--)
+    if ( tf->isVisible() )
     {
-        QVariantMap qvm = adm->value(i).toMap();
+        QVariantList args;
+        args << ID_TO_QSTR( m_game->currentFate().questionType );
+        args << m_game->currentFate().questionId;
+        args << tf->text().trimmed().toInt();
 
-        if ( qvm.contains(KEY_ANSWER_ID) )
+        m_db->executeInternal( QString("INSERT INTO %1.numeric_answers (question_type,question_id,entry) VALUES (?,?,?)").arg(ANALYTIC_DB_NAME), QueryId::FetchAllProfiles, args );
+    } else {
+        QSet<int> selectedIndices;
+        foreach (QVariant const& q, selected) {
+            selectedIndices << q.toList().first().toInt();
+        }
+
+        const QString summer = "COALESCE((SELECT %2 FROM chosen_answers WHERE id=?)+%1,%1)";
+
+        for (int i = adm->size()-1; i >= 0; i--)
         {
-            QVariantList args;
-            args << qvm.value(KEY_ANSWER_ID);
-            args << qvm.value(KEY_ANSWER_ID);
-            args << qvm.value(KEY_ANSWER_ID);
+            QVariantMap qvm = adm->value(i).toMap();
 
-            m_db->executeInternal( QString("INSERT OR REPLACE INTO %3.chosen_answers (id,presented,chosen) VALUES (?,%1,%2)").arg( summer.arg(1).arg("presented") ).arg( summer.arg( selectedIndices.contains(i) ? 1 : 0 ).arg("chosen") ).arg(ANALYTIC_DB_NAME), QueryId::FetchAllProfiles, args );
+            if ( qvm.contains(KEY_ANSWER_ID) )
+            {
+                QVariantList args;
+                args << qvm.value(KEY_ANSWER_ID);
+                args << qvm.value(KEY_ANSWER_ID);
+                args << qvm.value(KEY_ANSWER_ID);
+
+                m_db->executeInternal( QString("INSERT OR REPLACE INTO %3.chosen_answers (id,presented,chosen) VALUES (?,%1,%2)").arg( summer.arg(1).arg("presented") ).arg( summer.arg( selectedIndices.contains(i) ? 1 : 0 ).arg("chosen") ).arg(ANALYTIC_DB_NAME), QueryId::FetchAllProfiles, args );
+            }
         }
     }
 
+    if (elapsed > 0)
+    {
+        QVariantList args;
+        args << ID_TO_QSTR( m_game->currentFate().questionType );
+        args << ID_TO_QSTR( m_game->currentFate().formatType );
+        args << m_game->currentFate().questionId;
+        args << elapsed;
+
+        m_db->executeInternal( QString("INSERT INTO %1.question_answered (question_type,question_format,question_id,elapsed) VALUES (?,?,?,?)").arg(ANALYTIC_DB_NAME), QueryId::RecordStats, args );
+    }
+
     m_db->endTransaction(this, QueryId::RecordStats);
+}
+
+
+void UserManager::recordLifeLine(int lifeKey)
+{
+    QVariantList args;
+    args << m_game->currentFate().questionId;
+    args << ID_TO_QSTR( m_game->currentFate().questionType );
+    args << ID_TO_QSTR( m_game->currentFate().formatType );
+    args << LID_TO_QSTR(lifeKey);
+
+    m_db->executeInternal( QString("INSERT INTO %1.lifelines (question_id,question_type,question_format,lifeline) VALUES (?,?,?,?)").arg(ANALYTIC_DB_NAME), QueryId::RecordStats, args );
 }
 
 
