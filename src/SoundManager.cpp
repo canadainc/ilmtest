@@ -37,7 +37,8 @@ void SoundManager::onSettingChanged(QVariant newValue, QVariant key)
 
         if ( !m_muted && m_map.isEmpty() )
         {
-            QStringList keys = QStringList() << FILE_CHOICE_PRESENT << FILE_CLOCK << FILE_CORRECT << FILE_INCORRECT << FILE_DESELECT_CHOICE << FILE_LIFELINE_SELECT << FILE_QUESTION_PRESENT << FILE_SELECT_CHOICE << FILE_USER_INPUT << FILE_MAIN_LOOP << FILE_LIFELINE_SUSPENSE/* << FILE_AUDIENCE_RESULTS */;
+            QStringList sfx = QStringList() << FILE_LIFELINE_SUSPENSE << FILE_AUDIENCE_RESULTS;
+            QStringList keys = QStringList() << FILE_LIFELINE_SELECT << FILE_DESELECT_CHOICE << FILE_CLOCK << FILE_MAIN_LOOP << FILE_CHOICE_PRESENT << FILE_CORRECT << FILE_INCORRECT << FILE_QUESTION_PRESENT << FILE_SELECT_CHOICE << FILE_USER_INPUT << FILE_MAIN_LOOP;
 
             foreach (QString const& key, keys)
             {
@@ -55,10 +56,8 @@ void SoundManager::onSettingChanged(QVariant newValue, QVariant key)
             foreach ( QString const& key, m_map.keys() )
             {
                 MediaPlayer* mp = m_map.value(key);
-                LOGGER( key << mp->prepare() );
+                mp->prepare();
             }
-
-            LOGGER( "Preparing" << keys.size() );
         }
 
         emit mutedChanged();

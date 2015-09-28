@@ -12,6 +12,7 @@ TabbedPane
         id: menuDef
         projectName: "ilmtest"
         allowDonations: true
+        analyticDiffDays: 5
         bbWorldID: "21198062"
         help.imageSource: "images/menu/ic_help.png"
         help.title: qsTr("Help") + Retranslate.onLanguageChanged
@@ -19,7 +20,7 @@ TabbedPane
         settings.title: qsTr("Settings") + Retranslate.onLanguageChanged
         
         onFinished: {
-            if ( clean && ( !persist.containsFlag("dbVersion") || (analyticResult == 0) ) ) {
+            if ( clean && ( !persist.containsFlag("dbVersion") || (analyticResult == 0 || analyticResult == 5) ) ) {
                 network.checkForUpdates();
             }
         }
