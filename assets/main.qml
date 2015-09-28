@@ -20,8 +20,15 @@ TabbedPane
         settings.title: qsTr("Settings") + Retranslate.onLanguageChanged
         
         onFinished: {
-            if ( clean && ( !persist.containsFlag("dbVersion") || (analyticResult == 0 || analyticResult == 5) ) ) {
-                network.checkForUpdates();
+            if (clean)
+            {
+                if ( !persist.containsFlag("dbVersion") || (analyticResult == 0 || analyticResult == 5) ) {
+                    network.checkForUpdates();
+                } else {
+                    tutorial.execAppMenu();
+                    tutorial.execActionBar( "homeTab", qsTr("The main controls for starting the game are in the %1 tab.").arg(welcomeTab.title), "b" );
+                    tutorial.execActionBar( "market", qsTr("To purchase additional lifelines and bonus enhancements for the game, you can visit the Market.").arg(shopTab.title) );
+                }
             }
         }
     }
