@@ -20,7 +20,8 @@ public:
         PhoneFriend,
         PopularOpinion,
         SecondChance,
-        TakeOne
+        TakeOne,
+        ExtendTime
     };
 };
 

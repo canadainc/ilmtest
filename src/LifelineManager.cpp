@@ -100,6 +100,7 @@ void LifelineManager::lazyInit()
     m_levelToLifeline.insertMulti( 10, LifelineData( Lifeline::ChangeQuestion, tr("Change the Question"), "images/list/lifelines/ic_lifeline_change.png" ) );
 
     m_codeToLifeline[ LID_TO_QSTR(Lifeline::AskAnExpert) ] = LifelineData( Lifeline::AskAnExpert, tr("Ask an Expert"), "images/list/lifelines/ic_lifeline_expert.png" );
+    m_codeToLifeline[ LID_TO_QSTR(Lifeline::ExtendTime) ] = LifelineData( Lifeline::ExtendTime, tr("Extend Clock"), "images/list/lifelines/ic_lifeline_add_clock.png" );
     m_codeToLifeline[ LID_TO_QSTR(Lifeline::SecondChance) ] = LifelineData( Lifeline::SecondChance, tr("Second Chance"), "images/list/lifelines/ic_lifeline_second.png" );
     m_codeToLifeline[ LID_TO_QSTR(Lifeline::TakeOne) ] = LifelineData( Lifeline::TakeOne, tr("Take One"), "images/list/lifelines/ic_lifelines_take_one.png" );
 }
@@ -259,6 +260,8 @@ void LifelineManager::useFriend(bb::cascades::ArrayDataModel* adm, bb::cascades:
 
 void LifelineManager::usePopularOpinion(bb::cascades::ArrayDataModel* adm, bb::cascades::TextField* tf, bool sorted)
 {
+    Q_UNUSED(tf);
+
     LOGGER(sorted);
 
     QVariantList data;

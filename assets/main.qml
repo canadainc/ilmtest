@@ -27,7 +27,7 @@ TabbedPane
                 } else {
                     tutorial.execAppMenu();
                     tutorial.execActionBar( "homeTab", qsTr("The main controls for starting the game are in the %1 tab.").arg(welcomeTab.title), "b" );
-                    tutorial.execActionBar( "market", qsTr("To purchase additional lifelines and bonus enhancements for the game, you can visit the Market.").arg(shopTab.title) );
+                    tutorial.execActionBar( "market", qsTr("To purchase additional lifelines and bonus enhancements for the game, you can visit the %1.").arg(shopTab.title) );
                 }
             }
         }

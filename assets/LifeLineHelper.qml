@@ -19,7 +19,12 @@ QtObject
             onTriggered: {
                 console.log( "UserEvent: "+life.keyToString(key) );
                 
-                clock.stop();
+                if (key == Lifeline.ExtendTime) {
+                    clock.currentValue += 30;
+                } else {
+                    clock.stop();
+                }
+                
                 sound.playLifeLineSelect();
                 user.recordLifeLine(key);
 
@@ -34,6 +39,7 @@ QtObject
         x.key = key;
         x.title = title;
         x.imageSource = image;
+        console.log("***", title, image, key)
         
         examPage.addAction(x);
     }
