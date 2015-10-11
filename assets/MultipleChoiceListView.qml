@@ -3,6 +3,7 @@ import bb.cascades 1.3
 ListView
 {
     property variant soundManager: sound
+    property bool expose: false
     signal layoutComplete()
     
     function reset()
@@ -55,7 +56,7 @@ ListView
                 enabled: ListItemData.disabled != 1
                 title: ListItemData.value.toString()
                 description: ListItemData.description ? ListItemData.description : ""
-                imageSource: ListItemData.none ? "images/list/choices/none.png" : "images/list/choices/%1.png".arg(ListItem.indexPath[0])
+                imageSource: ListItem.view.expose ? ListItemData.correct == 1 ? "images/list/choices/ca_correct.png" : "images/list/choices/ca_incorrect.png" : ListItemData.none ? "images/list/choices/none.png" : "images/list/choices/%1.png".arg(ListItem.indexPath[0])
                 opacity: 0
                 
                 ListItem.onInitializedChanged: {

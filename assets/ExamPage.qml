@@ -113,6 +113,12 @@ Page
             sound.playIncorrect();
             persist.showToast( qsTr("You failed!"), "images/toast/ic_incorrect.png" );
             reference.enabled = true;
+            
+            if (shop.isExposePurchased)
+            {
+                shop.refundPlugin(Plugin.ExposeAnswer);
+                listView.expose = true;
+            }
         }
         
         user.recordStats( adm, listView.selectionList(), numericInput, clock.savedElapsed, correctly );

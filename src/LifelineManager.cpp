@@ -224,6 +224,9 @@ void LifelineManager::useFiftyFifty(bb::cascades::ArrayDataModel* adm, bb::casca
 
 void LifelineManager::useFriend(bb::cascades::ArrayDataModel* adm, bb::cascades::TextField* tf, bool sorted)
 {
+    Q_UNUSED(adm);
+    Q_UNUSED(tf);
+
     LOGGER(sorted);
 
     QVariantList result;

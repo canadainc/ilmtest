@@ -18,6 +18,7 @@ class ShopManager : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QVariant model READ getModel FINAL)
+    Q_PROPERTY(bool isExposePurchased READ isExposePurchased FINAL)
 
     Persistance* m_persist;
     UserManager* m_user;
@@ -28,11 +29,15 @@ public:
     ShopManager(Persistance* p, UserManager* user);
     virtual ~ShopManager();
 
+    QStringList getPlugins();
     QStringList getLifelines();
     void refundLifeline(int lifeLineId);
+    Q_INVOKABLE void refundPlugin(int pluginId);
     QVariant getModel();
     Q_INVOKABLE void purchase(QString const& purchaseCode);
     void lazyInit();
+
+    bool isExposePurchased();
 };
 
 } /* namespace ilmtest */
