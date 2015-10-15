@@ -27,7 +27,6 @@ NavigationPane
             ListView
             {
                 id: listView
-                dataModel: shop.model
                 property variant userModel: user
                 
                 listItemComponents: [
@@ -43,6 +42,10 @@ NavigationPane
                         }
                     }
                 ]
+                
+                onCreationCompleted: {
+                    dataModel = shop.model;
+                }
                 
                 onTriggered: {
                     var data = dataModel.data(indexPath);

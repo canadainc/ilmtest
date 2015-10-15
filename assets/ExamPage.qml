@@ -18,7 +18,7 @@ Page
         sound.stopMainLoop();
     }
     
-    function nextQuestion()
+    function nextQuestion(sameLevel)
     {
         var result = global.randomInt(QueryId.Unknown+1, QueryId.TempArgument1-1);
         
@@ -28,7 +28,7 @@ Page
         
         var formatFlag = global.randomInt(QueryId.MultipleChoice, QueryId.TextInput);
         var truthFlag = global.randomInt(QueryId.GenerateTruth, QueryId.GenerateFalsehood);
-        game.nextQuestion(result, formatFlag, truthFlag);
+        game.nextQuestion(result, formatFlag, truthFlag, sameLevel);
     }
     
     function onNewQuestion()
@@ -39,6 +39,7 @@ Page
         reference.translationY = 300;
         mainContainer.opacity = 1;
         reference.enabled = false;
+        llp.secondChanceActive = false;
         
         var current = game.currentQuestion;
         var bodies = qb.getBodies(current.type);
@@ -101,13 +102,19 @@ Page
             }
         } else {
             sound.playIncorrect();
-            persist.showToast( qsTr("You failed!"), "images/toast/ic_incorrect.png" );
-            reference.enabled = true;
-            
-            if (shop.isExposePurchased)
-            {
-                shop.refundPlugin(Plugin.ExposeAnswer);
-                listView.expose = numericInput.expose = true;
+
+            if (llp.secondChanceActive) {
+                persist.showToast( qsTr("Your answer was incorrect! Here is your second chance!"), "images/list/lifelines/ic_lifeline_second.png" );
+                onNewQuestion();
+            } else {
+                persist.showToast( qsTr("You failed!"), "images/toast/ic_incorrect.png" );
+                reference.enabled = true;
+                
+                if (shop.isExposePurchased)
+                {
+                    shop.refundPlugin(Plugin.ExposeAnswer);
+                    listView.expose = numericInput.expose = true;
+                }
             }
         }
         

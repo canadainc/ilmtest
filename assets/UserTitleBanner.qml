@@ -11,42 +11,18 @@ Container
         orientation: LayoutOrientation.LeftToRight
     }
     
-    Container
+    ImageView
     {
-        layout: DockLayout {}
+        id: avatarImageView
         preferredHeight: 95
         preferredWidth: 95
+        imageSource: user.female ? "images/title/ic_female.png" : "images/title/ic_male.png"
         horizontalAlignment: HorizontalAlignment.Fill
         verticalAlignment: VerticalAlignment.Center
-        
-        ImageView
-        {
-            id: avatarImageView
-            imageSource: user.female ? "images/title/ic_female.png" : "images/title/ic_male.png"
-            horizontalAlignment: HorizontalAlignment.Fill
-            verticalAlignment: VerticalAlignment.Center
-            scalingMethod: ScalingMethod.AspectFill
-        }
-        
-        Container
-        {
-            horizontalAlignment: HorizontalAlignment.Fill
-            verticalAlignment: VerticalAlignment.Fill
-            background: Color.create("#aaaaaa")
-            layout: DockLayout {}
-            visible: false
-            
-            Label
-            {
-                textStyle.textAlign: TextAlign.Center
-                horizontalAlignment: HorizontalAlignment.Center
-                verticalAlignment: VerticalAlignment.Center
-                textStyle.color: Color.White
-            }
-        }
+        scalingMethod: ScalingMethod.AspectFill
     }
     
-    Container // holds name & description
+    Container
     {
         id: nameAndDescription
         horizontalAlignment: HorizontalAlignment.Fill

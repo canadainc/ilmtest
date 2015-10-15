@@ -69,7 +69,7 @@ void ShopManager::lazyInit()
 {
     MANUFACTURE_LIFELINE(Lifeline::AskAnExpert, tr("Ask an Expert"), tr("Always get the right answer!"), "images/list/lifelines/ic_lifeline_expert.png", 200);
     MANUFACTURE_LIFELINE(Lifeline::ExtendTime, tr("Extend Clock"), tr("Add an additional 30 seconds to the clock!"), "images/list/lifelines/ic_lifeline_add_clock.png", 50);
-    MANUFACTURE_LIFELINE(Lifeline::SecondChance, tr("Second Chance"), tr("Get two guesses to the correct answer"), "images/list/lifelines/ic_lifeline_second.png", 3000);
+    MANUFACTURE_LIFELINE(Lifeline::SecondChance, tr("Second Chance"), tr("Get two guesses to the correct answer"), "images/list/lifelines/ic_lifeline_second.png", 150);
     MANUFACTURE_LIFELINE(Lifeline::TakeOne, tr("Take One"), tr("Remove a wrong answer!"), "images/list/lifelines/ic_lifeline_take_one.png", 100);
 
     MANUFACTURE_PLUGIN(Plugin::ExposeAnswer, tr("Expose Answer"), tr("Display the correct answer if you get it wrong!"), "images/list/ic_expose.png", 15);

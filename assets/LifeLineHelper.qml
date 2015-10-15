@@ -3,6 +3,8 @@ import com.canadainc.data 1.0
 
 QtObject
 {
+    property bool secondChanceActive: false
+    
     function cleanUp()
     {
         life.lifeLineAvailable.disconnect(onAvailable);
@@ -29,6 +31,8 @@ QtObject
                 user.recordLifeLine(key);
 
                 life.useLifeline(key, listView.dataModel, numericInput, listView.rearrangeHandler.active);
+                
+                persist.showToast( qsTr("%1 used!").arg(title), imageSource.toString() );
             }
         }
     }
@@ -77,7 +81,9 @@ QtObject
             
             persist.showDialog( qsTr("Phone a Friend"), message );
         } else if (key == Lifeline.ChangeQuestion) {
-            examPage.nextQuestion();
+            examPage.nextQuestion(true);
+        } else if (key == Lifeline.SecondChance) {
+            secondChanceActive = true;
         }
     }
     

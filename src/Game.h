@@ -74,7 +74,7 @@ public:
     /**
      * @param numericFlag Either MultipleChoice or TextInput
      */
-    Q_SLOT void nextQuestion(int q, int requestedFormat=QueryId::MultipleChoice, int requestedBool=QueryId::GenerateTruth);
+    Q_SLOT void nextQuestion(int q, int requestedFormat=QueryId::MultipleChoice, int requestedBool=QueryId::GenerateTruth, bool sameLevel=false);
     Q_INVOKABLE QString formatQuestion(QString const& input);
     Q_INVOKABLE void reset();
     Q_SLOT void reloadQuestions();

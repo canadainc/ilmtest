@@ -303,10 +303,13 @@ QVariantList Game::generateNumeric(QVariantList data, QString const& key)
 }
 
 
-void Game::nextQuestion(int q, int requestedFormat, int requestedBool)
+void Game::nextQuestion(int q, int requestedFormat, int requestedBool, bool sameLevel)
 {
-    ++m_level;
-    emit levelChanged();
+    if (!sameLevel)
+    {
+        ++m_level;
+        emit levelChanged();
+    }
 
     m_destiny = Destiny(requestedFormat, q, requestedBool);
     m_arg1.clear();
