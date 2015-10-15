@@ -338,6 +338,8 @@ void IlmHelper::fetchDictionary(QObject* caller)
     QList<QueryId::Type> customTypes = m_typeToTable.keys();
     QStringList queries;
 
+    //customTypes = QList<QueryId::Type>() << QueryId::CustomOrderedQuestion;
+
     foreach (QueryId::Type t, customTypes) {
         queries << QString("SELECT id,%1 AS %2 FROM questions WHERE %3 NOT NULL AND source_id ISNULL").arg(t).arg(FIELD_COLUMN_TYPE).arg( m_typeToTable.value(t) );
     }

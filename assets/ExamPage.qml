@@ -31,8 +31,6 @@ Page
         game.nextQuestion(result, formatFlag, truthFlag);
     }
     
-    property int errorCount: 0
-    
     function onNewQuestion()
     {
         numericInput.reset();
@@ -42,45 +40,37 @@ Page
         mainContainer.opacity = 1;
         reference.enabled = false;
         
-        if (!game.numeric && !game.multipleChoice && !game.booleanQuestion) {
-            ++errorCount;
-            
-            if (errorCount < 5) {
-                nextQuestion();
-            }
-        } else {
-            var current = game.currentQuestion;
-            var bodies = qb.getBodies(current.type);
-            
-            if (current.reference) {
-                reference.apply(current.reference);
-            }
-            
-            if (current.question) {
-                question.text = current.question;
-            } else if (!game.booleanQuestion && bodies) {
-                bodies = bodies.choiceTexts;
-                question.text = game.formatQuestion( bodies[ global.randomInt(0, bodies.length-1) ] );
-            } else if (game.booleanQuestion) {
-                current.choices = offloader.generateBooleanChoices(question, bodies.trueStrings, bodies.falseStrings, bodies.truePrompts, bodies.falsePrompts, bodies.choiceTexts, bodies.corrects, bodies.incorrects, game.arg1);
-            }
-            
-            if (game.multipleChoice)
-            {
-                adm.clear();
-                adm.append(current.choices);
-                
-                listView.visible = true;
-                
-                if (current.ordered) {
-                    listView.rearrangeHandler.active = true;
-                }
-            } else if (game.numeric) {
-                numericInput.visible = true;
-            }
-            
-            clock.reset();
+        var current = game.currentQuestion;
+        var bodies = qb.getBodies(current.type);
+        
+        if (current.reference) {
+            reference.apply(current.reference);
         }
+        
+        if (current.question) {
+            question.text = current.question;
+        } else if (!game.booleanQuestion && bodies) {
+            bodies = bodies.choiceTexts;
+            question.text = game.formatQuestion( bodies[ global.randomInt(0, bodies.length-1) ] );
+        } else if (game.booleanQuestion) {
+            current.choices = offloader.generateBooleanChoices(question, bodies.trueStrings, bodies.falseStrings, bodies.truePrompts, bodies.falsePrompts, bodies.choiceTexts, bodies.corrects, bodies.incorrects, game.arg1);
+        }
+        
+        if (game.multipleChoice)
+        {
+            adm.clear();
+            adm.append(current.choices);
+            
+            listView.visible = true;
+            
+            if (current.ordered) {
+                listView.rearrangeHandler.active = true;
+            }
+        } else if (game.numeric) {
+            numericInput.visible = true;
+        }
+        
+        clock.reset();
     }
     
     function pendingInput()
@@ -117,7 +107,7 @@ Page
             if (shop.isExposePurchased)
             {
                 shop.refundPlugin(Plugin.ExposeAnswer);
-                listView.expose = true;
+                listView.expose = numericInput.expose = true;
             }
         }
         
@@ -139,7 +129,8 @@ Page
                 verticalAlignment: VerticalAlignment.Fill
                 layout: DockLayout {}
                 
-                Clock {
+                Clock
+                {
                     id: clock
                     
                     onExpired: {
@@ -212,6 +203,7 @@ Page
                 }
 
                 enabled = false;
+                numericInput.enabled = false;
                 clock.stop();
                 sound.stopMainLoop();
                 sound.playUserInput();
@@ -331,60 +323,18 @@ Page
                 }
             }
             
-            TextField
+            NumericInputField
             {
                 id: numericInput
-                inputMode: TextFieldInputMode.NumbersAndPunctuation
-                input.submitKey: SubmitKey.Submit
+
                 input.onSubmitted: {
                     reporter.record("NumericInputReturn");
                     finalAnswer.triggered();
                 }
                 
-                validator: Validator
-                {
-                    id: numericValidator
-                    errorMessage: qsTr("Only digits can be entered!") + Retranslate.onLanguageChanged
-                    mode: ValidationMode.FocusLost
-                    
-                    onValidate: {
-                        valid = /^\d+$/.test( numericInput.text.trim() );
-                    }
+                anim.onEnded: {
+                    pendingInput();
                 }
-                
-                function reset()
-                {
-                    visible = false;
-                    loseFocus();
-                    resetText();
-                    hintText = qsTr("Enter a numeric value");
-                }
-                
-                onVisibleChanged: {
-                    opacity = 0;
-                    
-                    if (visible) {
-                        if ( !ft.isPlaying() && !ft.isStarted() ) {
-                            ft.play();
-                        }
-                    } else {
-                        resetText();
-                    }
-                }
-                
-                animations: [
-                    FadeTransition {
-                        id: ft
-                        fromOpacity: 0
-                        toOpacity: 1
-                        duration: 1000
-                        easingCurve: StockCurve.ExponentialOut
-                        
-                        onEnded: {
-                            pendingInput();
-                        }
-                    }
-                ]
             }
         }
 

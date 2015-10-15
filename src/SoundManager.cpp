@@ -19,9 +19,26 @@
 #define FILE_USER_INPUT "asset:///audio/inputted.mp3"
 #define KEY_MUTE_SOUND "muteSfx"
 
-namespace ilmtest {
-
 using namespace bb::multimedia;
+
+namespace {
+
+void doPlayback(MediaPlayer* mp)
+{
+    if ( mp->mediaState() != MediaState::Started ) {
+        mp->play();
+    } else {
+        mp->seekTime(0);
+    }
+}
+
+void doPrepare(MediaPlayer* mp) {
+    mp->prepare();
+}
+
+}
+
+namespace ilmtest {
 
 SoundManager::SoundManager(Persistance* p) :
         m_persist(p), m_muted(false), m_loaded(0)
@@ -37,8 +54,9 @@ void SoundManager::onSettingChanged(QVariant newValue, QVariant key)
 
         if ( !m_muted && m_map.isEmpty() )
         {
-            QStringList sfx = QStringList() << FILE_LIFELINE_SUSPENSE << FILE_AUDIENCE_RESULTS << FILE_LIFELINE_SELECT << FILE_MAIN_LOOP;
-            QStringList keys = QStringList() << FILE_DESELECT_CHOICE << FILE_CLOCK << FILE_QUESTION_PRESENT << FILE_CHOICE_PRESENT << FILE_CORRECT << FILE_INCORRECT << FILE_SELECT_CHOICE << FILE_USER_INPUT;
+            // FILE_MAIN_LOOP
+            QStringList sfx = QStringList() << FILE_LIFELINE_SUSPENSE << FILE_AUDIENCE_RESULTS << FILE_LIFELINE_SELECT << FILE_INCORRECT;
+            QStringList keys = QStringList() << FILE_DESELECT_CHOICE << FILE_CLOCK << FILE_QUESTION_PRESENT << FILE_CHOICE_PRESENT << FILE_CORRECT << FILE_SELECT_CHOICE << FILE_USER_INPUT;
 
             foreach (QString const& key, keys)
             {
@@ -58,6 +76,12 @@ void SoundManager::onSettingChanged(QVariant newValue, QVariant key)
                 MediaPlayer* mp = m_map.value(key);
                 mp->prepare();
             }
+
+            MediaPlayer* mp = new MediaPlayer(this);
+
+            foreach (QString const& key, sfx) {
+                m_map.insert(key, mp);
+            }
         }
 
         emit mutedChanged();
@@ -67,6 +91,8 @@ void SoundManager::onSettingChanged(QVariant newValue, QVariant key)
 
 void SoundManager::mediaStateChanged(bb::multimedia::MediaState::Type mediaState)
 {
+    disconnect( sender(), SIGNAL( mediaStateChanged(bb::multimedia::MediaState::Type) ), this, SLOT( mediaStateChanged(bb::multimedia::MediaState::Type) ) );
+
     if (mediaState == MediaState::Prepared) {
         emit loadProgress( ++m_loaded, m_map.size() );
     }
@@ -101,11 +127,11 @@ void SoundManager::playSound(QString const& key)
 
         if (mp)
         {
-            if ( mp->mediaState() != MediaState::Started ) {
-                mp->play();
-            } else {
-                mp->seekTime(0);
+            if ( mp->sourceUrl().toString() != key ) {
+                mp->setSourceUrl(key);
             }
+
+            QtConcurrent::run(doPlayback, mp);
         }
     }
 }

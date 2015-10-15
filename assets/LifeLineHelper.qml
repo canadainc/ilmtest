@@ -39,7 +39,6 @@ QtObject
         x.key = key;
         x.title = title;
         x.imageSource = image;
-        console.log("***", title, image, key)
         
         examPage.addAction(x);
     }
@@ -77,6 +76,8 @@ QtObject
             }
             
             persist.showDialog( qsTr("Phone a Friend"), message );
+        } else if (key == Lifeline.ChangeQuestion) {
+            examPage.nextQuestion();
         }
     }
     
