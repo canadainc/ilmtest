@@ -1,6 +1,7 @@
 #include "precompiled.h"
 
 #include "ShopManager.h"
+#include "CommonConstants.h"
 #include "Lifeline.h"
 #include "Plugin.h"
 #include "Persistance.h"

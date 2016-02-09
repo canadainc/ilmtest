@@ -5,7 +5,7 @@
 
 #include "IlmHelper.h"
 
-#define ID_TO_QSTR(t) TextUtils::e2s<QueryId>(t)
+#define ID_TO_QSTR(t) CommonConstants::e2s<QueryId>(t)
 
 namespace ilmtest {
 

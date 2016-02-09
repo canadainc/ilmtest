@@ -1,7 +1,7 @@
 #ifndef PLUGIN_H_
 #define PLUGIN_H_
 
-#define PLUGID_TO_QSTR(t) QString( TextUtils::e2s<Plugin>(t) )
+#define PLUGID_TO_QSTR(t) QString( CommonConstants::e2s<Plugin>(t) )
 
 namespace ilmtest {
 

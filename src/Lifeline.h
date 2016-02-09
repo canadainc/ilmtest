@@ -1,7 +1,7 @@
 #ifndef LIFELINE_H_
 #define LIFELINE_H_
 
-#define LID_TO_QSTR(t) QString( TextUtils::e2s<Lifeline>(t) )
+#define LID_TO_QSTR(t) QString( CommonConstants::e2s<Lifeline>(t) )
 
 namespace ilmtest {
 

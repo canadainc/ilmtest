@@ -25,6 +25,18 @@ namespace ilmtest {
 struct CommonConstants
 {
     static QUrl generateHostUrl(QString const& path=QString());
+
+    template<class Enum>
+    static QString e2s(int t) {
+        return QString( Enum::staticMetaObject.enumerator(0).valueToKey(t) );
+    }
+
+    template<class Enum>
+    static QString s2e(QString const& t)
+    {
+        QByteArray qba = t.toUtf8();
+        return QString( Enum::staticMetaObject.enumerator(0).keyToValue( qba.constData() ) );
+    }
 };
 
 }
