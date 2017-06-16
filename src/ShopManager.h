@@ -25,6 +25,8 @@ class ShopManager : public QObject
     ArrayDataModel m_adm;
     QMap<QString,QVariant> m_market;
 
+    int getAvailableProductIndex(QString const& purchaseCode);
+
 public:
     ShopManager(Persistance* p, UserManager* user);
     virtual ~ShopManager();
@@ -35,6 +37,8 @@ public:
     Q_INVOKABLE void refundPlugin(int pluginId);
     QVariant getModel();
     Q_INVOKABLE void purchase(QString const& purchaseCode);
+    Q_INVOKABLE void purchasePlugin(int pluginId);
+    Q_INVOKABLE QVariantMap getAvailablePlugin(int pluginId);
     void lazyInit();
 
     bool isExposePurchased();

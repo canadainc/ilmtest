@@ -6,6 +6,7 @@
 #include "Lifeline.h"
 #include "Logger.h"
 #include "Persistance.h"
+#include "Plugin.h"
 #include "QueryId.h"
 #include "ThreadUtils.h"
 
@@ -25,6 +26,7 @@ void InvokeHelper::init(QString const& qmlDoc, QMap<QString, QObject*> const& co
 {
     qmlRegisterUncreatableType<Lifeline>("com.canadainc.data", 1, 0, "Lifeline", "Can't instantiate");
     qmlRegisterUncreatableType<QueryId>("com.canadainc.data", 1, 0, "QueryId", "Can't instantiate");
+    qmlRegisterUncreatableType<Plugin>("com.canadainc.data", 1, 0, "Plugin", "Can't instantiate");
 
     QmlDocument* qml = QmlDocument::create("asset:///GlobalProperties.qml").parent(this);
     QObject* global = qml->createRootObject<QObject>();

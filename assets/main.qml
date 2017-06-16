@@ -11,13 +11,10 @@ TabbedPane
     {
         id: menuDef
         projectName: "ilmtest"
-        allowDonations: true
-        analyticDiffDays: 5
+        //allowDonations: true
+        analyticDiffDays: 355
         bbWorldID: "21198062"
-        help.imageSource: "images/menu/ic_help.png"
-        help.title: qsTr("Help") + Retranslate.onLanguageChanged
-        settings.imageSource: "images/menu/ic_settings.png"
-        settings.title: qsTr("Settings") + Retranslate.onLanguageChanged
+        helpPageQml: "IlmTestHelp.qml"
         
         onFinished: {
             if (clean)

@@ -1,4 +1,5 @@
 import bb.cascades 1.3
+import com.canadainc.data 1.0
 
 NavigationPane
 {
@@ -32,6 +33,7 @@ NavigationPane
         actions: [
             ActionItem
             {
+                id: startExam
                 property bool soundsLoaded: false
                 ActionBar.placement: ActionBarPlacement.Signature
                 imageSource: "images/menu/ic_start.png"
@@ -49,14 +51,37 @@ NavigationPane
                     sound.loadProgress.connect(onLoading);
                 }
                 
+                function beginExam()
+                {
+                    var x = definition.init("ExamPage.qml");
+                    x.nextQuestion();
+                    navigationPane.push(x);
+                }
+                
+                function onFinished(confirmed)
+                {
+                    if (confirmed)
+                    {
+                        shop.purchasePlugin(Plugin.ExposeAnswer);
+
+                        var data = shop.getAvailablePlugin(Plugin.ExposeAnswer);
+                        persist.showToast( qsTr("Purchased %1 for %2 points!").arg(data.title).arg(data.price), data.imageSource );
+                    }
+                    
+                    beginExam();
+                }
+                
                 onTriggered: {
                     console.log("UserEvent: StartExam");
                     reporter.record("StartExam");
                     
-                    var x = definition.init("ExamPage.qml");
-                    x.nextQuestion();
+                    var plugin = shop.getAvailablePlugin(Plugin.ExposeAnswer);
                     
-                    navigationPane.push(x);
+                    if ( !shop.isExposePurchased && (user.points >= plugin.price) ) {
+                        persist.showConfirmDialog( startExam, qsTr("Would you like to purchase the %1 plugin for %2 points?\n\Description of the plugin: %3").arg(plugin.title).arg(plugin.price).arg(plugin.description) );
+                    } else {
+                        beginExam();
+                    }
                 }
             }
         ]

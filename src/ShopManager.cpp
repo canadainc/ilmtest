@@ -3,6 +3,7 @@
 #include "ShopManager.h"
 #include "CommonConstants.h"
 #include "Lifeline.h"
+#include "Logger.h"
 #include "Plugin.h"
 #include "Persistance.h"
 #include "TextUtils.h"
@@ -31,7 +32,7 @@ public:
     };
 };
 
-QVariantMap createProduct(QString const& name, QString const& description, QString const& image, int price, QString const& purchaseCode, PurchaseType::Type type)
+QVariantMap createProduct(QString const& name, QString const& description, QString const& image, int price, QString const& purchaseCode, int type)
 {
     QVariantMap qvm;
     qvm["title"] = name;
@@ -84,8 +85,6 @@ void ShopManager::lazyInit()
 
     m_adm.clear();
     m_adm.append( map.values() );
-
-    qmlRegisterUncreatableType<Plugin>("com.canadainc.data", 1, 0, "Plugin", "Can't instantiate");
 }
 
 
@@ -118,39 +117,58 @@ void ShopManager::refundPlugin(int pluginId)
 
 void ShopManager::purchase(QString const& purchaseCode)
 {
+    int i = getAvailableProductIndex(purchaseCode);
+    QVariantMap current = m_adm.value(i).toMap();
+
+    int price = current.value(KEY_PURCHASE_PRICE).toInt();
+    m_adm.removeAt(i);
+    m_user->setPoints( m_user->points()-price );
+
+    int type = current.value(KEY_GOOD_TYPE).toInt();
+
+    if (type == PurchaseType::Lifeline)
+    {
+        QStringList purchased = getLifelines();
+        purchased << purchaseCode;
+        m_persist->saveValueFor(KEY_PURCHASED_LIFELINES, purchased, false);
+    } else if (type == PurchaseType::Plugin) {
+        QStringList purchased = getPlugins();
+        purchased << purchaseCode;
+        m_persist->saveValueFor(KEY_PURCHASED_PLUGINS, purchased, false);
+    }
+}
+
+
+int ShopManager::getAvailableProductIndex(QString const& purchaseCode)
+{
     for (int i = m_adm.size()-1; i >= 0; i--)
     {
         QVariantMap current = m_adm.value(i).toMap();
 
-        if ( current.value(KEY_PURCHASE_CODE).toString() == purchaseCode )
-        {
-            int price = current.value(KEY_PURCHASE_PRICE).toInt();
-            m_adm.removeAt(i);
-            m_user->setPoints( m_user->points()-price );
-
-            int type = current.value(KEY_GOOD_TYPE).toInt();
-
-            if (type == PurchaseType::Lifeline)
-            {
-                QStringList purchased = getLifelines();
-                purchased << purchaseCode;
-                m_persist->saveValueFor(KEY_PURCHASED_LIFELINES, purchased, false);
-            } else if (type == PurchaseType::Plugin) {
-                QStringList purchased = getPlugins();
-                purchased << purchaseCode;
-                m_persist->saveValueFor(KEY_PURCHASED_PLUGINS, purchased, false);
-            }
-
-            break;
+        if ( current.value(KEY_PURCHASE_CODE).toString() == purchaseCode ) {
+            return i;
         }
     }
+
+    return -1;
+}
+
+
+void ShopManager::purchasePlugin(int pluginId) {
+    purchase( PLUGID_TO_QSTR(pluginId) );
+}
+
+
+QVariantMap ShopManager::getAvailablePlugin(int pluginId)
+{
+    int i = getAvailableProductIndex( PLUGID_TO_QSTR(pluginId) );
+    return m_adm.value(i).toMap();
 }
 
 
 bool ShopManager::isExposePurchased() {
     return getPlugins().contains( PLUGID_TO_QSTR(Plugin::ExposeAnswer) );
 }
-
 
 ShopManager::~ShopManager()
 {
